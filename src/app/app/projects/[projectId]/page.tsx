@@ -946,33 +946,22 @@ export default function ProjectDetailPage() {
       unitPrice: number
       total: number
     }>>([])
+    const [showAddMaterialModal, setShowAddMaterialModal] = useState(false)
+    const [availableProducts, setAvailableProducts] = useState(products)
 
     const availableFeatures = [
-      { type: 'PATIO', label: 'Patio', unit: 'SQM', basePrice: 150 },
-      { type: 'TURF', label: 'Turf/Lawn', unit: 'SQM', basePrice: 45 },
-      { type: 'DECKING', label: 'Decking', unit: 'SQM', basePrice: 120 },
-      { type: 'PERGOLA', label: 'Pergola', unit: 'UNIT', basePrice: 1200 },
-      { type: 'FENCING', label: 'Fencing', unit: 'METRE', basePrice: 85 },
-      { type: 'RAISED_BED', label: 'Raised Bed', unit: 'SQM', basePrice: 95 },
-      { type: 'LIGHTING', label: 'Garden Lighting', unit: 'UNIT', basePrice: 180 },
-      { type: 'WATER_FEATURE', label: 'Water Feature', unit: 'UNIT', basePrice: 1500 },
-      { type: 'PATHWAY', label: 'Pathway', unit: 'SQM', basePrice: 75 },
-      { type: 'PLANTING_BED', label: 'Planting Bed', unit: 'SQM', basePrice: 65 },
-      { type: 'GRAVEL_AREA', label: 'Gravel Area', unit: 'SQM', basePrice: 35 },
-      { type: 'FIRE_PIT', label: 'Fire Pit', unit: 'UNIT', basePrice: 800 }
-    ]
-
-    const availableProducts = [
-      { id: 'p1', name: 'Premium Paving Slabs', category: 'PATIO', price: 45.99, unit: 'SQM' },
-      { id: 'p2', name: 'Natural Stone Blocks', category: 'PATIO', price: 65.50, unit: 'SQM' },
-      { id: 'p3', name: 'Quality Turf Roll', category: 'TURF', price: 8.99, unit: 'SQM' },
-      { id: 'p4', name: 'Grass Seed Premium', category: 'TURF', price: 12.50, unit: 'KG' },
-      { id: 'p5', name: 'Composite Decking Boards', category: 'DECKING', price: 85.00, unit: 'SQM' },
-      { id: 'p6', name: 'Hardwood Decking', category: 'DECKING', price: 120.00, unit: 'SQM' },
-      { id: 'p7', name: 'LED Path Lights', category: 'LIGHTING', price: 45.99, unit: 'UNIT' },
-      { id: 'p8', name: 'Solar Garden Lights', category: 'LIGHTING', price: 25.99, unit: 'UNIT' },
-      { id: 'p9', name: 'Fence Panels 6ft', category: 'FENCING', price: 35.99, unit: 'UNIT' },
-      { id: 'p10', name: 'Fence Posts', category: 'FENCING', price: 12.50, unit: 'UNIT' }
+      { type: 'PATIO', label: 'Patio', unit: 'SQM' },
+      { type: 'TURF', label: 'Turf/Lawn', unit: 'SQM' },
+      { type: 'DECKING', label: 'Decking', unit: 'SQM' },
+      { type: 'PERGOLA', label: 'Pergola', unit: 'UNIT' },
+      { type: 'FENCING', label: 'Fencing', unit: 'METRE' },
+      { type: 'RAISED_BED', label: 'Raised Bed', unit: 'SQM' },
+      { type: 'LIGHTING', label: 'Garden Lighting', unit: 'UNIT' },
+      { type: 'WATER_FEATURE', label: 'Water Feature', unit: 'UNIT' },
+      { type: 'PATHWAY', label: 'Pathway', unit: 'SQM' },
+      { type: 'PLANTING_BED', label: 'Planting Bed', unit: 'SQM' },
+      { type: 'GRAVEL_AREA', label: 'Gravel Area', unit: 'SQM' },
+      { type: 'FIRE_PIT', label: 'Fire Pit', unit: 'UNIT' }
     ]
 
     const addFeature = (featureType: string) => {
@@ -985,6 +974,26 @@ export default function ProjectDetailPage() {
           notes: '',
           id: `${feature.type}-${Date.now()}`
         }])
+      }
+    }
+
+    const handleAddMaterial = async (materialData: any) => {
+      try {
+        const response = await fetch('/api/products', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(materialData)
+        })
+
+        if (!response.ok) throw new Error('Failed to create material')
+
+        const newMaterial = await response.json()
+        setAvailableProducts(prev => [...prev, newMaterial])
+        setShowAddMaterialModal(false)
+      } catch (error) {
+        console.error('Error adding material:', error)
       }
     }
 
@@ -1025,15 +1034,10 @@ export default function ProjectDetailPage() {
     }
 
     const calculateTotal = () => {
-      const featuresTotal = selectedFeatures.reduce((sum, feature) => {
-        const featureType = availableFeatures.find(f => f.type === feature.type)
-        return sum + (featureType?.basePrice || 0) * feature.size
-      }, 0)
-
       const productsTotal = selectedProducts.reduce((sum, product) =>
         sum + product.total, 0)
 
-      const subtotal = featuresTotal + productsTotal
+      const subtotal = productsTotal
       const vat = subtotal * 0.2
       return { subtotal, vat, total: subtotal + vat }
     }
@@ -1125,7 +1129,7 @@ export default function ProjectDetailPage() {
                         className="p-3 border border-gray-300 rounded-lg hover:bg-blue-50 hover:border-blue-300 text-left"
                       >
                         <div className="font-medium">{feature.label}</div>
-                        <div className="text-sm text-gray-600">{formatCurrency(feature.basePrice)}/{feature.unit}</div>
+                        <div className="text-sm text-gray-600">Unit: {feature.unit}</div>
                       </button>
                     ))}
                   </div>
@@ -1150,28 +1154,18 @@ export default function ProjectDetailPage() {
                                   Remove
                                 </button>
                               </div>
-                              <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                  <label className="block text-sm font-medium mb-1">
-                                    Size ({feature.unit})
-                                  </label>
-                                  <input
-                                    type="number"
-                                    min="0.1"
-                                    step="0.1"
-                                    value={feature.size}
-                                    onChange={(e) => updateFeature(feature.id, 'size', parseFloat(e.target.value) || 0)}
-                                    className="w-full p-2 border rounded"
-                                  />
-                                </div>
-                                <div>
-                                  <label className="block text-sm font-medium mb-1">
-                                    Estimated Cost
-                                  </label>
-                                  <div className="p-2 bg-gray-100 rounded">
-                                    {formatCurrency((featureType?.basePrice || 0) * feature.size)}
-                                  </div>
-                                </div>
+                              <div className="mb-3">
+                                <label className="block text-sm font-medium mb-1">
+                                  Size ({feature.unit})
+                                </label>
+                                <input
+                                  type="number"
+                                  min="0.1"
+                                  step="0.1"
+                                  value={feature.size}
+                                  onChange={(e) => updateFeature(feature.id, 'size', parseFloat(e.target.value) || 0)}
+                                  className="w-full p-2 border rounded"
+                                />
                               </div>
                               <div className="mt-3">
                                 <label className="block text-sm font-medium mb-1">
@@ -1196,7 +1190,7 @@ export default function ProjectDetailPage() {
 
               {step === 2 && (
                 <div>
-                  <h3 className="text-lg font-semibold mb-4">Step 2: Add Products to Features</h3>
+                  <h3 className="text-lg font-semibold mb-4">Step 2: Add Materials to Features</h3>
 
                   {selectedFeatures.map((feature) => {
                     const featureType = availableFeatures.find(f => f.type === feature.type)
@@ -1205,31 +1199,56 @@ export default function ProjectDetailPage() {
 
                     return (
                       <div key={feature.id} className="border rounded-lg p-4 mb-4">
-                        <h4 className="font-medium mb-3">
-                          {featureType?.label} ({feature.size} {feature.unit})
-                        </h4>
-
-                        {/* Available Products for this feature */}
-                        <div className="grid grid-cols-2 gap-3 mb-4">
-                          {relatedProducts.map((product) => (
-                            <div key={product.id} className="border rounded p-3">
-                              <div className="flex justify-between items-start">
-                                <div>
-                                  <div className="font-medium text-sm">{product.name}</div>
-                                  <div className="text-sm text-gray-600">
-                                    {formatCurrency(product.price)}/{product.unit}
-                                  </div>
-                                </div>
-                                <button
-                                  onClick={() => addProduct(feature.id, product, 1)}
-                                  className="bg-blue-600 text-white px-2 py-1 rounded text-sm hover:bg-blue-700"
-                                >
-                                  Add
-                                </button>
-                              </div>
-                            </div>
-                          ))}
+                        <div className="flex justify-between items-center mb-3">
+                          <h4 className="font-medium">
+                            {featureType?.label} ({feature.size} {feature.unit})
+                          </h4>
+                          {relatedProducts.length === 0 && (
+                            <button
+                              onClick={() => setShowAddMaterialModal(true)}
+                              className="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700"
+                            >
+                              + Add Material
+                            </button>
+                          )}
                         </div>
+
+                        {/* Available Materials for this feature */}
+                        {relatedProducts.length > 0 ? (
+                          <div className="grid grid-cols-2 gap-3 mb-4">
+                            {relatedProducts.map((product) => (
+                              <div key={product.id} className="border rounded p-3">
+                                <div className="flex justify-between items-start">
+                                  <div>
+                                    <div className="font-medium text-sm">{product.name}</div>
+                                    <div className="text-sm text-gray-600">
+                                      {formatCurrency(product.price)}/{product.unit}
+                                    </div>
+                                  </div>
+                                  <button
+                                    onClick={() => addProduct(feature.id, product, 1)}
+                                    className="bg-blue-600 text-white px-2 py-1 rounded text-sm hover:bg-blue-700"
+                                  >
+                                    Add
+                                  </button>
+                                </div>
+                              </div>
+                            ))}
+                            <div className="border-2 border-dashed border-gray-300 rounded p-3 flex items-center justify-center">
+                              <button
+                                onClick={() => setShowAddMaterialModal(true)}
+                                className="text-gray-600 hover:text-gray-800 text-sm"
+                              >
+                                + Add New Material
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="text-center py-6 text-gray-500">
+                            <p className="mb-2">No materials available for {featureType?.label}</p>
+                            <p className="text-sm">Click "Add Material" to add materials to your catalog</p>
+                          </div>
+                        )}
 
                         {/* Selected Products */}
                         {featureProducts.length > 0 && (
@@ -1274,29 +1293,35 @@ export default function ProjectDetailPage() {
                   <div className="space-y-4">
                     <h4 className="font-medium">Quote Summary</h4>
 
-                    {/* Features Summary */}
+                    {/* Features Summary (no pricing) */}
                     <div>
                       <h5 className="font-medium mb-2">Garden Features:</h5>
                       {selectedFeatures.map((feature) => {
                         const featureType = availableFeatures.find(f => f.type === feature.type)
                         return (
-                          <div key={feature.id} className="flex justify-between py-2 border-b">
+                          <div key={feature.id} className="py-2 border-b">
                             <span>{featureType?.label} ({feature.size} {feature.unit})</span>
-                            <span>{formatCurrency((featureType?.basePrice || 0) * feature.size)}</span>
+                            {feature.notes && (
+                              <div className="text-sm text-gray-600 mt-1">{feature.notes}</div>
+                            )}
                           </div>
                         )
                       })}
                     </div>
 
-                    {/* Products Summary */}
+                    {/* Materials Summary */}
                     <div>
-                      <h5 className="font-medium mb-2">Products:</h5>
-                      {selectedProducts.map((product, index) => (
-                        <div key={index} className="flex justify-between py-2 border-b">
-                          <span>{product.productName} (x{product.quantity})</span>
-                          <span>{formatCurrency(product.total)}</span>
-                        </div>
-                      ))}
+                      <h5 className="font-medium mb-2">Materials & Pricing:</h5>
+                      {selectedProducts.length === 0 ? (
+                        <p className="text-gray-500 py-2">No materials selected</p>
+                      ) : (
+                        selectedProducts.map((product, index) => (
+                          <div key={index} className="flex justify-between py-2 border-b">
+                            <span>{product.productName} (x{product.quantity})</span>
+                            <span>{formatCurrency(product.total)}</span>
+                          </div>
+                        ))
+                      )}
                     </div>
 
                     {/* Totals */}
@@ -1319,30 +1344,66 @@ export default function ProjectDetailPage() {
               )}
             </div>
 
-            {/* Quote Total Sidebar */}
+            {/* Sidebar - Different content per step */}
             <div className="w-1/4 p-6 bg-gray-50 border-l">
-              <h3 className="font-semibold mb-4">Quote Total</h3>
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span>Features:</span>
-                  <span>{formatCurrency(selectedFeatures.reduce((sum, feature) => {
-                    const featureType = availableFeatures.find(f => f.type === feature.type)
-                    return sum + (featureType?.basePrice || 0) * feature.size
-                  }, 0))}</span>
+              {step === 1 && (
+                <div>
+                  <h3 className="font-semibold mb-4">Selected Features</h3>
+                  {selectedFeatures.length === 0 ? (
+                    <p className="text-gray-500 text-sm">No features selected yet</p>
+                  ) : (
+                    <div className="space-y-2">
+                      {selectedFeatures.map((feature) => {
+                        const featureType = availableFeatures.find(f => f.type === feature.type)
+                        return (
+                          <div key={feature.id} className="text-sm">
+                            <div className="font-medium">{featureType?.label}</div>
+                            <div className="text-gray-600">{feature.size} {feature.unit}</div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )}
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span>Products:</span>
-                  <span>{formatCurrency(selectedProducts.reduce((sum, product) => sum + product.total, 0))}</span>
+              )}
+
+              {step === 2 && (
+                <div>
+                  <h3 className="font-semibold mb-4">Materials Added</h3>
+                  {selectedProducts.length === 0 ? (
+                    <p className="text-gray-500 text-sm">No materials added yet</p>
+                  ) : (
+                    <div className="space-y-2">
+                      {selectedProducts.map((product) => (
+                        <div key={`${product.featureId}-${product.productId}`} className="text-sm">
+                          <div className="font-medium">{product.productName}</div>
+                          <div className="text-gray-600">Qty: {product.quantity}</div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span>VAT (20%):</span>
-                  <span>{formatCurrency(calculateTotal().vat)}</span>
+              )}
+
+              {step === 3 && (
+                <div>
+                  <h3 className="font-semibold mb-4">Quote Total</h3>
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span>Materials:</span>
+                      <span>{formatCurrency(selectedProducts.reduce((sum, product) => sum + product.total, 0))}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span>VAT (20%):</span>
+                      <span>{formatCurrency(calculateTotal().vat)}</span>
+                    </div>
+                    <div className="flex justify-between font-bold pt-2 border-t">
+                      <span>Total:</span>
+                      <span>{formatCurrency(calculateTotal().total)}</span>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex justify-between font-bold pt-2 border-t">
-                  <span>Total:</span>
-                  <span>{formatCurrency(calculateTotal().total)}</span>
-                </div>
-              </div>
+              )}
             </div>
           </div>
 
@@ -1384,7 +1445,184 @@ export default function ProjectDetailPage() {
             </div>
           </div>
         </div>
+
+        {/* Add Material Modal */}
+        {showAddMaterialModal && <AddMaterialModal />}
       </div>
     )
+
+    // Add Material Modal Component
+    function AddMaterialModal() {
+      const [materialData, setMaterialData] = useState({
+        name: '',
+        price: '',
+        unit: 'UNIT',
+        category: '',
+        sku: '',
+        supplierName: '',
+        supplierUrl: '',
+        description: ''
+      })
+
+      const handleSaveMaterial = async () => {
+        try {
+          await handleAddMaterial(materialData)
+          setMaterialData({
+            name: '',
+            price: '',
+            unit: 'UNIT',
+            category: '',
+            sku: '',
+            supplierName: '',
+            supplierUrl: '',
+            description: ''
+          })
+        } catch (error) {
+          console.error('Error saving material:', error)
+        }
+      }
+
+      return (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60] p-4">
+          <div className="bg-white rounded-lg max-w-md w-full max-h-[80vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold">Add Material</h3>
+                <button
+                  onClick={() => setShowAddMaterialModal(false)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">Material Name *</label>
+                  <input
+                    type="text"
+                    placeholder="e.g., Premium Lawn Turf"
+                    value={materialData.name}
+                    onChange={(e) => setMaterialData({...materialData, name: e.target.value})}
+                    className="w-full p-2 border rounded"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-1">Price *</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    placeholder="0.00"
+                    value={materialData.price}
+                    onChange={(e) => setMaterialData({...materialData, price: e.target.value})}
+                    className="w-full p-2 border rounded"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-1">Unit</label>
+                  <select
+                    value={materialData.unit}
+                    onChange={(e) => setMaterialData({...materialData, unit: e.target.value})}
+                    className="w-full p-2 border rounded"
+                  >
+                    <option value="UNIT">Each (UNIT)</option>
+                    <option value="SQM">Square Metre (SQM)</option>
+                    <option value="METRE">Metre (METRE)</option>
+                    <option value="KG">Kilogram (KG)</option>
+                    <option value="BAG">Bag (BAG)</option>
+                    <option value="LITRE">Litre (LITRE)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-1">Category</label>
+                  <select
+                    value={materialData.category}
+                    onChange={(e) => setMaterialData({...materialData, category: e.target.value})}
+                    className="w-full p-2 border rounded"
+                  >
+                    <option value="">Select a category</option>
+                    <option value="PATIO">Patio</option>
+                    <option value="TURF">Turf/Lawn</option>
+                    <option value="DECKING">Decking</option>
+                    <option value="PERGOLA">Pergola</option>
+                    <option value="FENCING">Fencing</option>
+                    <option value="RAISED_BED">Raised Bed</option>
+                    <option value="LIGHTING">Garden Lighting</option>
+                    <option value="WATER_FEATURE">Water Feature</option>
+                    <option value="PATHWAY">Pathway</option>
+                    <option value="PLANTING_BED">Planting Bed</option>
+                    <option value="GRAVEL_AREA">Gravel Area</option>
+                    <option value="FIRE_PIT">Fire Pit</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-1">SKU</label>
+                  <input
+                    type="text"
+                    placeholder="Product SKU"
+                    value={materialData.sku}
+                    onChange={(e) => setMaterialData({...materialData, sku: e.target.value})}
+                    className="w-full p-2 border rounded"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-1">Supplier</label>
+                  <input
+                    type="text"
+                    placeholder="Supplier name"
+                    value={materialData.supplierName}
+                    onChange={(e) => setMaterialData({...materialData, supplierName: e.target.value})}
+                    className="w-full p-2 border rounded"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-1">Supplier URL</label>
+                  <input
+                    type="url"
+                    placeholder="https://supplier-website.com/product"
+                    value={materialData.supplierUrl}
+                    onChange={(e) => setMaterialData({...materialData, supplierUrl: e.target.value})}
+                    className="w-full p-2 border rounded"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-1">Description</label>
+                  <textarea
+                    placeholder="Material description..."
+                    value={materialData.description}
+                    onChange={(e) => setMaterialData({...materialData, description: e.target.value})}
+                    className="w-full p-2 border rounded"
+                    rows={3}
+                  />
+                </div>
+              </div>
+
+              <div className="flex gap-3 mt-6">
+                <button
+                  onClick={() => setShowAddMaterialModal(false)}
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSaveMaterial}
+                  disabled={!materialData.name || !materialData.price}
+                  className="flex-1 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50"
+                >
+                  Add Material
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )
+    }
   }
 }
