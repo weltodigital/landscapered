@@ -4,9 +4,10 @@ import { prisma } from '@/lib/prisma'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { projectId: string } }
+  { params }: { params: Promise<{ projectId: string }> }
 ) {
   try {
+    const { projectId } = await params
     const organisation = await getCurrentUserOrganisation()
 
     if (!organisation) {
@@ -18,7 +19,7 @@ export async function GET(
 
     const project = await prisma.project.findUnique({
       where: {
-        id: params.projectId,
+        id: projectId,
         organisationId: organisation.id
       },
       include: {
@@ -61,9 +62,10 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { projectId: string } }
+  { params }: { params: Promise<{ projectId: string }> }
 ) {
   try {
+    const { projectId } = await params
     const body = await request.json()
     const organisation = await getCurrentUserOrganisation()
 
@@ -76,7 +78,7 @@ export async function PATCH(
 
     const project = await prisma.project.findUnique({
       where: {
-        id: params.projectId,
+        id: projectId,
         organisationId: organisation.id
       }
     })
@@ -89,7 +91,7 @@ export async function PATCH(
     }
 
     const updatedProject = await prisma.project.update({
-      where: { id: params.projectId },
+      where: { id: projectId },
       data: {
         ...(body.title && { title: body.title }),
         ...(body.clientName && { clientName: body.clientName }),
@@ -121,9 +123,10 @@ export async function PATCH(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { projectId: string } }
+  { params }: { params: Promise<{ projectId: string }> }
 ) {
   try {
+    const { projectId } = await params
     const organisation = await getCurrentUserOrganisation()
 
     if (!organisation) {
@@ -135,7 +138,7 @@ export async function DELETE(
 
     const project = await prisma.project.findUnique({
       where: {
-        id: params.projectId,
+        id: projectId,
         organisationId: organisation.id
       }
     })
@@ -148,7 +151,7 @@ export async function DELETE(
     }
 
     await prisma.project.delete({
-      where: { id: params.projectId }
+      where: { id: projectId }
     })
 
     return NextResponse.json({ success: true })

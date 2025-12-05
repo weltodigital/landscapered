@@ -98,7 +98,7 @@ export async function POST(
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { projectId: string } }
+  { params }: { params: Promise<{ projectId: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -110,8 +110,10 @@ export async function GET(
       )
     }
 
+    const { projectId } = await params
+
     // Filter quotes for current user and project
-    const projectQuotes = getQuotesByProject(params.projectId, session.user.email)
+    const projectQuotes = getQuotesByProject(projectId, session.user.email)
 
     return NextResponse.json(projectQuotes)
 

@@ -5,9 +5,10 @@ import { generateQuoteFromDesign } from '@/lib/quotes/quoteGenerator'
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { designConceptId: string } }
+  { params }: { params: Promise<{ designConceptId: string }> }
 ) {
   try {
+    const { designConceptId } = await params
     const organisation = await getCurrentUserOrganisation()
 
     if (!organisation) {
@@ -20,7 +21,7 @@ export async function POST(
     // Verify design concept exists and belongs to user's organisation
     const designConcept = await prisma.designConcept.findFirst({
       where: {
-        id: params.designConceptId,
+        id: designConceptId,
         project: {
           organisationId: organisation.id
         }
@@ -85,7 +86,7 @@ export async function POST(
     const savedQuote = await prisma.quote.create({
       data: {
         projectId: designConcept.project.id,
-        designConceptId: params.designConceptId,
+        designConceptId: designConceptId,
         subtotal: quoteData.subtotal,
         profit: quoteData.profit,
         total: quoteData.total,

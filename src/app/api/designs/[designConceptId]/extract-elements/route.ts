@@ -5,9 +5,10 @@ import { extractDesignElements } from '@/lib/ai/gardenDesignService'
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { designConceptId: string } }
+  { params }: { params: Promise<{ designConceptId: string }> }
 ) {
   try {
+    const { designConceptId } = await params
     const organisation = await getCurrentUserOrganisation()
 
     if (!organisation) {
@@ -20,7 +21,7 @@ export async function POST(
     // Verify design concept exists and belongs to user's organisation
     const designConcept = await prisma.designConcept.findFirst({
       where: {
-        id: params.designConceptId,
+        id: designConceptId,
         project: {
           organisationId: organisation.id
         }
@@ -50,14 +51,14 @@ export async function POST(
     }
 
     // Extract design elements using mock AI service
-    const extractedElements = await extractDesignElements(params.designConceptId)
+    const extractedElements = await extractDesignElements(designConceptId)
 
     // Save the extracted elements to database
     const savedElements = await Promise.all(
       extractedElements.map((element) =>
         prisma.designElement.create({
           data: {
-            designConceptId: params.designConceptId,
+            designConceptId: designConceptId,
             elementType: element.elementType,
             quantityNumeric: element.quantityNumeric,
             unit: element.unit,
