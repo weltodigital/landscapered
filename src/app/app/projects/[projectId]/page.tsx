@@ -875,75 +875,18 @@ export default function ProjectDetailPage() {
         )}
       </div>
 
-      {/* Design & Quote Modal */}
+      {/* Design & Quote Modal - TEMPORARILY DISABLED */}
       {selectedDesign && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-start mb-4">
-              <h2 className="text-xl font-bold">{selectedDesign.style} Garden Design</h2>
-              <button
-                onClick={() => setSelectedDesign(null)}
-                className="text-gray-400 hover:text-gray-600"
-              >
-                ✕
-              </button>
-            </div>
-
-            {selectedDesign.imageUrl && (
-              <img
-                src={selectedDesign.imageUrl}
-                alt={selectedDesign.style}
-                className="w-full h-48 object-cover rounded-lg mb-4"
-              />
-            )}
-
-            {selectedDesign.designElements && selectedDesign.designElements.length > 0 && (
-              <div className="mb-6">
-                <h3 className="font-semibold mb-3">Design Elements:</h3>
-                <div className="space-y-2">
-                  {selectedDesign.designElements.map((element: any, index: number) => (
-                    <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded">
-                      <div>
-                        <span className="font-medium">{element.elementType.replace('_', ' ')}</span>
-                        {element.notes && <p className="text-sm text-gray-600">{element.notes}</p>}
-                      </div>
-                      <span className="text-gray-600">
-                        {element.quantityNumeric} {element.unit}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            <div className="flex gap-3">
-              <button
-                onClick={() => setSelectedDesign(null)}
-                className="flex-1 py-2 px-4 border border-gray-300 rounded hover:bg-gray-50"
-              >
-                Close
-              </button>
-              <button
-                onClick={() => {
-                  // Set the selected elements from this design
-                  if (selectedDesign.designElements) {
-                    setSelectedElements(selectedDesign.designElements.map((element: any) => ({
-                      type: element.elementType,
-                      area: element.quantityNumeric,
-                      unit: element.unit,
-                      notes: element.notes || ''
-                    })))
-                  }
-                  setSelectedDesign(null)
-                  // Trigger quote generation
-                  generateQuote()
-                }}
-                disabled={isGeneratingQuote}
-                className="flex-1 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 disabled:opacity-50"
-              >
-                {isGeneratingQuote ? 'Generating Quote...' : 'Generate Quote'}
-              </button>
-            </div>
+          <div className="bg-white rounded-lg max-w-md w-full p-6">
+            <h2 className="text-xl font-bold mb-4">{selectedDesign.title}</h2>
+            <p className="text-gray-600 mb-6">Quote builder temporarily disabled for debugging.</p>
+            <button
+              onClick={() => setSelectedDesign(null)}
+              className="w-full bg-blue-600 text-white py-2 px-4 rounded"
+            >
+              Close
+            </button>
           </div>
         </div>
       )}
