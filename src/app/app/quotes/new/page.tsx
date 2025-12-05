@@ -77,65 +77,55 @@ export default function NewQuotePage() {
   }, [formData.customerId, jobs])
 
   const fetchData = async () => {
-    // Mock data for now
-    const mockCustomers: Customer[] = [
-      {
-        id: '1',
-        userId: session?.user?.email || '',
-        name: 'John Smith',
-        email: 'john@example.com',
-        phone: '+44 123 456 7890',
-        address: '123 Garden Lane',
-        city: 'London',
-        postcode: 'SW1A 1AA',
-        createdAt: '2024-11-20T10:00:00Z',
-        updatedAt: '2024-11-20T10:00:00Z',
-      },
-      {
-        id: '2',
-        userId: session?.user?.email || '',
-        name: 'Sarah Johnson',
-        email: 'sarah@example.com',
-        phone: '+44 098 765 4321',
-        address: '456 Rose Street',
-        city: 'Manchester',
-        postcode: 'M1 1AA',
-        createdAt: '2024-11-22T14:00:00Z',
-        updatedAt: '2024-11-22T14:00:00Z',
-      },
-    ]
+    try {
+      // Fetch customers
+      const customersResponse = await fetch('/api/customers')
+      if (customersResponse.ok) {
+        const customersData = await customersResponse.json()
+        setCustomers(customersData)
+      } else {
+        console.error('Failed to fetch customers')
+        // Fallback to mock data
+        setCustomers([
+          {
+            id: '1',
+            userId: session?.user?.email || '',
+            name: 'John Smith',
+            email: 'john@example.com',
+            phone: '+44 123 456 7890',
+            address: '123 Garden Lane',
+            city: 'London',
+            postcode: 'SW1A 1AA',
+            createdAt: '2024-11-20T10:00:00Z',
+            updatedAt: '2024-11-20T10:00:00Z',
+          }
+        ])
+      }
 
-    const mockJobs: Job[] = [
-      {
-        id: '1',
-        userId: session?.user?.email || '',
-        customerId: '1',
-        title: 'Garden Design & Installation',
-        description: 'Complete garden makeover with modern landscape design',
-        status: 'in_progress',
-        priority: 'high',
-        type: 'design',
-        estimatedValue: 15000,
-        createdAt: '2024-11-28T10:00:00Z',
-        updatedAt: '2024-11-28T10:00:00Z',
-      },
-      {
-        id: '2',
-        userId: session?.user?.email || '',
-        customerId: '2',
-        title: 'Monthly Lawn Maintenance',
-        description: 'Regular lawn care and maintenance service',
-        status: 'completed',
-        priority: 'medium',
-        type: 'maintenance',
-        estimatedValue: 500,
-        createdAt: '2024-11-25T14:00:00Z',
-        updatedAt: '2024-11-25T14:00:00Z',
-      },
-    ]
+      // For now, use mock jobs since we don't have a jobs API yet
+      const mockJobs: Job[] = [
+        {
+          id: '1',
+          userId: session?.user?.email || '',
+          customerId: '1',
+          title: 'Garden Design & Installation',
+          description: 'Complete garden makeover with modern landscape design',
+          status: 'in_progress',
+          priority: 'high',
+          type: 'design',
+          estimatedValue: 15000,
+          createdAt: '2024-11-28T10:00:00Z',
+          updatedAt: '2024-11-28T10:00:00Z',
+        }
+      ]
 
-    setCustomers(mockCustomers)
-    setJobs(mockJobs)
+      setJobs(mockJobs)
+    } catch (error) {
+      console.error('Error fetching data:', error)
+      // Fallback to empty arrays
+      setCustomers([])
+      setJobs([])
+    }
   }
 
   const generateQuoteNumber = () => {
@@ -167,11 +157,25 @@ export default function NewQuotePage() {
         status: 'draft'
       }
 
-      console.log('Creating quote:', quoteData)
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      const response = await fetch('/api/quotes', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(quoteData),
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || 'Failed to create quote')
+      }
+
+      const newQuote = await response.json()
+      console.log('Quote created successfully:', newQuote)
       router.push('/app/quotes')
     } catch (error) {
       console.error('Error creating quote:', error)
+      alert('Failed to create quote. Please try again.')
     } finally {
       setLoading(false)
     }
