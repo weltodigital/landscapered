@@ -25,7 +25,7 @@ interface Project {
   updatedAt: string
 }
 
-export default function ProjectDetailPage(): JSX.Element {
+export default function ProjectDetailPage() {
   const params = useParams()
   const [project, setProject] = useState<Project | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -332,7 +332,7 @@ export default function ProjectDetailPage(): JSX.Element {
   const getTotalCost = () => {
     const elementsTotal = selectedElements.reduce((total, element) => {
       // Mock pricing calculation based on element type and area
-      const basePrice = {
+      const basePrices: { [key: string]: number } = {
         'PATIO': 150,
         'TURF': 45,
         'PLANTING_BED': 85,
@@ -341,7 +341,8 @@ export default function ProjectDetailPage(): JSX.Element {
         'LIGHTING': 125,
         'SEATING': 800,
         'BORDER': 60,
-      }[element.type] || 100
+      }
+      const basePrice = basePrices[element.type] || 100
 
       return total + (basePrice * (element.unit === 'UNIT' ? 1 : element.area))
     }, 0)
@@ -788,14 +789,16 @@ export default function ProjectDetailPage(): JSX.Element {
                   acc[design.style].push(design)
                   return acc
                 }, {})
-            ).map(([style, styleDesigns]: [string, any[]]) => (
+            ).map(([style, styleDesigns]) => {
+              const designs = styleDesigns as any[]
+              return (
               <div key={style} className="mb-10">
                 <h3 className="text-xl font-semibold text-gray-800 mb-4">
                   {style} Style
-                  <span className="text-sm font-normal text-gray-500">({styleDesigns.length} design{styleDesigns.length !== 1 ? 's' : ''})</span>
+                  <span className="text-sm font-normal text-gray-500">({designs.length} design{designs.length !== 1 ? 's' : ''})</span>
                 </h3>
                 <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
-                  {styleDesigns.map((design, index) => (
+                  {designs.map((design, index) => (
                     <div key={design.id} className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300 group">
                       <div className="aspect-video relative cursor-pointer overflow-hidden" onClick={() => design.imageUrl && !design.imageUrl.includes('/mock-designs/') && setSelectedDesignImage(design)}>
                         {design.imageUrl && !design.imageUrl.includes('/mock-designs/') ? (
@@ -861,7 +864,7 @@ export default function ProjectDetailPage(): JSX.Element {
                   ))}
                 </div>
               </div>
-            ))}
+            )})}
           </div>
         )}
 

@@ -322,7 +322,7 @@ export function createDesignElements(style: string) {
 
   return selectedElements.map((element, index) => {
     const customization = customizations[element.type as keyof typeof customizations]
-    const finalElement = customization ? { ...element, ...customization } : element
+    const finalElement = customization ? Object.assign({}, element, customization) : element
 
     return {
       id: `element-ai-${Date.now()}-${index}`,

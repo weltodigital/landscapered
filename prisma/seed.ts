@@ -23,7 +23,7 @@ async function main() {
 
   // Create demo organisation with rate card
   const organisation = await prisma.organisation.upsert({
-    where: { id: user.organisations[0]?.id || 'demo-org-id' },
+    where: { id: 'demo-org-id' },
     update: {},
     create: {
       name: 'Green Thumb Landscaping',

@@ -396,7 +396,7 @@ export function searchCatalog(
     const searchTerm = query.toLowerCase()
     results = results.filter(product =>
       product.name.toLowerCase().includes(searchTerm) ||
-      product.description.toLowerCase().includes(searchTerm) ||
+      product.description?.toLowerCase().includes(searchTerm) ||
       product.brand?.toLowerCase().includes(searchTerm)
     )
   }

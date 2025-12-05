@@ -271,6 +271,6 @@ export const QuotePDF: React.FC<QuotePDFProps> = ({ quote }) => (
 // Export function to generate PDF buffer
 export async function generateQuotePDF(quote: QuoteData): Promise<Buffer> {
   const { pdf } = await import('@react-pdf/renderer')
-  const buffer = await pdf(<QuotePDF quote={quote} />).toBuffer()
+  const buffer = await pdf(<QuotePDF quote={quote} />).toBuffer() as unknown as Buffer
   return buffer
 }
