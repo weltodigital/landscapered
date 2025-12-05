@@ -1,7 +1,6 @@
 import { PrismaClient } from '@prisma/client'
 
-// Configure Prisma Client for development with the local Prisma dev server
+// Configure Prisma Client for Prisma v5
 export const prisma = new PrismaClient({
-  accelerateUrl: process.env.DATABASE_URL || '',
-  log: ['query', 'info', 'warn', 'error'],
+  log: process.env.NODE_ENV === 'development' ? ['query', 'info', 'warn', 'error'] : ['error'],
 })

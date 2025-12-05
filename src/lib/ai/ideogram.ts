@@ -1,18 +1,17 @@
 import OpenAI from 'openai'
 
-// Initialize OpenAI client
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-})
-
-// Check if API keys are configured
-if (!process.env.IDEOGRAM_API_KEY) {
-  console.warn('⚠️  Ideogram API key not configured. Set IDEOGRAM_API_KEY in your .env file to enable AI image generation.')
+// Initialize OpenAI client lazily
+let openai: OpenAI | null = null
+const getOpenAI = () => {
+  if (!openai && process.env.OPENAI_API_KEY) {
+    openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    })
+  }
+  return openai
 }
 
-if (!process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY === 'your-openai-api-key-here') {
-  console.warn('⚠️  OpenAI API key not configured. Set OPENAI_API_KEY in your .env file to enable garden image analysis.')
-}
+// API key validation moved to runtime functions
 
 export interface DesignPrompt {
   style: string
@@ -39,7 +38,12 @@ export async function analyzeGardenImage(imageUrl: string): Promise<string> {
   }
 
   try {
-    const response = await openai.chat.completions.create({
+    const openaiClient = getOpenAI()
+    if (!openaiClient) {
+      throw new Error('OpenAI API key not configured')
+    }
+
+    const response = await openaiClient.chat.completions.create({
       model: "gpt-4o",
       messages: [
         {
