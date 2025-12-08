@@ -34,28 +34,28 @@ export async function GET(
     // Convert database quote to PDF format
     const quote = {
       id: dbQuote.id,
-      project: {
-        title: dbQuote.project?.title || 'Garden Design Project',
-        clientName: dbQuote.project?.clientName || 'Client',
-        clientEmail: dbQuote.project?.clientEmail || ''
-      },
-      designConcept: {
-        style: dbQuote.designConcept?.style || 'Modern'
-      },
-      subtotal: dbQuote.subtotal,
-      profit: dbQuote.profit,
-      total: dbQuote.total,
-      lowEstimate: dbQuote.lowEstimate,
-      highEstimate: dbQuote.highEstimate,
-      currency: dbQuote.currency,
-      createdAt: dbQuote.createdAt.toISOString(),
-      lineItems: dbQuote.lineItems.map(item => ({
-        description: item.description,
-        quantityNumeric: item.quantityNumeric,
-        unit: item.unit,
+      quoteNumber: `QUO-${dbQuote.createdAt.toISOString().slice(0, 10).replace(/-/g, '')}-${dbQuote.id.slice(-3)}`,
+      projectId: dbQuote.projectId,
+      customerId: dbQuote.project?.clientEmail || '',
+      items: dbQuote.lineItems.map(item => ({
+        id: item.id,
+        customDescription: item.description,
+        quantity: item.quantityNumeric,
         unitPrice: item.unitPrice,
-        lineTotal: item.lineTotal
-      }))
+        totalPrice: item.lineTotal,
+        category: 'custom' as const
+      })),
+      subtotal: dbQuote.subtotal,
+      markup: 0, // Database stores profit differently
+      tax: dbQuote.profit, // Using profit as tax for now
+      total: dbQuote.total,
+      validUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days from now
+      createdAt: dbQuote.createdAt.toISOString(),
+      notes: `Quote for ${dbQuote.project?.title || 'Garden Design Project'}`,
+      terms: 'Payment due within 30 days of acceptance.',
+      createdBy: dbQuote.project?.clientEmail || '',
+      designImageUrl: undefined,
+      designStyle: dbQuote.designConcept?.style || 'Modern'
     }
 
 

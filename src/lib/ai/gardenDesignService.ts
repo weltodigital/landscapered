@@ -1,4 +1,6 @@
-import { ElementType, Unit } from '@prisma/client'
+// Define types locally since they're now strings instead of enums
+type ElementType = 'PATIO' | 'TURF' | 'DECKING' | 'PERGOLA' | 'FENCING' | 'RAISED_BED' | 'LIGHTING' | 'WATER_FEATURE' | 'PATHWAY' | 'PLANTING_BED' | 'GRAVEL_AREA' | 'FIRE_PIT' | 'OTHER'
+type Unit = 'SQUARE_METRE' | 'LINEAR_METRE' | 'UNIT' | 'CUBIC_METRE'
 
 export interface DesignConcept {
   style: string

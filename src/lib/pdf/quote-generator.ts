@@ -210,7 +210,7 @@ export async function generateQuotePDF(quote: QuoteData): Promise<jsPDF> {
     })
 
     // Cell content
-    const description = item.customDescription || item.name || 'Item'
+    const description = item.customDescription || 'Item'
     const rowData = [
       description.length > 30 ? description.substring(0, 30) + '...' : description,
       (item.quantity || 0).toString(),

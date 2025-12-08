@@ -18,34 +18,37 @@ export async function GET(request: NextRequest) {
 
     // Get all quotes for the current user
     const allQuotes = await getAllQuotes()
-    const userQuotes = allQuotes.filter(quote => quote.userId === session.user.email)
 
     // Transform quotes to match the expected format for the quotes page
-    const transformedQuotes = userQuotes.map(quote => {
-      // Handle both old format (elements/pricing) and new format (flat structure)
-      const isNewFormat = quote.items && !quote.elements
-
+    const transformedQuotes = allQuotes.map(quote => {
       return {
         id: quote.id,
-        customerId: quote.customerId || quote.projectId,
-        quoteNumber: quote.quoteNumber || `QUO-${quote.createdAt.slice(0, 10).replace(/-/g, '')}-${quote.id.slice(-3)}`,
-        status: quote.status.toLowerCase(),
-        validUntil: isNewFormat ? quote.validUntil : quote.validUntil.slice(0, 10),
-        items: isNewFormat ? quote.items : (quote.elements || []),
-        subtotal: isNewFormat ? quote.subtotal : quote.pricing.subtotal,
-        markup: isNewFormat ? quote.markup : 0,
-        tax: isNewFormat ? quote.tax : quote.pricing.vatAmount,
-        total: isNewFormat ? quote.total : quote.pricing.total,
-        notes: isNewFormat ? quote.notes : (quote.clientDetails?.notes || `Quote for project ${quote.projectId}`),
-        terms: quote.terms || 'Payment due within 30 days of acceptance.',
-        createdBy: quote.createdBy || quote.userId,
-        createdAt: quote.createdAt,
-        updatedAt: quote.updatedAt,
-        projectId: quote.projectId || quote.customerId,
-        designId: quote.designId,
-        designImageUrl: quote.designImageUrl,
-        designStyle: quote.designStyle,
-        designImageNumber: quote.designImageNumber
+        customerId: quote.project?.clientEmail || '',
+        quoteNumber: `QUO-${quote.createdAt.toISOString().slice(0, 10).replace(/-/g, '')}-${quote.id.slice(-3)}`,
+        status: 'draft',
+        validUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
+        items: quote.lineItems.map(item => ({
+          id: item.id,
+          customDescription: item.description,
+          quantity: item.quantityNumeric,
+          unitPrice: item.unitPrice,
+          totalPrice: item.lineTotal,
+          category: 'custom'
+        })),
+        subtotal: quote.subtotal,
+        markup: 0,
+        tax: quote.profit,
+        total: quote.total,
+        notes: `Quote for ${quote.project?.title || 'Garden Design Project'}`,
+        terms: 'Payment due within 30 days of acceptance.',
+        createdBy: quote.project?.clientEmail || '',
+        createdAt: quote.createdAt.toISOString(),
+        updatedAt: quote.updatedAt.toISOString(),
+        projectId: quote.projectId,
+        designId: quote.designConceptId,
+        designImageUrl: quote.designConcept?.imageUrl,
+        designStyle: quote.designConcept?.style,
+        designImageNumber: 1
       }
     })
 
