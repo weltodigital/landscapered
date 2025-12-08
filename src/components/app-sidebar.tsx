@@ -96,8 +96,12 @@ export function AppSidebar() {
     <Sidebar className="border-r">
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel className="text-lg font-bold px-4 py-6">
-            Landscapered
+          <SidebarGroupLabel className="flex items-center gap-2 px-4 py-6">
+            <img
+              src="/logo.png"
+              alt="Landscapered"
+              className="h-8 w-auto"
+            />
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
