@@ -107,7 +107,7 @@ export default function JobsPage() {
           <p className="text-gray-600 mt-1">Manage your landscaping jobs and projects</p>
         </div>
         <Button asChild>
-          <Link href="/app/jobs/new">
+          <Link href="/jobs/new">
             <Plus className="h-4 w-4 mr-2" />
             New Job
           </Link>
@@ -232,13 +232,13 @@ export default function JobsPage() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem asChild>
-                          <Link href={`/app/jobs/${job.id}`}>
+                          <Link href={`/jobs/${job.id}`}>
                             <Eye className="mr-2 h-4 w-4" />
                             View
                           </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
-                          <Link href={`/app/jobs/${job.id}/edit`}>
+                          <Link href={`/jobs/${job.id}/edit`}>
                             <Edit className="mr-2 h-4 w-4" />
                             Edit
                           </Link>

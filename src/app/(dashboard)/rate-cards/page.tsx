@@ -167,7 +167,7 @@ export default function RateCardsPage() {
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-4">No Rate Card Found</h1>
           <p className="text-gray-600 mb-4">You need to create an organization first to access rate cards.</p>
-          <Button onClick={() => window.location.href = '/app/settings'}>
+          <Button onClick={() => window.location.href = '/settings'}>
             Go to Settings
           </Button>
         </div>

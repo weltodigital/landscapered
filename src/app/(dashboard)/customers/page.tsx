@@ -104,7 +104,7 @@ export default function CustomersPage() {
           <p className="text-gray-600 mt-1">Manage your customer relationships and contacts</p>
         </div>
         <Button asChild>
-          <Link href="/app/customers/new">
+          <Link href="/customers/new">
             <Plus className="h-4 w-4 mr-2" />
             New Customer
           </Link>
@@ -245,13 +245,13 @@ export default function CustomersPage() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem asChild>
-                          <Link href={`/app/customers/${customer.id}`}>
+                          <Link href={`/customers/${customer.id}`}>
                             <Eye className="mr-2 h-4 w-4" />
                             View
                           </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
-                          <Link href={`/app/customers/${customer.id}/edit`}>
+                          <Link href={`/customers/${customer.id}/edit`}>
                             <Edit className="mr-2 h-4 w-4" />
                             Edit
                           </Link>

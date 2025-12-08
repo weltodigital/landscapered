@@ -140,7 +140,7 @@ export default function CustomerDetailPage() {
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-4">Customer Not Found</h1>
           <p className="text-gray-600 mb-6">The customer you're looking for doesn't exist or has been removed.</p>
-          <Button onClick={() => router.push('/app/customers')}>
+          <Button onClick={() => router.push('/customers')}>
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Customers
           </Button>
@@ -166,7 +166,7 @@ export default function CustomerDetailPage() {
             <p className="text-gray-600 mt-1">Customer since {formatDate(customer.createdAt)}</p>
           </div>
         </div>
-        <Button onClick={() => router.push(`/app/customers/${customer.id}/edit`)}>
+        <Button onClick={() => router.push(`/customers/${customer.id}/edit`)}>
           <Edit className="h-4 w-4 mr-2" />
           Edit Customer
         </Button>
@@ -232,7 +232,7 @@ export default function CustomerDetailPage() {
                     <TableRow
                       key={job.id}
                       className="cursor-pointer hover:bg-gray-50"
-                      onClick={() => router.push(`/app/jobs/${job.id}`)}
+                      onClick={() => router.push(`/jobs/${job.id}`)}
                     >
                       <TableCell>
                         <div>
@@ -321,7 +321,7 @@ export default function CustomerDetailPage() {
               <CardTitle>Quick Actions</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
-              <Button variant="outline" className="w-full" onClick={() => router.push('/app/jobs/new')}>
+              <Button variant="outline" className="w-full" onClick={() => router.push('/jobs/new')}>
                 Create New Job
               </Button>
               <Button variant="outline" className="w-full">

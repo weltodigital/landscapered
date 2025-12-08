@@ -195,7 +195,7 @@ export default function InvoiceDetailPage() {
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-4">Invoice Not Found</h1>
           <p className="text-gray-600 mb-6">The invoice you're looking for doesn't exist or has been removed.</p>
-          <Button onClick={() => router.push('/app/invoices')}>
+          <Button onClick={() => router.push('/invoices')}>
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Invoices
           </Button>
@@ -241,7 +241,7 @@ export default function InvoiceDetailPage() {
                 Send Invoice
               </Button>
             )}
-            <Button variant="outline" size="sm" onClick={() => router.push(`/app/invoices/${invoice.id}/edit`)}>
+            <Button variant="outline" size="sm" onClick={() => router.push(`/invoices/${invoice.id}/edit`)}>
               <Edit className="h-4 w-4 mr-2" />
               Edit
             </Button>
@@ -368,10 +368,10 @@ export default function InvoiceDetailPage() {
 
       {/* Action Buttons */}
       <div className="flex justify-center space-x-4">
-        <Button variant="outline" onClick={() => router.push(`/app/jobs/${invoice.jobId}`)}>
+        <Button variant="outline" onClick={() => router.push(`/jobs/${invoice.jobId}`)}>
           View Related Job
         </Button>
-        <Button variant="outline" onClick={() => router.push(`/app/customers/${invoice.customerId}`)}>
+        <Button variant="outline" onClick={() => router.push(`/customers/${invoice.customerId}`)}>
           View Customer
         </Button>
         {invoice.status !== 'paid' && (

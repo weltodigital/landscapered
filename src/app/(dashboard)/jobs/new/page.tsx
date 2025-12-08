@@ -103,7 +103,7 @@ export default function NewJobPage() {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000))
 
-      router.push('/app/jobs')
+      router.push('/jobs')
     } catch (error) {
       console.error('Error creating job:', error)
     } finally {

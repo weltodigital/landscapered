@@ -863,7 +863,7 @@ export default function ProjectDetailPage() {
                             <Button
                               size="sm"
                               variant="default"
-                              onClick={() => router.push(`/app/quotes/${designQuotes[design.id]}`)}
+                              onClick={() => router.push(`/quotes/${designQuotes[design.id]}`)}
                               className="bg-primary hover:bg-primary/90 text-white"
                             >
                               View Quote

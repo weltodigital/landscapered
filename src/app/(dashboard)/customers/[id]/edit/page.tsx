@@ -56,7 +56,7 @@ export default function EditCustomerPage() {
     } catch (error) {
       console.error('Error fetching customer:', error)
       alert('Failed to load customer details.')
-      router.push('/app/customers')
+      router.push('/customers')
     } finally {
       setIsLoading(false)
     }
@@ -89,7 +89,7 @@ export default function EditCustomerPage() {
       const updatedCustomer = await response.json()
       setCustomer(updatedCustomer)
       alert('Customer updated successfully!')
-      router.push('/app/customers')
+      router.push('/customers')
     } catch (error) {
       console.error('Error updating customer:', error)
       alert('Failed to update customer. Please try again.')
@@ -115,7 +115,7 @@ export default function EditCustomerPage() {
       }
 
       alert('Customer deleted successfully!')
-      router.push('/app/customers')
+      router.push('/customers')
     } catch (error) {
       console.error('Error deleting customer:', error)
       alert('Failed to delete customer. Please try again.')
@@ -140,7 +140,7 @@ export default function EditCustomerPage() {
       <div className="container mx-auto py-8">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-4">Customer Not Found</h1>
-          <Link href="/app/customers">
+          <Link href="/customers">
             <Button>Back to Customers</Button>
           </Link>
         </div>
@@ -151,7 +151,7 @@ export default function EditCustomerPage() {
   return (
     <div className="container mx-auto py-8 px-6">
       <div className="mb-8">
-        <Link href="/app/customers">
+        <Link href="/customers">
           <Button variant="ghost" className="mb-4">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Customers
@@ -273,7 +273,7 @@ export default function EditCustomerPage() {
                 </Button>
 
                 <div className="flex gap-3">
-                  <Link href="/app/customers">
+                  <Link href="/customers">
                     <Button type="button" variant="outline">
                       Cancel
                     </Button>

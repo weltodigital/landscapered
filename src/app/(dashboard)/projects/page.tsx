@@ -71,7 +71,7 @@ export default function ProjectsPage() {
             Manage your garden design projects and client work.
           </p>
         </div>
-        <Link href="/app/projects/new">
+        <Link href="/projects/new">
           <Button>
             <Plus className="h-4 w-4 mr-2" />
             New Project
@@ -90,7 +90,7 @@ export default function ProjectsPage() {
           <p className="text-gray-600 mb-6 max-w-md mx-auto">
             Create your first project to start generating AI-powered garden designs and quotes.
           </p>
-          <Link href="/app/projects/new">
+          <Link href="/projects/new">
             <Button>
               <Plus className="h-4 w-4 mr-2" />
               Create Your First Project
@@ -103,7 +103,7 @@ export default function ProjectsPage() {
             <Card key={project.id} className="hover:shadow-lg transition-shadow">
               <CardHeader>
                 <div className="flex items-start justify-between">
-                  <div className="flex-1 cursor-pointer" onClick={() => window.location.href = `/app/projects/${project.id}`}>
+                  <div className="flex-1 cursor-pointer" onClick={() => window.location.href = `/projects/${project.id}`}>
                     <CardTitle className="line-clamp-1">{project.title}</CardTitle>
                     <CardDescription>{project.clientName}</CardDescription>
                   </div>
@@ -131,7 +131,7 @@ export default function ProjectsPage() {
               </CardHeader>
               <CardContent
                 className="cursor-pointer"
-                onClick={() => window.location.href = `/app/projects/${project.id}`}
+                onClick={() => window.location.href = `/projects/${project.id}`}
               >
                 <div className="flex items-center justify-between text-sm text-gray-600">
                   <span>Status: {project.status}</span>

@@ -169,7 +169,7 @@ export default function QuotesPage() {
           <h1 className="text-3xl font-bold">Quotes</h1>
           <p className="text-gray-600 mt-1">Manage your project quotes and estimates</p>
         </div>
-        <Button onClick={() => router.push('/app/quotes/new')}>
+        <Button onClick={() => router.push('/quotes/new')}>
           <Plus className="h-4 w-4 mr-2" />
           New Quote
         </Button>
@@ -305,7 +305,7 @@ export default function QuotesPage() {
               </p>
               {!searchQuery && statusFilter === 'all' && (
                 <div className="mt-6">
-                  <Button onClick={() => router.push('/app/quotes/new')}>
+                  <Button onClick={() => router.push('/quotes/new')}>
                     <Plus className="h-4 w-4 mr-2" />
                     New Quote
                   </Button>
@@ -330,7 +330,7 @@ export default function QuotesPage() {
                   <TableRow
                     key={quote.id}
                     className="cursor-pointer hover:bg-gray-50"
-                    onClick={() => router.push(`/app/quotes/${quote.id}`)}
+                    onClick={() => router.push(`/quotes/${quote.id}`)}
                   >
                     <TableCell>
                       <div>
@@ -374,7 +374,7 @@ export default function QuotesPage() {
                             </Button>
                           </DropdownMenuTrigger>
                         <DropdownMenuContent>
-                          <DropdownMenuItem onClick={() => router.push(`/app/quotes/${quote.id}`)}>
+                          <DropdownMenuItem onClick={() => router.push(`/quotes/${quote.id}`)}>
                             <Eye className="h-4 w-4 mr-2" />
                             View
                           </DropdownMenuItem>

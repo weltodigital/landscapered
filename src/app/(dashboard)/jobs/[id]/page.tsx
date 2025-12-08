@@ -116,7 +116,7 @@ export default function JobDetailPage() {
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-4">Job Not Found</h1>
           <p className="text-gray-600 mb-6">The job you're looking for doesn't exist or has been removed.</p>
-          <Button onClick={() => router.push('/app/jobs')}>
+          <Button onClick={() => router.push('/jobs')}>
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Jobs
           </Button>
@@ -146,7 +146,7 @@ export default function JobDetailPage() {
           <Badge className={statusColors[job.status]}>
             {job.status.replace('_', ' ').toUpperCase()}
           </Badge>
-          <Button onClick={() => router.push(`/app/jobs/${job.id}/edit`)}>
+          <Button onClick={() => router.push(`/jobs/${job.id}/edit`)}>
             <Edit className="h-4 w-4 mr-2" />
             Edit Job
           </Button>
@@ -283,7 +283,7 @@ export default function JobDetailPage() {
               <Button
                 variant="outline"
                 className="w-full"
-                onClick={() => router.push(`/app/customers/${job.customerId}`)}
+                onClick={() => router.push(`/customers/${job.customerId}`)}
               >
                 View Customer Details
               </Button>

@@ -127,7 +127,7 @@ export default function InvoicesPage() {
           <p className="text-gray-600 mt-1">Manage invoicing and track payments</p>
         </div>
         <Button asChild>
-          <Link href="/app/invoices/new">
+          <Link href="/invoices/new">
             <Plus className="h-4 w-4 mr-2" />
             New Invoice
           </Link>
@@ -275,13 +275,13 @@ export default function InvoicesPage() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem asChild>
-                            <Link href={`/app/invoices/${invoice.id}`}>
+                            <Link href={`/invoices/${invoice.id}`}>
                               <Eye className="mr-2 h-4 w-4" />
                               View
                             </Link>
                           </DropdownMenuItem>
                           <DropdownMenuItem asChild>
-                            <Link href={`/app/invoices/${invoice.id}/edit`}>
+                            <Link href={`/invoices/${invoice.id}/edit`}>
                               <Edit className="mr-2 h-4 w-4" />
                               Edit
                             </Link>

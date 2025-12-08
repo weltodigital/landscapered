@@ -54,7 +54,7 @@ function NewCustomerPage() {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000))
 
-      router.push('/app/customers')
+      router.push('/customers')
     } catch (error) {
       console.error('Error creating customer:', error)
     } finally {

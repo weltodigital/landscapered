@@ -220,7 +220,7 @@ export default function NewProjectPage() {
       }
 
       const project = await response.json()
-      router.push(`/app/projects/${project.id}`)
+      router.push(`/projects/${project.id}`)
     } catch (error) {
       console.error('Error creating project:', error)
       alert('Failed to create project. Please try again.')

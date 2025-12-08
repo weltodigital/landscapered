@@ -162,7 +162,7 @@ export default function NewInvoicePage() {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000))
 
-      router.push('/app/invoices')
+      router.push('/invoices')
     } catch (error) {
       console.error('Error creating invoice:', error)
     } finally {

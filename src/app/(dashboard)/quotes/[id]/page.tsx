@@ -282,7 +282,7 @@ export default function QuoteDetailPage() {
                 <Button
                   size="sm"
                   variant="default"
-                  onClick={() => router.push('/app/quotes')}
+                  onClick={() => router.push('/quotes')}
                   className="bg-primary hover:bg-primary/90 text-white"
                 >
                   <FileText className="h-4 w-4 mr-2" />
@@ -292,7 +292,7 @@ export default function QuoteDetailPage() {
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() => router.push(`/app/projects/${quote.projectId || quote.jobId}`)}
+                    onClick={() => router.push(`/projects/${quote.projectId || quote.jobId}`)}
                     className="hover:bg-primary hover:text-white transition-colors"
                   >
                     <ExternalLink className="h-4 w-4 mr-2" />

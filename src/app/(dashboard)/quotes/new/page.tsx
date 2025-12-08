@@ -170,7 +170,7 @@ export default function NewQuotePage() {
 
       const newQuote = await response.json()
       console.log('Quote created successfully:', newQuote)
-      router.push('/app/quotes')
+      router.push('/quotes')
     } catch (error) {
       console.error('Error creating quote:', error)
       alert('Failed to create quote. Please try again.')
