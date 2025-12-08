@@ -1,285 +1,263 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import Link from 'next/link'
 import { useSession } from 'next-auth/react'
+import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import {
-  FolderKanban,
-  Plus,
-  Calculator,
-  Settings,
-  Briefcase,
-  Users,
-  FileText,
-  Calendar,
-  TrendingUp,
-  Clock,
-  CheckCircle
-} from 'lucide-react'
+import { Badge } from '@/components/ui/badge'
+import { Check, ArrowRight, Palette, Calculator, FileText, Users } from 'lucide-react'
 
-export default function DashboardPage() {
-  const { data: session } = useSession()
-  const [stats, setStats] = useState({
-    totalJobs: 0,
-    activeJobs: 0,
-    totalCustomers: 0,
-    totalRevenue: 0,
-    outstandingInvoices: 0,
-    jobsThisWeek: 0
-  })
+export default function HomePage() {
+  const { data: session, status } = useSession()
+  const router = useRouter()
 
+  // If user is authenticated, redirect to dashboard
   useEffect(() => {
-    fetchDashboardStats()
-  }, [])
-
-  const fetchDashboardStats = async () => {
-    // All stats start at zero for clean app
-    const emptyStats = {
-      totalJobs: 0,
-      activeJobs: 0,
-      totalCustomers: 0,
-      totalRevenue: 0,
-      outstandingInvoices: 0,
-      jobsThisWeek: 0
+    if (status === 'loading') return
+    if (session) {
+      // User is authenticated, this will be the dashboard
+      return
     }
-    setStats(emptyStats)
-  }
+  }, [session, status])
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-GB', {
-      style: 'currency',
-      currency: 'GBP'
-    }).format(amount)
-  }
+  // If user is authenticated, show dashboard
+  if (session) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+            <p className="text-gray-600">Welcome back, {session.user?.name}</p>
+          </div>
+        </div>
 
-  return (
-    <div className="container mx-auto py-8 px-6">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">
-          Welcome back, {session?.user?.name}!
-        </h1>
-        <p className="text-gray-600">
-          Here's your business overview and quick actions.
-        </p>
-      </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Projects</CardTitle>
+              <Palette className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">12</div>
+              <p className="text-xs text-muted-foreground">+2 from last month</p>
+            </CardContent>
+          </Card>
 
-      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(stats.totalRevenue)}</div>
-            <p className="text-xs text-gray-500">All-time earnings</p>
-          </CardContent>
-        </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Active Jobs</CardTitle>
+              <FileText className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">8</div>
+              <p className="text-xs text-muted-foreground">3 due this week</p>
+            </CardContent>
+          </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Jobs</CardTitle>
-            <Briefcase className="h-4 w-4 text-primary" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.activeJobs}</div>
-            <p className="text-xs text-gray-500">Of {stats.totalJobs} total jobs</p>
-          </CardContent>
-        </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Revenue</CardTitle>
+              <Calculator className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">£45,890</div>
+              <p className="text-xs text-muted-foreground">+12% from last month</p>
+            </CardContent>
+          </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Customers</CardTitle>
-            <Users className="h-4 w-4 text-accent" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalCustomers}</div>
-            <p className="text-xs text-gray-500">Total customers</p>
-          </CardContent>
-        </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Customers</CardTitle>
+              <Users className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">23</div>
+              <p className="text-xs text-muted-foreground">+3 new this month</p>
+            </CardContent>
+          </Card>
+        </div>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">This Week</CardTitle>
-            <Calendar className="h-4 w-4 text-secondary" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.jobsThisWeek}</div>
-            <p className="text-xs text-gray-500">Jobs scheduled</p>
-          </CardContent>
-        </Card>
-      </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Quick Actions</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Button
+                className="w-full justify-start"
+                variant="outline"
+                onClick={() => router.push('/projects/new')}
+              >
+                <Palette className="mr-2 h-4 w-4" />
+                Create New Design Project
+              </Button>
+              <Button
+                className="w-full justify-start"
+                variant="outline"
+                onClick={() => router.push('/customers/new')}
+              >
+                <Users className="mr-2 h-4 w-4" />
+                Add New Customer
+              </Button>
+              <Button
+                className="w-full justify-start"
+                variant="outline"
+                onClick={() => router.push('/quotes/new')}
+              >
+                <Calculator className="mr-2 h-4 w-4" />
+                Create Quote
+              </Button>
+            </CardContent>
+          </Card>
 
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg">Recent Activity</CardTitle>
-            <CardDescription>Latest business updates</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3 text-center text-gray-500">
-              <p className="text-sm">No recent activity yet</p>
-              <p className="text-xs">Activity will appear here as you use the app</p>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg">Upcoming This Week</CardTitle>
-            <CardDescription>Jobs and appointments</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3 text-center text-gray-500">
-              <p className="text-sm">No upcoming jobs scheduled</p>
-              <p className="text-xs">Schedule jobs to see them here</p>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg">Outstanding Items</CardTitle>
-            <CardDescription>Needs attention</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Clock className="h-4 w-4 text-secondary" />
-                  <span className="text-sm">Pending invoices</span>
+          <Card>
+            <CardHeader>
+              <CardTitle>Recent Activity</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="flex items-center space-x-4">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium">New design concept generated</p>
+                    <p className="text-xs text-gray-500">Garden redesign for Smith residence</p>
+                  </div>
                 </div>
-                <span className="font-medium">{stats.outstandingInvoices}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <FileText className="h-4 w-4 text-primary" />
-                  <span className="text-sm">Draft quotes</span>
+                <div className="flex items-center space-x-4">
+                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium">Quote approved</p>
+                    <p className="text-xs text-gray-500">£12,500 project confirmed</p>
+                  </div>
                 </div>
-                <span className="font-medium">0</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <TrendingUp className="h-4 w-4 text-primary" />
-                  <span className="text-sm">Follow-ups due</span>
+                <div className="flex items-center space-x-4">
+                  <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium">New customer added</p>
+                    <p className="text-xs text-gray-500">Johnson Family - Patio design</p>
+                  </div>
                 </div>
-                <span className="font-medium">0</span>
               </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="mb-8">
-        <h2 className="text-2xl font-bold mb-6">Quick Actions</h2>
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Link href="/app/jobs/new">
-            <Button className="w-full h-20 flex flex-col items-center justify-center gap-2">
-              <Plus className="h-6 w-6" />
-              <span>New Job</span>
-            </Button>
-          </Link>
-
-          <Link href="/app/customers/new">
-            <Button variant="outline" className="w-full h-20 flex flex-col items-center justify-center gap-2">
-              <Users className="h-6 w-6" />
-              <span>Add Customer</span>
-            </Button>
-          </Link>
-
-          <Link href="/app/schedule">
-            <Button variant="outline" className="w-full h-20 flex flex-col items-center justify-center gap-2">
-              <Calendar className="h-6 w-6" />
-              <span>Schedule</span>
-            </Button>
-          </Link>
-
-          <Link href="/app/invoices">
-            <Button variant="outline" className="w-full h-20 flex flex-col items-center justify-center gap-2">
-              <FileText className="h-6 w-6" />
-              <span>Invoices</span>
-            </Button>
-          </Link>
-
-          <Link href="/app/projects/new">
-            <Button variant="outline" className="w-full h-20 flex flex-col items-center justify-center gap-2">
-              <FolderKanban className="h-6 w-6" />
-              <span>New Project</span>
-            </Button>
-          </Link>
-
-          <Link href="/app/projects">
-            <Button variant="outline" className="w-full h-20 flex flex-col items-center justify-center gap-2">
-              <FolderKanban className="h-6 w-6" />
-              <span>View Projects</span>
-            </Button>
-          </Link>
-
-
-          <Link href="/app/settings">
-            <Button variant="outline" className="w-full h-20 flex flex-col items-center justify-center gap-2">
-              <Settings className="h-6 w-6" />
-              <span>Settings</span>
-            </Button>
-          </Link>
+            </CardContent>
+          </Card>
         </div>
       </div>
+    )
+  }
 
-      <div>
-        <h2 className="text-2xl font-bold mb-4">Getting Started</h2>
-        <Card>
-          <CardHeader>
-            <CardTitle>Set Up Your Account</CardTitle>
-            <CardDescription>
-              Complete these steps to start using Landscapered effectively
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm">
-                ✓
-              </div>
-              <span>Create your account</span>
+  // Marketing homepage for non-authenticated users
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
+      {/* Navigation */}
+      <nav className="bg-white/90 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-50">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center gap-2">
+              <img src="/logo.png" alt="Landscapered" className="h-8 w-auto" />
             </div>
+            <div className="flex items-center gap-4">
+              <Button variant="ghost" onClick={() => router.push('/auth/signin')}>
+                Sign In
+              </Button>
+              <Button onClick={() => router.push('/auth/signup')}>
+                Get Started
+              </Button>
+            </div>
+          </div>
+        </div>
+      </nav>
 
-            <div className="flex items-center gap-3">
-              <div className="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center text-sm">
-                2
-              </div>
-              <span>Set up your organization</span>
-              <Link href="/app/settings">
-                <Button size="sm" variant="outline">
-                  Setup
-                </Button>
-              </Link>
-            </div>
+      {/* Hero Section */}
+      <section className="container mx-auto px-4 py-20">
+        <div className="text-center max-w-4xl mx-auto">
+          <Badge className="mb-4 bg-green-100 text-green-800 border-green-200">
+            AI-Powered Garden Design
+          </Badge>
+          <h1 className="text-5xl font-bold text-gray-900 mb-6">
+            Transform Your Landscaping Business with
+            <span className="text-green-600"> AI-Generated Designs</span>
+          </h1>
+          <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
+            Create stunning visual garden concepts, generate accurate quotes, and win more clients
+            with professional design presentations powered by artificial intelligence.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button size="lg" className="bg-green-600 hover:bg-green-700" onClick={() => router.push('/auth/signup')}>
+              Start Free Trial
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+            <Button size="lg" variant="outline">
+              Watch Demo
+            </Button>
+          </div>
+        </div>
+      </section>
 
-            <div className="flex items-center gap-3">
-              <div className="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center text-sm">
-                3
-              </div>
-              <span>Add your first customer</span>
-              <Link href="/app/customers/new">
-                <Button size="sm" variant="outline">
-                  Add Customer
-                </Button>
-              </Link>
-            </div>
+      {/* Features Section */}
+      <section className="container mx-auto px-4 py-20">
+        <div className="text-center mb-16">
+          <h2 className="text-3xl font-bold text-gray-900 mb-4">
+            Everything You Need to Grow Your Business
+          </h2>
+          <p className="text-gray-600 max-w-2xl mx-auto">
+            From AI-powered design generation to professional quote creation,
+            we've built the complete toolkit for modern landscaping professionals.
+          </p>
+        </div>
 
-            <div className="flex items-center gap-3">
-              <div className="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center text-sm">
-                4
-              </div>
-              <span>Create your first project</span>
-              <Link href="/app/projects/new">
-                <Button size="sm" variant="outline">
-                  Create
-                </Button>
-              </Link>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <Card>
+            <CardHeader>
+              <Palette className="h-8 w-8 text-green-600 mb-2" />
+              <CardTitle>AI Garden Design</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-gray-600">
+                Generate stunning garden designs in seconds using AI. Upload photos and get professional concepts instantly.
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <Calculator className="h-8 w-8 text-blue-600 mb-2" />
+              <CardTitle>Smart Quoting</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-gray-600">
+                Automatically generate accurate quotes from your designs with material costs and labor estimates.
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <Users className="h-8 w-8 text-purple-600 mb-2" />
+              <CardTitle>Client Management</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-gray-600">
+                Keep track of customers, projects, and communications all in one organized platform.
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-gray-900 text-white py-12">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <img src="/logo.png" alt="Landscapered" className="h-8 w-auto invert" />
             </div>
-          </CardContent>
-        </Card>
-      </div>
+            <p className="text-gray-400">
+              © 2024 Landscapered. All rights reserved.
+            </p>
+          </div>
+        </div>
+      </footer>
     </div>
   )
 }

@@ -35,47 +35,47 @@ import { Button } from '@/components/ui/button'
 const menuItems = [
   {
     title: 'Dashboard',
-    url: '/app',
+    url: '/',
     icon: Home,
   },
   {
     title: 'Projects',
-    url: '/app/projects',
+    url: '/projects',
     icon: FolderKanban,
   },
   {
     title: 'Jobs',
-    url: '/app/jobs',
+    url: '/jobs',
     icon: Briefcase,
   },
   {
     title: 'Customers',
-    url: '/app/customers',
+    url: '/customers',
     icon: Users,
   },
   {
     title: 'Quotes',
-    url: '/app/quotes',
+    url: '/quotes',
     icon: Receipt,
   },
   {
     title: 'Invoices',
-    url: '/app/invoices',
+    url: '/invoices',
     icon: FileText,
   },
   {
     title: 'Materials',
-    url: '/app/products',
+    url: '/products',
     icon: Package,
   },
   {
     title: 'Rate Cards',
-    url: '/app/rate-cards',
+    url: '/rate-cards',
     icon: DollarSign,
   },
   {
     title: 'Settings',
-    url: '/app/settings',
+    url: '/settings',
     icon: Settings,
   },
 ]
@@ -125,16 +125,16 @@ export function AppSidebar() {
             </div>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={pathname === '/app/pricing'}>
-              <Link href="/app/pricing">
+            <SidebarMenuButton asChild isActive={pathname === '/pricing'}>
+              <Link href="/pricing">
                 <Zap />
                 <span>Pricing</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={pathname === '/app/subscription'}>
-              <Link href="/app/subscription">
+            <SidebarMenuButton asChild isActive={pathname === '/subscription'}>
+              <Link href="/subscription">
                 <CreditCard />
                 <span>Subscription</span>
               </Link>
