@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Search, Plus, ShoppingCart } from 'lucide-react'
+import { Search, Plus, ShoppingCart, Package } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -28,6 +28,13 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
 import { Product, ProductCategory } from '@/types/products'
 import { LANDSCAPING_CATALOG, searchCatalog, getProductsByCategory } from '@/lib/catalog/landscaping-products'
 import { productScraper } from '@/lib/scrapers'
@@ -45,6 +52,36 @@ export function ProductSearch({ onProductSelect, selectedProducts = [] }: Produc
   const [searchResults, setSearchResults] = useState<Product[]>([])
   const [loading, setLoading] = useState(false)
   const [activeTab, setActiveTab] = useState<'catalog' | 'merchants'>('catalog')
+
+  // New product creation state
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
+  const [isCreating, setIsCreating] = useState(false)
+  const [newProductForm, setNewProductForm] = useState({
+    name: '',
+    price: '',
+    unit: 'UNIT',
+    category: '',
+    sku: '',
+    supplierName: '',
+    supplierUrl: ''
+  })
+  const [customSupplier, setCustomSupplier] = useState('')
+
+  const ukSuppliers = [
+    'B&Q',
+    'Wickes',
+    'Homebase',
+    'Screwfix',
+    'Travis Perkins',
+    'Jewson',
+    'Buildbase',
+    'Selco',
+    'Toolstation',
+    'Magnet Trade',
+    'Covers Timber & Builders Merchants',
+    'Huws Gray',
+    'Custom'
+  ]
 
   useEffect(() => {
     performSearch()
@@ -86,16 +123,93 @@ export function ProductSearch({ onProductSelect, selectedProducts = [] }: Produc
     return selectedProducts.some(item => item.product.id === productId)
   }
 
+  const handleNewProductInputChange = (field: string, value: string) => {
+    if (field === 'supplierName') {
+      if (value === 'Custom') {
+        setNewProductForm({ ...newProductForm, [field]: 'Custom' })
+      } else {
+        setNewProductForm({ ...newProductForm, [field]: value })
+        setCustomSupplier('')
+      }
+    } else {
+      setNewProductForm({ ...newProductForm, [field]: value })
+    }
+  }
+
+  const handleCustomSupplierChange = (value: string) => {
+    setCustomSupplier(value)
+    setNewProductForm({ ...newProductForm, supplierName: value })
+  }
+
+  const createNewProduct = async () => {
+    if (!newProductForm.name || !newProductForm.price) {
+      alert('Name and price are required')
+      return
+    }
+
+    setIsCreating(true)
+    try {
+      const response = await fetch('/api/products', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newProductForm)
+      })
+
+      if (response.ok) {
+        const newProduct = await response.json()
+
+        // Reset form
+        setNewProductForm({
+          name: '',
+          price: '',
+          unit: 'UNIT',
+          category: '',
+          sku: '',
+          supplierName: '',
+          supplierUrl: ''
+        })
+        setCustomSupplier('')
+        setIsCreateDialogOpen(false)
+
+        // Refresh search results
+        performSearch()
+
+        alert('Product created successfully!')
+      } else {
+        alert('Failed to create product')
+      }
+    } catch (error) {
+      console.error('Error creating product:', error)
+      alert('Failed to create product')
+    } finally {
+      setIsCreating(false)
+    }
+  }
+
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <ShoppingCart className="h-5 w-5" />
-          Product Search & Selection
-        </CardTitle>
-        <CardDescription>
-          Search and add products to your quote or invoice
-        </CardDescription>
+        <div className="flex justify-between items-start">
+          <div>
+            <CardTitle className="flex items-center gap-2">
+              <ShoppingCart className="h-5 w-5" />
+              Product Search & Selection
+            </CardTitle>
+            <CardDescription>
+              Search and add products to your quote or invoice
+            </CardDescription>
+          </div>
+          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline" size="sm">
+                <Package className="h-4 w-4 mr-2" />
+                Create New Product
+              </Button>
+            </DialogTrigger>
+          </Dialog>
+        </div>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Search Controls */}
@@ -233,6 +347,138 @@ export function ProductSearch({ onProductSelect, selectedProducts = [] }: Produc
           )}
         </div>
       </CardContent>
+
+      {/* Create New Product Dialog */}
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>Create New Product</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4">
+          <div>
+            <Label htmlFor="new-name">Product Name *</Label>
+            <Input
+              id="new-name"
+              value={newProductForm.name}
+              onChange={(e) => handleNewProductInputChange('name', e.target.value)}
+              placeholder="e.g., Premium Lawn Turf"
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="new-price">Price *</Label>
+            <Input
+              id="new-price"
+              type="number"
+              step="0.01"
+              value={newProductForm.price}
+              onChange={(e) => handleNewProductInputChange('price', e.target.value)}
+              placeholder="0.00"
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="new-unit">Unit</Label>
+            <Select value={newProductForm.unit} onValueChange={(value) => handleNewProductInputChange('unit', value)}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="UNIT">Each (UNIT)</SelectItem>
+                <SelectItem value="SQM">Square Metres (SQM)</SelectItem>
+                <SelectItem value="METRE">Linear Metres</SelectItem>
+                <SelectItem value="KG">Kilograms (KG)</SelectItem>
+                <SelectItem value="BAG">Bag/Sack</SelectItem>
+                <SelectItem value="PALLET">Pallet</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
+            <Label htmlFor="new-category">Category</Label>
+            <Select value={newProductForm.category} onValueChange={(value) => handleNewProductInputChange('category', value)}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select a category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Plants">Plants</SelectItem>
+                <SelectItem value="Paving">Paving</SelectItem>
+                <SelectItem value="Turf">Turf</SelectItem>
+                <SelectItem value="Tools">Tools</SelectItem>
+                <SelectItem value="Fertilizers">Fertilizers</SelectItem>
+                <SelectItem value="Mulch">Mulch</SelectItem>
+                <SelectItem value="Soil">Soil</SelectItem>
+                <SelectItem value="Fencing">Fencing</SelectItem>
+                <SelectItem value="Lighting">Lighting</SelectItem>
+                <SelectItem value="Irrigation">Irrigation</SelectItem>
+                <SelectItem value="Other">Other</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
+            <Label htmlFor="new-sku">SKU</Label>
+            <Input
+              id="new-sku"
+              value={newProductForm.sku}
+              onChange={(e) => handleNewProductInputChange('sku', e.target.value)}
+              placeholder="Product SKU"
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="new-supplierName">Supplier</Label>
+            <Select
+              value={customSupplier ? 'Custom' : newProductForm.supplierName}
+              onValueChange={(value) => handleNewProductInputChange('supplierName', value)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select a supplier" />
+              </SelectTrigger>
+              <SelectContent>
+                {ukSuppliers.map((supplier) => (
+                  <SelectItem key={supplier} value={supplier}>
+                    {supplier}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            {(newProductForm.supplierName === 'Custom' || customSupplier) && (
+              <div className="mt-2">
+                <Input
+                  placeholder="Enter custom supplier name"
+                  value={customSupplier}
+                  onChange={(e) => handleCustomSupplierChange(e.target.value)}
+                />
+              </div>
+            )}
+          </div>
+
+          <div>
+            <Label htmlFor="new-supplierUrl">Supplier URL</Label>
+            <Input
+              id="new-supplierUrl"
+              type="url"
+              value={newProductForm.supplierUrl}
+              onChange={(e) => handleNewProductInputChange('supplierUrl', e.target.value)}
+              placeholder="https://supplier-website.com/product"
+            />
+          </div>
+
+          <div className="flex gap-2 pt-4">
+            <Button
+              variant="outline"
+              onClick={() => setIsCreateDialogOpen(false)}
+              className="flex-1"
+            >
+              Cancel
+            </Button>
+            <Button onClick={createNewProduct} disabled={isCreating} className="flex-1">
+              {isCreating ? 'Creating...' : 'Create Product'}
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
     </Card>
   )
 }
