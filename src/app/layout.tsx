@@ -1,26 +1,33 @@
-import { Inter } from 'next/font/google'
-import './globals.css'
-import { Providers } from '@/components/providers/session-provider'
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import "./globals.css";
+import { SessionProviderWrapper } from "@/components/providers/session-provider";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
-const inter = Inter({ subsets: ['latin'] })
+const inter = Inter({
+  subsets: ["latin"],
+});
 
-export const metadata = {
-  title: 'Landscapered - AI-Powered Garden Design',
-  description: 'Transform your landscaping business with AI-generated garden designs',
-}
+export const metadata: Metadata = {
+  title: "Landscapered - AI-Powered Garden Design & Quoting",
+  description: "Transform garden photos into professional design concepts and accurate quotes with AI-powered landscaping tools.",
+};
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
-}: {
-  children: React.ReactNode
-}) {
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  const session = await getServerSession(authOptions);
+
   return (
     <html lang="en">
       <body className={inter.className}>
-        <Providers>
+        <SessionProviderWrapper session={session}>
           {children}
-        </Providers>
+        </SessionProviderWrapper>
       </body>
     </html>
-  )
+  );
 }

@@ -31,6 +31,7 @@ export default function SubscriptionPage() {
   const [data, setData] = useState<SubscriptionData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [buyingCredits, setBuyingCredits] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     fetchSubscriptionData()
@@ -50,6 +51,7 @@ export default function SubscriptionPage() {
 
   const handleBuyCredits = async (creditPackType: string) => {
     setBuyingCredits(creditPackType)
+    setError(null)
 
     try {
       const response = await fetch('/api/stripe/buy-credits', {
@@ -64,6 +66,10 @@ export default function SubscriptionPage() {
 
       const data = await response.json()
 
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to purchase credits')
+      }
+
       if (data.url) {
         window.location.href = data.url
       } else {
@@ -71,7 +77,7 @@ export default function SubscriptionPage() {
       }
     } catch (error) {
       console.error('Error buying credits:', error)
-      // You could add a toast notification here
+      setError(error instanceof Error ? error.message : 'Something went wrong. Please try again.')
     } finally {
       setBuyingCredits(null)
     }
@@ -106,6 +112,21 @@ export default function SubscriptionPage() {
           Manage your subscription and monitor your credit usage
         </p>
       </div>
+
+      {error && (
+        <div className="mb-8">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">
+            <p className="font-medium">Error</p>
+            <p className="text-sm mt-1">{error}</p>
+            <button
+              onClick={() => setError(null)}
+              className="text-sm underline mt-2 hover:no-underline"
+            >
+              Dismiss
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         {/* Current Plan */}
@@ -150,7 +171,7 @@ export default function SubscriptionPage() {
                   </Button>
                 ) : (
                   <Button asChild className="w-full">
-                    <Link href="/app/pricing">
+                    <Link href="/pricing">
                       <ArrowUpCircle className="h-4 w-4 mr-2" />
                       Upgrade Plan
                     </Link>

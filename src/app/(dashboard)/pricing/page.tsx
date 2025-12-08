@@ -9,11 +9,13 @@ import { PRICING_PLANS } from '@/lib/stripe'
 
 export default function PricingPage() {
   const [isLoading, setIsLoading] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
 
   const handleSubscribe = async (planType: string) => {
     if (planType === 'free') return
 
     setIsLoading(planType)
+    setError(null)
 
     try {
       const response = await fetch('/api/stripe/create-checkout', {
@@ -28,6 +30,10 @@ export default function PricingPage() {
 
       const data = await response.json()
 
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to create checkout session')
+      }
+
       if (data.url) {
         window.location.href = data.url
       } else {
@@ -35,7 +41,7 @@ export default function PricingPage() {
       }
     } catch (error) {
       console.error('Error creating checkout session:', error)
-      // You could add a toast notification here
+      setError(error instanceof Error ? error.message : 'Something went wrong. Please try again.')
     } finally {
       setIsLoading(null)
     }
@@ -52,6 +58,21 @@ export default function PricingPage() {
           the difference is in the number of AI-generated design concepts you can create each month.
         </p>
       </div>
+
+      {error && (
+        <div className="mb-8 max-w-4xl mx-auto">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">
+            <p className="font-medium">Payment Error</p>
+            <p className="text-sm mt-1">{error}</p>
+            <button
+              onClick={() => setError(null)}
+              className="text-sm underline mt-2 hover:no-underline"
+            >
+              Dismiss
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-4xl mx-auto">
         {Object.entries(PRICING_PLANS).map(([key, plan]) => (
