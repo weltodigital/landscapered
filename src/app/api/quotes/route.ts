@@ -144,8 +144,16 @@ export async function POST(request: NextRequest) {
       updatedAt: new Date().toISOString()
     }
 
+    // Map the data to match the addQuote function expectations
+    const mappedQuoteData = {
+      ...newQuote,
+      projectId: validatedData.jobId || validatedData.customerId, // Map jobId to projectId
+      designConceptId: validatedData.designId, // Map designId to designConceptId
+      items: validatedData.items
+    }
+
     // Add the quote using the storage function
-    const savedQuote = await addQuote(newQuote)
+    const savedQuote = await addQuote(mappedQuoteData)
 
     return NextResponse.json(newQuote, { status: 201 })
 

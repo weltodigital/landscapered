@@ -1,7 +1,5 @@
 // Database quote storage using Prisma
-import { PrismaClient } from '@prisma/client'
-
-const prisma = new PrismaClient()
+import { prisma } from '@/lib/prisma'
 
 export async function addQuote(quoteData: any) {
   // Handle both old format (with pricing object) and new format (flat structure)
