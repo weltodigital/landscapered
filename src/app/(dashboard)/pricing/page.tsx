@@ -53,15 +53,15 @@ export default function PricingPage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-4xl mx-auto">
         {Object.entries(PRICING_PLANS).map(([key, plan]) => (
           <Card
             key={key}
-            className={`relative ${'popular' in plan && plan.popular ? 'border-blue-500 border-2 shadow-lg' : 'border-gray-200'}`}
+            className={`relative ${'popular' in plan && plan.popular ? 'border-green-500 border-2 shadow-lg' : 'border-gray-200'}`}
           >
             {'popular' in plan && plan.popular && (
               <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                <Badge className="bg-blue-500 text-white px-4 py-1">
+                <Badge className="bg-green-500 text-white px-4 py-1">
                   Most Popular
                 </Badge>
               </div>
@@ -86,7 +86,7 @@ export default function PricingPage() {
               </div>
 
               <div className="mb-6">
-                <div className="text-3xl font-semibold text-blue-600">
+                <div className="text-3xl font-semibold text-green-600">
                   {plan.credits}
                 </div>
                 <div className="text-gray-600 text-sm">
@@ -115,7 +115,7 @@ export default function PricingPage() {
                 </Button>
               ) : (
                 <Button
-                  className={`w-full ${'popular' in plan && plan.popular ? 'bg-blue-500 hover:bg-blue-600' : ''}`}
+                  className={`w-full ${'popular' in plan && plan.popular ? 'bg-green-500 hover:bg-green-600' : ''}`}
                   onClick={() => handleSubscribe(key)}
                   disabled={isLoading === key}
                   variant={'popular' in plan && plan.popular ? 'default' : 'outline'}
@@ -138,7 +138,7 @@ export default function PricingPage() {
             <h3 className="font-semibold text-lg mb-2">How do credits work?</h3>
             <p className="text-gray-600">
               Each AI design generation uses 1 credit. Credits reset monthly on your billing date.
-              Unused credits don't roll over, encouraging you to use the service regularly.
+              Unused credits don't roll over.
             </p>
           </div>
 
@@ -160,7 +160,7 @@ export default function PricingPage() {
           <div>
             <h3 className="font-semibold text-lg mb-2">Is there a free trial?</h3>
             <p className="text-gray-600">
-              Yes! Every new account starts with 5 free credits to try out the service. No credit card required.
+              Yes! Every new account starts with 2 free credits to try out the service. No credit card required.
             </p>
           </div>
         </div>
