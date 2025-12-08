@@ -78,8 +78,8 @@ export async function POST(request: NextRequest) {
         creditPackType,
         credits: creditPack.credits.toString()
       },
-      success_url: `${process.env.NEXTAUTH_URL}/subscription?success=true&credits=${creditPack.credits}`,
-      cancel_url: `${process.env.NEXTAUTH_URL}/subscription?canceled=true`
+      success_url: `${request.headers.get('origin') || process.env.NEXTAUTH_URL}/subscription?success=true&credits=${creditPack.credits}`,
+      cancel_url: `${request.headers.get('origin') || process.env.NEXTAUTH_URL}/subscription?canceled=true`
     })
 
     return NextResponse.json({ url: session.url })
