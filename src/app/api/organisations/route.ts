@@ -1,11 +1,40 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getCurrentUser } from '@/lib/auth-utils'
-import { prisma } from '@/lib/prisma'
+import { PrismaClient } from '@prisma/client'
 import { z } from 'zod'
+
+const prisma = new PrismaClient()
 
 const createOrganisationSchema = z.object({
   name: z.string().min(1, 'Organisation name is required'),
 })
+
+export async function GET() {
+  try {
+    const user = await getCurrentUser()
+
+    const organisations = await prisma.organisation.findMany({
+      where: {
+        ownerId: user.id
+      },
+      include: {
+        rateCards: {
+          include: {
+            rateItems: true
+          }
+        }
+      }
+    })
+
+    return NextResponse.json(organisations)
+  } catch (error) {
+    console.error('Error fetching organisations:', error)
+    return NextResponse.json(
+      { error: 'Failed to fetch organisations' },
+      { status: 500 }
+    )
+  }
+}
 
 export async function POST(request: NextRequest) {
   try {

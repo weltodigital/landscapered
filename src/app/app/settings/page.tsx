@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -12,6 +12,26 @@ export default function SettingsPage() {
   const { data: session } = useSession()
   const [isEditingOrg, setIsEditingOrg] = useState(false)
   const [orgName, setOrgName] = useState('')
+  const [organizations, setOrganizations] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetchOrganizations()
+  }, [])
+
+  const fetchOrganizations = async () => {
+    try {
+      const response = await fetch('/api/organisations')
+      if (response.ok) {
+        const orgs = await response.json()
+        setOrganizations(orgs)
+      }
+    } catch (error) {
+      console.error('Error fetching organizations:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const handleCreateOrganization = async () => {
     try {
@@ -35,6 +55,8 @@ export default function SettingsPage() {
       setOrgName('')
       setIsEditingOrg(false)
       alert('Organization created successfully!')
+      // Refresh the organizations list
+      fetchOrganizations()
     } catch (error) {
       console.error('Error creating organization:', error)
       alert('Failed to create organization. Please try again.')
@@ -83,7 +105,32 @@ export default function SettingsPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {!isEditingOrg ? (
+            {loading ? (
+              <p className="text-gray-600">Loading organizations...</p>
+            ) : organizations.length > 0 ? (
+              <div className="space-y-4">
+                {organizations.map((org: any) => (
+                  <div key={org.id} className="border rounded-lg p-4">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h3 className="font-medium text-lg">{org.name}</h3>
+                        <p className="text-sm text-gray-600">
+                          Created: {new Date(org.createdAt).toLocaleDateString()}
+                        </p>
+                        {org.rateCards && org.rateCards.length > 0 && (
+                          <p className="text-sm text-green-600 mt-1">
+                            ✓ Rate cards configured ({org.rateCards[0].rateItems?.length || 0} items)
+                          </p>
+                        )}
+                      </div>
+                      <div className="text-right">
+                        <span className="text-xs text-gray-500">ID: {org.id.slice(-6)}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : !isEditingOrg ? (
               <div className="space-y-4">
                 <p className="text-gray-600">
                   You haven&apos;t set up an organization yet. Create one to start managing projects and rate cards.
