@@ -2104,3 +2104,6 @@ export default function ProjectDetailPage() {
     }
   }
 }
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'

@@ -661,3 +661,5 @@ export default function NewProjectPage() {
     </div>
   )
 }
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'

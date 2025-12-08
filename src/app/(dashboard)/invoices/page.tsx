@@ -309,3 +309,5 @@ export default function InvoicesPage() {
     </div>
   )
 }
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'

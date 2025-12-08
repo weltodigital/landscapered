@@ -15,7 +15,7 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 
-export default function NewCustomerPage() {
+function NewCustomerPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
 
@@ -196,3 +196,8 @@ export default function NewCustomerPage() {
     </div>
   )
 }
+
+export default NewCustomerPage
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'

@@ -357,3 +357,5 @@ export default function SettingsPage() {
     </div>
   )
 }
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'

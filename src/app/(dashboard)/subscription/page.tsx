@@ -301,3 +301,5 @@ export default function SubscriptionPage() {
     </div>
   )
 }
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'

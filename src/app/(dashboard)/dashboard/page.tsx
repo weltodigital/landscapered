@@ -282,3 +282,5 @@ export default function DashboardPage() {
     </div>
   )
 }
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'

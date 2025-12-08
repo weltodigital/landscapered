@@ -294,3 +294,5 @@ export default function EditCustomerPage() {
     </div>
   )
 }
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'

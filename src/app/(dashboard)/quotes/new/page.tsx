@@ -540,3 +540,5 @@ export default function NewQuotePage() {
     </div>
   )
 }
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'

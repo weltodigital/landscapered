@@ -383,3 +383,5 @@ export default function InvoiceDetailPage() {
     </div>
   )
 }
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'

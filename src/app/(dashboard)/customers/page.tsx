@@ -272,3 +272,6 @@ export default function CustomersPage() {
     </div>
   )
 }
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'

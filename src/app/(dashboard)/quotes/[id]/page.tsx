@@ -537,3 +537,5 @@ export default function QuoteDetailPage() {
     </div>
   )
 }
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'

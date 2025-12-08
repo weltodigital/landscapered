@@ -631,3 +631,5 @@ export default function ProductsPage() {
     </div>
   )
 }
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'

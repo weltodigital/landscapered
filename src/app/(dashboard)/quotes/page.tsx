@@ -400,3 +400,5 @@ export default function QuotesPage() {
     </div>
   )
 }
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'

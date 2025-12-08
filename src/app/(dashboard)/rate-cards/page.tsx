@@ -364,3 +364,5 @@ export default function RateCardsPage() {
     </div>
   )
 }
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'

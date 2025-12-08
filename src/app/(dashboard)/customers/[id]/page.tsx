@@ -340,3 +340,5 @@ export default function CustomerDetailPage() {
     </div>
   )
 }
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'

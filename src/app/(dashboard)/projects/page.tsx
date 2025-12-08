@@ -145,3 +145,5 @@ export default function ProjectsPage() {
     </div>
   )
 }
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'

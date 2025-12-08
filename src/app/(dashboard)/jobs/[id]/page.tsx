@@ -331,3 +331,5 @@ export default function JobDetailPage() {
     </div>
   )
 }
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'
