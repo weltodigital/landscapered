@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { useSession } from 'next-auth/react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import {
@@ -20,7 +19,6 @@ import {
 } from 'lucide-react'
 
 export default function DashboardPage() {
-  const { data: session } = useSession()
   const [stats, setStats] = useState({
     totalJobs: 0,
     activeJobs: 0,
@@ -58,7 +56,7 @@ export default function DashboardPage() {
     <div className="container mx-auto py-8 px-6">
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">
-          Welcome back, {session?.user?.name}!
+          Welcome back!
         </h1>
         <p className="text-gray-600">
           Here's your business overview and quick actions.
