@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import {
   Plus,
@@ -41,7 +40,6 @@ import {
 import { Customer } from '@/types/crm'
 
 export default function CustomersPage() {
-  const { data: session } = useSession()
   const [customers, setCustomers] = useState<Customer[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')

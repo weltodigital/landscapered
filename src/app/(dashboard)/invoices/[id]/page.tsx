@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
-import { useSession } from 'next-auth/react'
 import {
   ArrowLeft,
   Edit,
@@ -53,7 +52,6 @@ const statusIcons: Record<InvoiceStatus, any> = {
 export default function InvoiceDetailPage() {
   const router = useRouter()
   const params = useParams()
-  const { data: session } = useSession()
   const [invoice, setInvoice] = useState<Invoice | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -66,7 +64,7 @@ export default function InvoiceDetailPage() {
       // Mock data for now - in production this would come from your API
       const mockInvoice: Invoice = {
         id: params.id as string,
-        userId: session?.user?.email || '',
+        userId: '',
         jobId: '1',
         customerId: '1',
         invoiceNumber: 'INV-2024-001',
@@ -81,7 +79,7 @@ export default function InvoiceDetailPage() {
         updatedAt: '2024-11-28T10:00:00Z',
         job: {
           id: '1',
-          userId: session?.user?.email || '',
+          userId: '',
           customerId: '1',
           title: 'Garden Design & Installation',
           description: 'Complete garden makeover with modern landscape design',
@@ -94,7 +92,7 @@ export default function InvoiceDetailPage() {
         },
         customer: {
           id: '1',
-          userId: session?.user?.email || '',
+          userId: '',
           name: 'John Smith',
           email: 'john@example.com',
           phone: '+44 123 456 7890',

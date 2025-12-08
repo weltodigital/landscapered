@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import {
   Plus,
@@ -49,7 +48,6 @@ const statusColors: Record<JobStatus, string> = {
 }
 
 export default function JobsPage() {
-  const { data: session } = useSession()
   const [jobs, setJobs] = useState<Job[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')

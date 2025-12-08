@@ -6,10 +6,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
-import { useSession } from 'next-auth/react'
 
 export default function SettingsPage() {
-  const { data: session } = useSession()
   const [isEditingOrg, setIsEditingOrg] = useState(false)
   const [editingOrgId, setEditingOrgId] = useState<string | null>(null)
   const [orgName, setOrgName] = useState('')
@@ -172,11 +170,11 @@ export default function SettingsPage() {
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label>Name</Label>
-              <Input value={session?.user?.name || ''} disabled />
+              <Input value={''} disabled />
             </div>
             <div className="space-y-2">
               <Label>Email</Label>
-              <Input value={session?.user?.email || ''} disabled />
+              <Input value={''} disabled />
             </div>
             <p className="text-sm text-gray-600">
               To update your profile information, please contact support.

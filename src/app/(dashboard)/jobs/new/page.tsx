@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { useSession } from 'next-auth/react'
 import { ArrowLeft, Save } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -26,7 +25,6 @@ import { JobStatus, JobPriority, JobType, Customer } from '@/types/crm'
 
 export default function NewJobPage() {
   const router = useRouter()
-  const { data: session } = useSession()
   const [loading, setLoading] = useState(false)
   const [customers, setCustomers] = useState<Customer[]>([])
 
@@ -56,7 +54,7 @@ export default function NewJobPage() {
     const mockCustomers: Customer[] = [
       {
         id: '1',
-        userId: session?.user?.email || '',
+        userId: '',
         name: 'John Smith',
         email: 'john@example.com',
         phone: '+44 123 456 7890',
@@ -68,7 +66,7 @@ export default function NewJobPage() {
       },
       {
         id: '2',
-        userId: session?.user?.email || '',
+        userId: '',
         name: 'Sarah Johnson',
         email: 'sarah@example.com',
         phone: '+44 098 765 4321',
@@ -80,7 +78,7 @@ export default function NewJobPage() {
       },
       {
         id: '3',
-        userId: session?.user?.email || '',
+        userId: '',
         name: 'Mike Wilson',
         email: 'mike@example.com',
         phone: '+44 555 123 4567',

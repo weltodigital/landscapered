@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
-import { useSession } from 'next-auth/react'
 import { ArrowLeft, Edit, Calendar, MapPin, User, Clock } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -28,7 +27,6 @@ const statusColors: Record<JobStatus, string> = {
 export default function JobDetailPage() {
   const router = useRouter()
   const params = useParams()
-  const { data: session } = useSession()
   const [job, setJob] = useState<Job | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -41,7 +39,7 @@ export default function JobDetailPage() {
       // Mock data for now - in production this would come from your API
       const mockJob: Job = {
         id: params.id as string,
-        userId: session?.user?.email || '',
+        userId: '',
         customerId: '1',
         title: 'Garden Design & Installation',
         description: 'Complete garden makeover with modern landscape design including new patio area, lawn renovation, and contemporary planting scheme.',
@@ -62,7 +60,7 @@ export default function JobDetailPage() {
         updatedAt: '2024-11-28T10:00:00Z',
         customer: {
           id: '1',
-          userId: session?.user?.email || '',
+          userId: '',
           name: 'John Smith',
           email: 'john@example.com',
           phone: '+44 123 456 7890',

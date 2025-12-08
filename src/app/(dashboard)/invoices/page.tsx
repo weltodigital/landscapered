@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import {
   Plus,
@@ -59,7 +58,6 @@ const statusIcons: Record<InvoiceStatus, any> = {
 }
 
 export default function InvoicesPage() {
-  const { data: session } = useSession()
   const [invoices, setInvoices] = useState<Invoice[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')

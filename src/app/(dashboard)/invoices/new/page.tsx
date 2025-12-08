@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { useSession } from 'next-auth/react'
 import { ArrowLeft, Save, Plus, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -47,7 +46,6 @@ interface InvoiceItem {
 
 export default function NewInvoicePage() {
   const router = useRouter()
-  const { data: session } = useSession()
   const [loading, setLoading] = useState(false)
   const [customers, setCustomers] = useState<Customer[]>([])
   const [jobs, setJobs] = useState<Job[]>([])
@@ -83,7 +81,7 @@ export default function NewInvoicePage() {
     const mockCustomers: Customer[] = [
       {
         id: '1',
-        userId: session?.user?.email || '',
+        userId: '',
         name: 'John Smith',
         email: 'john@example.com',
         phone: '+44 123 456 7890',
@@ -95,7 +93,7 @@ export default function NewInvoicePage() {
       },
       {
         id: '2',
-        userId: session?.user?.email || '',
+        userId: '',
         name: 'Sarah Johnson',
         email: 'sarah@example.com',
         phone: '+44 098 765 4321',
@@ -110,7 +108,7 @@ export default function NewInvoicePage() {
     const mockJobs: Job[] = [
       {
         id: '1',
-        userId: session?.user?.email || '',
+        userId: '',
         customerId: '1',
         title: 'Garden Design & Installation',
         description: 'Complete garden makeover with modern landscape design',
@@ -123,7 +121,7 @@ export default function NewInvoicePage() {
       },
       {
         id: '2',
-        userId: session?.user?.email || '',
+        userId: '',
         customerId: '2',
         title: 'Monthly Lawn Maintenance',
         description: 'Regular lawn care and maintenance service',

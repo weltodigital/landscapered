@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
-import { useSession } from 'next-auth/react'
 import { ArrowLeft, Edit, Phone, Mail, MapPin, Calendar, Briefcase } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -36,7 +35,6 @@ const statusColors: Record<JobStatus, string> = {
 export default function CustomerDetailPage() {
   const router = useRouter()
   const params = useParams()
-  const { data: session } = useSession()
   const [customer, setCustomer] = useState<Customer | null>(null)
   const [jobs, setJobs] = useState<Job[]>([])
   const [loading, setLoading] = useState(true)
@@ -50,7 +48,7 @@ export default function CustomerDetailPage() {
       // Mock data for now - in production this would come from your API
       const mockCustomer: Customer = {
         id: params.id as string,
-        userId: session?.user?.email || '',
+        userId: '',
         name: 'John Smith',
         email: 'john@example.com',
         phone: '+44 123 456 7890',
@@ -65,7 +63,7 @@ export default function CustomerDetailPage() {
       const mockJobs: Job[] = [
         {
           id: '1',
-          userId: session?.user?.email || '',
+          userId: '',
           customerId: params.id as string,
           title: 'Garden Design & Installation',
           description: 'Complete garden makeover with modern landscape design',
@@ -83,7 +81,7 @@ export default function CustomerDetailPage() {
         },
         {
           id: '4',
-          userId: session?.user?.email || '',
+          userId: '',
           customerId: params.id as string,
           title: 'Spring Maintenance Package',
           description: 'Annual spring garden maintenance and pruning',

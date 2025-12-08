@@ -6,7 +6,6 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
-import { useSession } from 'next-auth/react'
 
 interface RateItem {
   id: string
@@ -26,7 +25,6 @@ interface RateCard {
 }
 
 export default function RateCardsPage() {
-  const { data: session } = useSession()
   const [rateCard, setRateCard] = useState<RateCard | null>(null)
   const [loading, setLoading] = useState(true)
   const [editingItem, setEditingItem] = useState<string | null>(null)

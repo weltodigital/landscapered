@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { useSession } from 'next-auth/react'
 import { ArrowLeft, Save, User } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -18,7 +17,6 @@ import {
 
 export default function NewCustomerPage() {
   const router = useRouter()
-  const { data: session } = useSession()
   const [loading, setLoading] = useState(false)
 
   const [formData, setFormData] = useState({
