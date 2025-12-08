@@ -12,9 +12,12 @@ model User {
   name           String?
   email          String         @unique
   hashedPassword String?
+  stripeCustomerId String?      @unique
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
   organisations  Organisation[]
+  subscription   Subscription?
+  credits        Credit[]
 
   @@map("users")
 }
@@ -179,4 +182,46 @@ model Product {
   quoteLineItems QuoteLineItem[]
 
   @@map("products")
+}
+
+model Subscription {
+  id                String    @id @default(cuid())
+  userId            String    @unique
+  stripeSubscriptionId String @unique
+  stripePriceId     String
+  stripeCurrentPeriodEnd DateTime?
+  stripeCustomerId  String
+  status            String    // active, canceled, incomplete, etc.
+  planType          String    // starter, professional, business, enterprise
+  creditsPerMonth   Int
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("subscriptions")
+}
+
+model Credit {
+  id          String    @id @default(cuid())
+  userId      String
+  amount      Int       // Number of credits
+  used        Boolean   @default(false)
+  source      String    // subscription, purchase, bonus, free_tier
+  expiresAt   DateTime? // Credits can expire
+  usedAt      DateTime?
+  createdAt   DateTime  @default(now())
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("credits")
+}
+
+model Usage {
+  id          String   @id @default(cuid())
+  userId      String
+  action      String   // image_generation, etc.
+  creditCost  Int      @default(1)
+  metadata    Json?    // Store additional data about the usage
+  createdAt   DateTime @default(now())
+
+  @@map("usage")
 }

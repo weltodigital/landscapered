@@ -16,7 +16,8 @@ import {
   Calendar,
   Receipt,
   Package,
-  DollarSign
+  DollarSign,
+  CreditCard
 } from 'lucide-react'
 import {
   Sidebar,
@@ -76,6 +77,16 @@ const menuItems = [
     title: 'Rate Cards',
     url: '/app/rate-cards',
     icon: DollarSign,
+  },
+  {
+    title: 'Pricing',
+    url: '/app/pricing',
+    icon: CreditCard,
+  },
+  {
+    title: 'Subscription',
+    url: '/app/subscription',
+    icon: CreditCard,
   },
   {
     title: 'Settings',
