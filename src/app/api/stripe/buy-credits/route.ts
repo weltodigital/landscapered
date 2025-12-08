@@ -7,6 +7,10 @@ const prisma = new PrismaClient()
 
 export async function POST(request: NextRequest) {
   try {
+    if (!stripe) {
+      return NextResponse.json({ error: 'Stripe not configured' }, { status: 500 })
+    }
+
     const user = await getCurrentUser()
     const { creditPackType } = await request.json()
 

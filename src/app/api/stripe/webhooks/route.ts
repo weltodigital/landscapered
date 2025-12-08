@@ -9,6 +9,10 @@ const prisma = new PrismaClient()
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!
 
 export async function POST(request: NextRequest) {
+  if (!stripe) {
+    return NextResponse.json({ error: 'Stripe not configured' }, { status: 500 })
+  }
+
   const body = await request.text()
   const headersList = await headers()
   const signature = headersList.get('stripe-signature')!
@@ -116,7 +120,7 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
 
 async function handlePaymentSucceeded(invoice: Stripe.Invoice) {
   // Payment succeeded - grant credits if it's a subscription renewal
-  if ((invoice as any).subscription) {
+  if ((invoice as any).subscription && stripe) {
     const subscription = await stripe.subscriptions.retrieve((invoice as any).subscription as string)
     await handleSubscriptionChange(subscription)
   }

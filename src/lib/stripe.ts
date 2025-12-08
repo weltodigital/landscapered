@@ -1,13 +1,20 @@
 import Stripe from 'stripe'
 
-if (!process.env.STRIPE_SECRET_KEY) {
-  throw new Error('STRIPE_SECRET_KEY is not defined')
+// Initialize Stripe only on server-side with proper error handling
+let stripe: Stripe | null = null
+
+if (typeof window === 'undefined' && process.env.STRIPE_SECRET_KEY) {
+  try {
+    stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+      apiVersion: '2025-11-17.clover',
+      typescript: true,
+    })
+  } catch (error) {
+    console.error('Failed to initialize Stripe:', error)
+  }
 }
 
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: '2025-11-17.clover',
-  typescript: true,
-})
+export { stripe }
 
 // Pricing configuration matching our discussed tiers
 export const PRICING_PLANS = {
