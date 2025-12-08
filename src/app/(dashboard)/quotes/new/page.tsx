@@ -104,7 +104,7 @@ export default function NewQuotePage() {
       const mockJobs: Job[] = [
         {
           id: '1',
-          userId: session?.user?.email || '',
+          userId: '',
           customerId: '1',
           title: 'Garden Design & Installation',
           description: 'Complete garden makeover with modern landscape design',
