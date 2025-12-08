@@ -1109,10 +1109,17 @@ export default function ProjectDetailPage() {
 
         const totals = calculateTotal()
 
+        // Generate quote number
+        const now = new Date()
+        const dateStr = now.toISOString().slice(0, 10).replace(/-/g, '')
+        const randomStr = Math.random().toString(36).substr(2, 6).toUpperCase()
+        const quoteNumber = `QUO-${dateStr}-${randomStr}`
+
         // Prepare quote data for API
         const quoteData = {
-          customerId: project?.clientEmail || 'unknown',
+          customerId: project?.clientEmail || 'unknown', // Use client email as expected by API
           jobId: project?.id,
+          quoteNumber: quoteNumber,
           validUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 30 days from now
           notes: `Quote for ${project?.title || 'Garden Design Project'}`,
           terms: 'Payment due within 30 days of acceptance.',
@@ -1122,9 +1129,9 @@ export default function ProjectDetailPage() {
           designImageNumber: selectedDesign?.imageNumber || (designs.findIndex(d => d.id === selectedDesign?.id) + 1),
           items: [
             // Materials items
-            ...selectedProducts.map(product => ({
-              id: `item-${product.productId}-${Date.now()}`,
-              quoteId: '', // Will be set by API
+            ...selectedProducts.map((product, index) => ({
+              id: `item-${product.productId}-${Date.now()}-${index}`,
+              quoteId: quoteNumber, // Use the generated quote number
               productId: product.productId,
               customDescription: product.productName,
               quantity: product.quantity,
@@ -1136,7 +1143,7 @@ export default function ProjectDetailPage() {
             // Labor item if hours > 0
             ...(laborHours > 0 ? [{
               id: `labor-${Date.now()}`,
-              quoteId: '', // Will be set by API
+              quoteId: quoteNumber, // Use the generated quote number
               customDescription: `Labor (${laborHours} hours @ ${formatCurrency(hourlyRate)}/hour)`,
               quantity: laborHours,
               unitPrice: hourlyRate,
@@ -1147,7 +1154,7 @@ export default function ProjectDetailPage() {
             // Markup item if markup > 0
             ...(markupPercentage > 0 ? [{
               id: `markup-${Date.now()}`,
-              quoteId: '', // Will be set by API
+              quoteId: quoteNumber, // Use the generated quote number
               customDescription: `Materials Markup (${markupPercentage}%)`,
               quantity: 1,
               unitPrice: totals.markup,
