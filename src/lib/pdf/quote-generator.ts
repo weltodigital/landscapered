@@ -47,6 +47,10 @@ interface QuoteData {
   createdBy?: string
   designImageUrl?: string
   designStyle?: string
+  organisation?: {
+    name: string
+    logoUrl?: string
+  }
 }
 
 export async function generateQuotePDF(quote: QuoteData): Promise<jsPDF> {
@@ -56,19 +60,49 @@ export async function generateQuotePDF(quote: QuoteData): Promise<jsPDF> {
 
   const doc = new jsPDF()
 
-  // Company header
+  // Company header with logo
+  let headerYPos = 25
+  const logoSize = 30
+
+  // Try to add organization logo
+  if (quote.organisation?.logoUrl) {
+    try {
+      // For data URLs (base64), use directly
+      if (quote.organisation.logoUrl.startsWith('data:')) {
+        const imageFormat = quote.organisation.logoUrl.includes('data:image/png') ? 'PNG' : 'JPEG'
+        doc.addImage(quote.organisation.logoUrl, imageFormat, 20, 15, logoSize, logoSize)
+      } else {
+        // For regular URLs, fetch and convert to base64
+        const logoBase64 = await getImageAsBase64(quote.organisation.logoUrl)
+        if (logoBase64) {
+          const imageFormat = logoBase64.includes('data:image/png') ? 'PNG' : 'JPEG'
+          doc.addImage(logoBase64, imageFormat, 20, 15, logoSize, logoSize)
+        }
+      }
+
+      // Adjust text position to accommodate logo
+      headerYPos = 25
+    } catch (error) {
+      console.error('Error adding logo to PDF:', error)
+      headerYPos = 25
+    }
+  }
+
+  // Company name and details
+  const textStartX = quote.organisation?.logoUrl ? 55 : 20 // Offset text if logo present
+
   doc.setFontSize(20)
   doc.setTextColor(39, 60, 44) // Brand green #273C2C
-  doc.text('Landscapered', 20, 25)
+  doc.text(quote.organisation?.name || 'Landscapered', textStartX, headerYPos)
 
   doc.setFontSize(12)
   doc.setTextColor(0, 0, 0)
-  doc.text('Professional Garden Design & Landscaping', 20, 35)
+  doc.text('Professional Garden Design & Landscaping', textStartX, headerYPos + 10)
 
   // Add company contact info
   doc.setFontSize(10)
-  doc.text('Email: hello@landscapered.com | Phone: +44 20 1234 5678', 20, 45)
-  doc.text('www.landscapered.com', 20, 52)
+  doc.text('Email: hello@landscapered.com | Phone: +44 20 1234 5678', textStartX, headerYPos + 20)
+  doc.text('www.landscapered.com', textStartX, headerYPos + 27)
 
   // Quote title and details
   doc.setFontSize(16)

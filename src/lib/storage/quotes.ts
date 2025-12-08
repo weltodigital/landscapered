@@ -46,7 +46,11 @@ export async function getQuote(quoteId: string, userId?: string) {
   return await prisma.quote.findUnique({
     where: { id: quoteId },
     include: {
-      project: true,
+      project: {
+        include: {
+          organisation: true
+        }
+      },
       designConcept: true,
       lineItems: true
     }

@@ -7,6 +7,7 @@ const prisma = new PrismaClient()
 
 const createOrganisationSchema = z.object({
   name: z.string().min(1, 'Organisation name is required'),
+  logoUrl: z.string().optional(),
 })
 
 export async function GET() {
@@ -53,6 +54,7 @@ export async function POST(request: NextRequest) {
     const organisation = await prisma.organisation.create({
       data: {
         name: validatedData.name,
+        logoUrl: validatedData.logoUrl,
         ownerId: user.id,
         rateCards: {
           create: {

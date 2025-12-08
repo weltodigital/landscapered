@@ -14,6 +14,8 @@ export default function SettingsPage() {
   const [orgName, setOrgName] = useState('')
   const [organizations, setOrganizations] = useState([])
   const [loading, setLoading] = useState(true)
+  const [uploadingLogo, setUploadingLogo] = useState(false)
+  const [logoPreview, setLogoPreview] = useState<string | null>(null)
 
   useEffect(() => {
     fetchOrganizations()
@@ -33,6 +35,37 @@ export default function SettingsPage() {
     }
   }
 
+  const handleLogoUpload = async (file: File) => {
+    if (!file) return null
+
+    setUploadingLogo(true)
+    try {
+      const formData = new FormData()
+      formData.append('logo', file)
+
+      const response = await fetch('/api/upload/logo', {
+        method: 'POST',
+        body: formData,
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        alert('Failed to upload logo: ' + (error.error || 'Unknown error'))
+        return null
+      }
+
+      const result = await response.json()
+      setLogoPreview(result.logoUrl)
+      return result.logoUrl
+    } catch (error) {
+      console.error('Error uploading logo:', error)
+      alert('Failed to upload logo. Please try again.')
+      return null
+    } finally {
+      setUploadingLogo(false)
+    }
+  }
+
   const handleCreateOrganization = async () => {
     try {
       const response = await fetch('/api/organisations', {
@@ -40,7 +73,10 @@ export default function SettingsPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ name: orgName }),
+        body: JSON.stringify({
+          name: orgName,
+          logoUrl: logoPreview
+        }),
       })
 
       if (!response.ok) {
@@ -53,6 +89,7 @@ export default function SettingsPage() {
       const organization = await response.json()
       console.log('Organization created:', organization)
       setOrgName('')
+      setLogoPreview(null)
       setIsEditingOrg(false)
       alert('Organization created successfully!')
       // Refresh the organizations list
@@ -112,16 +149,32 @@ export default function SettingsPage() {
                 {organizations.map((org: any) => (
                   <div key={org.id} className="border rounded-lg p-4">
                     <div className="flex justify-between items-start">
-                      <div>
-                        <h3 className="font-medium text-lg">{org.name}</h3>
-                        <p className="text-sm text-gray-600">
-                          Created: {new Date(org.createdAt).toLocaleDateString()}
-                        </p>
-                        {org.rateCards && org.rateCards.length > 0 && (
-                          <p className="text-sm text-green-600 mt-1">
-                            ✓ Rate cards configured ({org.rateCards[0].rateItems?.length || 0} items)
-                          </p>
+                      <div className="flex gap-4">
+                        {org.logoUrl && (
+                          <div className="flex-shrink-0">
+                            <img
+                              src={org.logoUrl}
+                              alt={`${org.name} logo`}
+                              className="w-16 h-16 object-contain rounded border"
+                            />
+                          </div>
                         )}
+                        <div>
+                          <h3 className="font-medium text-lg">{org.name}</h3>
+                          <p className="text-sm text-gray-600">
+                            Created: {new Date(org.createdAt).toLocaleDateString()}
+                          </p>
+                          {org.rateCards && org.rateCards.length > 0 && (
+                            <p className="text-sm text-green-600 mt-1">
+                              ✓ Rate cards configured ({org.rateCards[0].rateItems?.length || 0} items)
+                            </p>
+                          )}
+                          {org.logoUrl && (
+                            <p className="text-sm text-blue-600 mt-1">
+                              ✓ Logo uploaded
+                            </p>
+                          )}
+                        </div>
                       </div>
                       <div className="text-right">
                         <span className="text-xs text-gray-500">ID: {org.id.slice(-6)}</span>
@@ -150,11 +203,59 @@ export default function SettingsPage() {
                     placeholder="e.g., Green Thumb Landscaping"
                   />
                 </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="orgLogo">Company Logo (Optional)</Label>
+                  <div className="space-y-3">
+                    <Input
+                      id="orgLogo"
+                      type="file"
+                      accept="image/jpeg,image/png,image/gif,image/webp"
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0]
+                        if (file) {
+                          await handleLogoUpload(file)
+                        }
+                      }}
+                      disabled={uploadingLogo}
+                    />
+                    {uploadingLogo && (
+                      <p className="text-sm text-blue-600">Uploading logo...</p>
+                    )}
+                    {logoPreview && (
+                      <div className="flex items-center gap-3">
+                        <img
+                          src={logoPreview}
+                          alt="Logo preview"
+                          className="w-16 h-16 object-contain rounded border"
+                        />
+                        <div>
+                          <p className="text-sm text-green-600">✓ Logo uploaded</p>
+                          <button
+                            type="button"
+                            onClick={() => setLogoPreview(null)}
+                            className="text-xs text-red-600 hover:text-red-800"
+                          >
+                            Remove logo
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-xs text-gray-500">
+                    Supported formats: JPEG, PNG, GIF, WebP. Max size: 5MB.
+                  </p>
+                </div>
+
                 <div className="flex gap-3">
                   <Button onClick={handleCreateOrganization} disabled={!orgName.trim()}>
                     Create Organization
                   </Button>
-                  <Button variant="outline" onClick={() => setIsEditingOrg(false)}>
+                  <Button variant="outline" onClick={() => {
+                    setIsEditingOrg(false)
+                    setLogoPreview(null)
+                    setOrgName('')
+                  }}>
                     Cancel
                   </Button>
                 </div>

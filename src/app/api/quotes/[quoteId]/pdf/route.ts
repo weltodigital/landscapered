@@ -55,7 +55,11 @@ export async function GET(
       terms: 'Payment due within 30 days of acceptance.',
       createdBy: dbQuote.project?.clientEmail || '',
       designImageUrl: undefined,
-      designStyle: dbQuote.designConcept?.style || 'Modern'
+      designStyle: dbQuote.designConcept?.style || 'Modern',
+      organisation: dbQuote.project?.organisation ? {
+        name: dbQuote.project.organisation.name,
+        logoUrl: dbQuote.project.organisation.logoUrl || undefined
+      } : undefined
     }
 
 
