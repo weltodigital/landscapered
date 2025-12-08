@@ -35,7 +35,7 @@ import { Button } from '@/components/ui/button'
 const menuItems = [
   {
     title: 'Dashboard',
-    url: '/',
+    url: '/dashboard',
     icon: Home,
   },
   {

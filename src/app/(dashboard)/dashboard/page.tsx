@@ -173,50 +173,49 @@ export default function DashboardPage() {
       <div className="mb-8">
         <h2 className="text-2xl font-bold mb-6">Quick Actions</h2>
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Link href="/app/jobs/new">
+          <Link href="/jobs/new">
             <Button className="w-full h-20 flex flex-col items-center justify-center gap-2">
               <Plus className="h-6 w-6" />
               <span>New Job</span>
             </Button>
           </Link>
 
-          <Link href="/app/customers/new">
+          <Link href="/customers/new">
             <Button variant="outline" className="w-full h-20 flex flex-col items-center justify-center gap-2">
               <Users className="h-6 w-6" />
               <span>Add Customer</span>
             </Button>
           </Link>
 
-          <Link href="/app/schedule">
+          <Link href="/quotes/new">
             <Button variant="outline" className="w-full h-20 flex flex-col items-center justify-center gap-2">
-              <Calendar className="h-6 w-6" />
-              <span>Schedule</span>
+              <Calculator className="h-6 w-6" />
+              <span>New Quote</span>
             </Button>
           </Link>
 
-          <Link href="/app/invoices">
+          <Link href="/invoices">
             <Button variant="outline" className="w-full h-20 flex flex-col items-center justify-center gap-2">
               <FileText className="h-6 w-6" />
               <span>Invoices</span>
             </Button>
           </Link>
 
-          <Link href="/app/projects/new">
+          <Link href="/projects/new">
             <Button variant="outline" className="w-full h-20 flex flex-col items-center justify-center gap-2">
               <FolderKanban className="h-6 w-6" />
               <span>New Project</span>
             </Button>
           </Link>
 
-          <Link href="/app/projects">
+          <Link href="/projects">
             <Button variant="outline" className="w-full h-20 flex flex-col items-center justify-center gap-2">
               <FolderKanban className="h-6 w-6" />
               <span>View Projects</span>
             </Button>
           </Link>
 
-
-          <Link href="/app/settings">
+          <Link href="/settings">
             <Button variant="outline" className="w-full h-20 flex flex-col items-center justify-center gap-2">
               <Settings className="h-6 w-6" />
               <span>Settings</span>
@@ -247,7 +246,7 @@ export default function DashboardPage() {
                 2
               </div>
               <span>Set up your organization</span>
-              <Link href="/app/settings">
+              <Link href="/settings">
                 <Button size="sm" variant="outline">
                   Setup
                 </Button>
@@ -259,7 +258,7 @@ export default function DashboardPage() {
                 3
               </div>
               <span>Add your first customer</span>
-              <Link href="/app/customers/new">
+              <Link href="/customers/new">
                 <Button size="sm" variant="outline">
                   Add Customer
                 </Button>
@@ -271,7 +270,7 @@ export default function DashboardPage() {
                 4
               </div>
               <span>Create your first project</span>
-              <Link href="/app/projects/new">
+              <Link href="/projects/new">
                 <Button size="sm" variant="outline">
                   Create
                 </Button>

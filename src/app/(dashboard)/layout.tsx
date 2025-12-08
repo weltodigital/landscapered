@@ -6,7 +6,7 @@ import { useEffect } from 'react'
 import { AppSidebar } from '@/components/app-sidebar'
 import { SidebarProvider } from '@/components/ui/sidebar'
 
-export default function AppLayout({
+export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode
