@@ -16,11 +16,11 @@ import {
 import { Job, JobStatus } from '@/types/crm'
 
 const statusColors: Record<JobStatus, string> = {
-  lead: 'bg-blue-100 text-blue-800',
+  lead: 'bg-primary/10 text-primary',
   quoted: 'bg-yellow-100 text-yellow-800',
-  booked: 'bg-purple-100 text-purple-800',
-  in_progress: 'bg-orange-100 text-orange-800',
-  completed: 'bg-green-100 text-green-800',
+  booked: 'bg-accent/10 text-accent',
+  in_progress: 'bg-secondary/10 text-secondary',
+  completed: 'bg-primary/10 text-primary',
   cancelled: 'bg-red-100 text-red-800',
   on_hold: 'bg-gray-100 text-gray-800',
 }
@@ -247,7 +247,7 @@ export default function JobDetailPage() {
                   {job.actualValue && (
                     <div className="space-y-3">
                       <div className="text-sm text-gray-500">Actual Value</div>
-                      <div className="font-medium text-green-600">
+                      <div className="font-medium text-primary">
                         {formatCurrency(job.actualValue)}
                       </div>
                     </div>
@@ -256,7 +256,7 @@ export default function JobDetailPage() {
                   {job.actualHours && (
                     <div className="space-y-3">
                       <div className="text-sm text-gray-500">Actual Hours</div>
-                      <div className="font-medium text-green-600">
+                      <div className="font-medium text-primary">
                         {job.actualHours}h
                       </div>
                     </div>

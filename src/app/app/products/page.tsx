@@ -441,7 +441,7 @@ export default function ProductsPage() {
                             <p className="text-sm text-gray-600 mb-2">{product.description}</p>
                           )}
                           <div className="flex items-center gap-4 text-sm text-gray-500">
-                            <span className="font-medium text-green-600">
+                            <span className="font-medium text-primary">
                               £{product.price.toFixed(2)} per {product.unit}
                             </span>
                             {product.supplierName && (

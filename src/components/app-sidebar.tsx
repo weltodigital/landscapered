@@ -72,11 +72,6 @@ const menuItems = [
     icon: Package,
   },
   {
-    title: 'Rate Card',
-    url: '/app/rate-card',
-    icon: Calculator,
-  },
-  {
     title: 'Settings',
     url: '/app/settings',
     icon: Settings,
@@ -96,7 +91,7 @@ export function AppSidebar() {
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel className="text-lg font-bold px-4 py-6">
-            Gardenly
+            Landscapered
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>

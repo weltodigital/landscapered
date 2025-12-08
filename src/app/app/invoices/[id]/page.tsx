@@ -36,8 +36,8 @@ import { Invoice, InvoiceStatus, InvoiceItem } from '@/types/crm'
 
 const statusColors: Record<InvoiceStatus, string> = {
   draft: 'bg-gray-100 text-gray-800',
-  sent: 'bg-blue-100 text-blue-800',
-  paid: 'bg-green-100 text-green-800',
+  sent: 'bg-primary/10 text-primary',
+  paid: 'bg-primary/10 text-primary',
   overdue: 'bg-red-100 text-red-800',
   cancelled: 'bg-red-100 text-red-800',
 }
@@ -297,7 +297,7 @@ export default function InvoiceDetailPage() {
               {invoice.paidAt && (
                 <div className="flex justify-between">
                   <span className="text-gray-600">Paid Date:</span>
-                  <span className="font-medium text-green-600">{formatDate(invoice.paidAt)}</span>
+                  <span className="font-medium text-primary">{formatDate(invoice.paidAt)}</span>
                 </div>
               )}
             </div>

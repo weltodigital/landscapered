@@ -161,6 +161,10 @@ export interface PriceQuote {
   createdBy: string
   createdAt: string
   updatedAt: string
+  designId?: string
+  designImageUrl?: string
+  designStyle?: string
+  designImageNumber?: number
 }
 
 export type QuoteStatus =

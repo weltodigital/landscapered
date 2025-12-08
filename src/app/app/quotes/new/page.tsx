@@ -394,7 +394,7 @@ export default function NewQuotePage() {
                   <span>Subtotal:</span>
                   <span>{formatCurrency(subtotal)}</span>
                 </div>
-                <div className="flex justify-between text-sm text-green-600">
+                <div className="flex justify-between text-sm text-primary">
                   <span>Total Markup:</span>
                   <span>{formatCurrency(totalMarkup)}</span>
                 </div>

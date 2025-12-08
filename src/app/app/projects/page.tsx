@@ -4,11 +4,18 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Plus, FolderKanban } from 'lucide-react'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { Plus, FolderKanban, Trash2, MoreVertical } from 'lucide-react'
 
 export default function ProjectsPage() {
   const [projects, setProjects] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [deletingProject, setDeletingProject] = useState<string | null>(null)
 
   useEffect(() => {
     async function fetchProjects() {
@@ -27,6 +34,33 @@ export default function ProjectsPage() {
 
     fetchProjects()
   }, [])
+
+  const deleteProject = async (projectId: string, projectTitle: string) => {
+    if (!confirm(`Are you sure you want to delete "${projectTitle}"? This action cannot be undone.`)) {
+      return
+    }
+
+    setDeletingProject(projectId)
+
+    try {
+      const response = await fetch(`/api/projects/${projectId}`, {
+        method: 'DELETE'
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to delete project')
+      }
+
+      // Remove project from state
+      setProjects(projects.filter(p => p.id !== projectId))
+
+    } catch (error) {
+      console.error('Error deleting project:', error)
+      alert('Failed to delete project. Please try again.')
+    } finally {
+      setDeletingProject(null)
+    }
+  }
 
   return (
     <div className="container mx-auto py-8 px-6">
@@ -66,20 +100,45 @@ export default function ProjectsPage() {
       ) : (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {projects.map((project) => (
-            <Link key={project.id} href={`/app/projects/${project.id}`}>
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-                <CardHeader>
-                  <CardTitle className="line-clamp-1">{project.title}</CardTitle>
-                  <CardDescription>{project.clientName}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center justify-between text-sm text-gray-600">
-                    <span>Status: {project.status}</span>
-                    <span>{project.photos?.length || 0} photos</span>
+            <Card key={project.id} className="hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <div className="flex items-start justify-between">
+                  <div className="flex-1 cursor-pointer" onClick={() => window.location.href = `/app/projects/${project.id}`}>
+                    <CardTitle className="line-clamp-1">{project.title}</CardTitle>
+                    <CardDescription>{project.clientName}</CardDescription>
                   </div>
-                </CardContent>
-              </Card>
-            </Link>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                        <MoreVertical className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          deleteProject(project.id, project.title)
+                        }}
+                        disabled={deletingProject === project.id}
+                        className="text-red-600 focus:text-red-600"
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        {deletingProject === project.id ? 'Deleting...' : 'Delete'}
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              </CardHeader>
+              <CardContent
+                className="cursor-pointer"
+                onClick={() => window.location.href = `/app/projects/${project.id}`}
+              >
+                <div className="flex items-center justify-between text-sm text-gray-600">
+                  <span>Status: {project.status}</span>
+                  <span>{project.photos?.length || 0} photos</span>
+                </div>
+              </CardContent>
+            </Card>
           ))}
         </div>
       )}

@@ -39,11 +39,11 @@ import {
 import { Job, JobStatus } from '@/types/crm'
 
 const statusColors: Record<JobStatus, string> = {
-  lead: 'bg-blue-100 text-blue-800',
+  lead: 'bg-primary/10 text-primary',
   quoted: 'bg-yellow-100 text-yellow-800',
-  booked: 'bg-purple-100 text-purple-800',
-  in_progress: 'bg-orange-100 text-orange-800',
-  completed: 'bg-green-100 text-green-800',
+  booked: 'bg-accent/10 text-accent',
+  in_progress: 'bg-secondary/10 text-secondary',
+  completed: 'bg-primary/10 text-primary',
   cancelled: 'bg-red-100 text-red-800',
   on_hold: 'bg-gray-100 text-gray-800',
 }
@@ -60,104 +60,8 @@ export default function JobsPage() {
 
   const fetchJobs = async () => {
     try {
-      // Mock data for now
-      const mockJobs: Job[] = [
-        {
-          id: '1',
-          userId: session?.user?.email || '',
-          customerId: '1',
-          title: 'Garden Design & Installation',
-          description: 'Complete garden makeover with modern landscape design',
-          status: 'in_progress',
-          priority: 'high',
-          type: 'design',
-          estimatedValue: 15000,
-          actualValue: 14500,
-          estimatedHours: 40,
-          actualHours: 35,
-          startDate: '2024-12-01',
-          endDate: '2024-12-15',
-          scheduledDate: '2024-12-05',
-          address: '123 Garden Lane',
-          city: 'London',
-          postcode: 'SW1A 1AA',
-          createdAt: '2024-11-28T10:00:00Z',
-          updatedAt: '2024-11-28T10:00:00Z',
-          customer: {
-            id: '1',
-            userId: session?.user?.email || '',
-            name: 'John Smith',
-            email: 'john@example.com',
-            phone: '+44 123 456 7890',
-            address: '123 Garden Lane',
-            city: 'London',
-            postcode: 'SW1A 1AA',
-            createdAt: '2024-11-20T10:00:00Z',
-            updatedAt: '2024-11-20T10:00:00Z',
-          }
-        },
-        {
-          id: '2',
-          userId: session?.user?.email || '',
-          customerId: '2',
-          title: 'Monthly Lawn Maintenance',
-          description: 'Regular lawn care and maintenance service',
-          status: 'booked',
-          priority: 'medium',
-          type: 'maintenance',
-          estimatedValue: 500,
-          estimatedHours: 8,
-          scheduledDate: '2024-12-02',
-          address: '456 Rose Street',
-          city: 'Manchester',
-          postcode: 'M1 1AA',
-          createdAt: '2024-11-25T14:00:00Z',
-          updatedAt: '2024-11-25T14:00:00Z',
-          customer: {
-            id: '2',
-            userId: session?.user?.email || '',
-            name: 'Sarah Johnson',
-            email: 'sarah@example.com',
-            phone: '+44 098 765 4321',
-            address: '456 Rose Street',
-            city: 'Manchester',
-            postcode: 'M1 1AA',
-            createdAt: '2024-11-22T14:00:00Z',
-            updatedAt: '2024-11-22T14:00:00Z',
-          }
-        },
-        {
-          id: '3',
-          userId: session?.user?.email || '',
-          customerId: '3',
-          title: 'Patio Installation Quote',
-          description: 'Quote for new patio and outdoor seating area',
-          status: 'quoted',
-          priority: 'low',
-          type: 'quote',
-          estimatedValue: 8000,
-          estimatedHours: 24,
-          scheduledDate: '2024-12-10',
-          address: '789 Oak Avenue',
-          city: 'Birmingham',
-          postcode: 'B1 1AA',
-          createdAt: '2024-11-27T09:00:00Z',
-          updatedAt: '2024-11-27T09:00:00Z',
-          customer: {
-            id: '3',
-            userId: session?.user?.email || '',
-            name: 'Mike Wilson',
-            email: 'mike@example.com',
-            phone: '+44 555 123 4567',
-            address: '789 Oak Avenue',
-            city: 'Birmingham',
-            postcode: 'B1 1AA',
-            createdAt: '2024-11-26T09:00:00Z',
-            updatedAt: '2024-11-26T09:00:00Z',
-          }
-        }
-      ]
-      setJobs(mockJobs)
+      // Start with empty jobs for clean app
+      setJobs([])
       setLoading(false)
     } catch (error) {
       console.error('Error fetching jobs:', error)

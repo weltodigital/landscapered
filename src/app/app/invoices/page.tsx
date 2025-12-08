@@ -44,8 +44,8 @@ import { Invoice, InvoiceStatus } from '@/types/crm'
 
 const statusColors: Record<InvoiceStatus, string> = {
   draft: 'bg-gray-100 text-gray-800',
-  sent: 'bg-blue-100 text-blue-800',
-  paid: 'bg-green-100 text-green-800',
+  sent: 'bg-primary/10 text-primary',
+  paid: 'bg-primary/10 text-primary',
   overdue: 'bg-red-100 text-red-800',
   cancelled: 'bg-red-100 text-red-800',
 }
@@ -70,170 +70,8 @@ export default function InvoicesPage() {
 
   const fetchInvoices = async () => {
     try {
-      // Mock data for now
-      const mockInvoices: Invoice[] = [
-        {
-          id: '1',
-          userId: session?.user?.email || '',
-          jobId: '1',
-          customerId: '1',
-          invoiceNumber: 'INV-2024-001',
-          status: 'sent',
-          subtotal: 14500,
-          tax: 2900,
-          total: 17400,
-          dueDate: '2024-12-20',
-          sentAt: '2024-11-28T10:00:00Z',
-          createdAt: '2024-11-28T10:00:00Z',
-          updatedAt: '2024-11-28T10:00:00Z',
-          job: {
-            id: '1',
-            userId: session?.user?.email || '',
-            customerId: '1',
-            title: 'Garden Design & Installation',
-            description: 'Complete garden makeover with modern landscape design',
-            status: 'in_progress',
-            priority: 'high',
-            type: 'design',
-            estimatedValue: 15000,
-            createdAt: '2024-11-28T10:00:00Z',
-            updatedAt: '2024-11-28T10:00:00Z',
-          },
-          customer: {
-            id: '1',
-            userId: session?.user?.email || '',
-            name: 'John Smith',
-            email: 'john@example.com',
-            phone: '+44 123 456 7890',
-            address: '123 Garden Lane',
-            city: 'London',
-            postcode: 'SW1A 1AA',
-            createdAt: '2024-11-20T10:00:00Z',
-            updatedAt: '2024-11-20T10:00:00Z',
-          }
-        },
-        {
-          id: '2',
-          userId: session?.user?.email || '',
-          jobId: '2',
-          customerId: '2',
-          invoiceNumber: 'INV-2024-002',
-          status: 'paid',
-          subtotal: 500,
-          tax: 100,
-          total: 600,
-          dueDate: '2024-12-15',
-          sentAt: '2024-11-25T14:00:00Z',
-          paidAt: '2024-11-27T10:30:00Z',
-          createdAt: '2024-11-25T14:00:00Z',
-          updatedAt: '2024-11-27T10:30:00Z',
-          job: {
-            id: '2',
-            userId: session?.user?.email || '',
-            customerId: '2',
-            title: 'Monthly Lawn Maintenance',
-            description: 'Regular lawn care and maintenance service',
-            status: 'completed',
-            priority: 'medium',
-            type: 'maintenance',
-            estimatedValue: 500,
-            createdAt: '2024-11-25T14:00:00Z',
-            updatedAt: '2024-11-25T14:00:00Z',
-          },
-          customer: {
-            id: '2',
-            userId: session?.user?.email || '',
-            name: 'Sarah Johnson',
-            email: 'sarah@example.com',
-            phone: '+44 098 765 4321',
-            address: '456 Rose Street',
-            city: 'Manchester',
-            postcode: 'M1 1AA',
-            createdAt: '2024-11-22T14:00:00Z',
-            updatedAt: '2024-11-22T14:00:00Z',
-          }
-        },
-        {
-          id: '3',
-          userId: session?.user?.email || '',
-          jobId: '3',
-          customerId: '3',
-          invoiceNumber: 'INV-2024-003',
-          status: 'draft',
-          subtotal: 8000,
-          tax: 1600,
-          total: 9600,
-          dueDate: '2024-12-30',
-          createdAt: '2024-11-27T09:00:00Z',
-          updatedAt: '2024-11-27T09:00:00Z',
-          job: {
-            id: '3',
-            userId: session?.user?.email || '',
-            customerId: '3',
-            title: 'Patio Installation Quote',
-            description: 'Quote for new patio and outdoor seating area',
-            status: 'quoted',
-            priority: 'low',
-            type: 'quote',
-            estimatedValue: 8000,
-            createdAt: '2024-11-27T09:00:00Z',
-            updatedAt: '2024-11-27T09:00:00Z',
-          },
-          customer: {
-            id: '3',
-            userId: session?.user?.email || '',
-            name: 'Mike Wilson',
-            email: 'mike@example.com',
-            phone: '+44 555 123 4567',
-            address: '789 Oak Avenue',
-            city: 'Birmingham',
-            postcode: 'B1 1AA',
-            createdAt: '2024-11-26T09:00:00Z',
-            updatedAt: '2024-11-26T09:00:00Z',
-          }
-        },
-        {
-          id: '4',
-          userId: session?.user?.email || '',
-          jobId: '4',
-          customerId: '4',
-          invoiceNumber: 'INV-2024-004',
-          status: 'overdue',
-          subtotal: 1200,
-          tax: 240,
-          total: 1440,
-          dueDate: '2024-11-15',
-          sentAt: '2024-11-01T14:00:00Z',
-          createdAt: '2024-11-01T14:00:00Z',
-          updatedAt: '2024-11-01T14:00:00Z',
-          job: {
-            id: '4',
-            userId: session?.user?.email || '',
-            customerId: '4',
-            title: 'Emergency Tree Removal',
-            description: 'Fallen tree removal after storm',
-            status: 'completed',
-            priority: 'urgent',
-            type: 'maintenance',
-            estimatedValue: 1200,
-            createdAt: '2024-10-30T09:00:00Z',
-            updatedAt: '2024-10-30T09:00:00Z',
-          },
-          customer: {
-            id: '4',
-            userId: session?.user?.email || '',
-            name: 'Emma Thompson',
-            email: 'emma@example.com',
-            phone: '+44 777 888 9999',
-            address: '321 Maple Drive',
-            city: 'Leeds',
-            postcode: 'LS1 2AB',
-            createdAt: '2024-10-25T16:30:00Z',
-            updatedAt: '2024-10-25T16:30:00Z',
-          }
-        }
-      ]
-      setInvoices(mockInvoices)
+      // Start with empty invoices for clean app
+      setInvoices([])
       setLoading(false)
     } catch (error) {
       console.error('Error fetching invoices:', error)
@@ -302,21 +140,21 @@ export default function InvoicesPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
-            <CheckCircle className="h-4 w-4 text-green-600" />
+            <CheckCircle className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{formatCurrency(totalRevenue)}</div>
-            <p className="text-xs text-green-600">Paid invoices</p>
+            <p className="text-xs text-primary">Paid invoices</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Outstanding</CardTitle>
-            <Clock className="h-4 w-4 text-blue-600" />
+            <Clock className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{formatCurrency(outstandingAmount)}</div>
-            <p className="text-xs text-blue-600">Pending payment</p>
+            <p className="text-xs text-primary">Pending payment</p>
           </CardContent>
         </Card>
         <Card>
@@ -332,7 +170,7 @@ export default function InvoicesPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">This Month</CardTitle>
-            <Send className="h-4 w-4 text-purple-600" />
+            <Send className="h-4 w-4 text-accent" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
@@ -342,7 +180,7 @@ export default function InvoicesPage() {
                 return created.getMonth() === now.getMonth() && created.getFullYear() === now.getFullYear()
               }).length}
             </div>
-            <p className="text-xs text-purple-600">New invoices</p>
+            <p className="text-xs text-accent">New invoices</p>
           </CardContent>
         </Card>
       </div>
@@ -420,7 +258,7 @@ export default function InvoicesPage() {
                     <TableCell>
                       <div className="font-medium">{formatCurrency(invoice.total)}</div>
                       {invoice.status === 'paid' && invoice.paidAt && (
-                        <div className="text-xs text-green-600">
+                        <div className="text-xs text-primary">
                           Paid {formatDate(invoice.paidAt)}
                         </div>
                       )}

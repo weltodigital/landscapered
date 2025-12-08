@@ -24,11 +24,11 @@ import {
 import { Job, JobStatus } from '@/types/crm'
 
 const statusColors: Record<JobStatus, string> = {
-  lead: 'bg-blue-100 text-blue-800',
+  lead: 'bg-primary/10 text-primary',
   quoted: 'bg-yellow-100 text-yellow-800',
-  booked: 'bg-purple-100 text-purple-800',
-  in_progress: 'bg-orange-100 text-orange-800',
-  completed: 'bg-green-100 text-green-800',
+  booked: 'bg-accent/10 text-accent',
+  in_progress: 'bg-secondary/10 text-secondary',
+  completed: 'bg-primary/10 text-primary',
   cancelled: 'bg-red-100 text-red-800',
   on_hold: 'bg-gray-100 text-gray-800',
 }
@@ -343,11 +343,11 @@ export default function SchedulePage() {
                     <div
                       key={index}
                       className={`min-h-[120px] p-2 border rounded-lg ${
-                        isToday ? 'bg-blue-50 border-blue-200' : 'bg-gray-50'
+                        isToday ? 'bg-primary/5 border-blue-200' : 'bg-gray-50'
                       }`}
                     >
                       <div className={`text-sm font-medium mb-2 ${
-                        isToday ? 'text-blue-600' : 'text-gray-600'
+                        isToday ? 'text-primary' : 'text-gray-600'
                       }`}>
                         {day.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric' })}
                       </div>

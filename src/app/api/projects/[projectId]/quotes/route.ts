@@ -78,8 +78,8 @@ export async function POST(
       clientDetails: clientDetails || null
     }
 
-    // Store quote (in production, save to database)
-    addQuote(quote)
+    // Store quote in database
+    const savedQuote = await addQuote(quote)
 
     // Debug logging
     console.log('Quote created with ID:', quote.id)
@@ -113,7 +113,7 @@ export async function GET(
     const { projectId } = await params
 
     // Filter quotes for current user and project
-    const projectQuotes = getQuotesByProject(projectId, session.user.email)
+    const projectQuotes = await getQuotesByProject(projectId, session.user.email)
 
     return NextResponse.json(projectQuotes)
 

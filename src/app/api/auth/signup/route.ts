@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
     const validatedData = signupSchema.parse(body)
 
     // Check if user already exists
-    const existingUser = findUserByEmail(validatedData.email)
+    const existingUser = await findUserByEmail(validatedData.email)
 
     if (existingUser) {
       return NextResponse.json(
@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
 
     // Create new user
     const hashedPassword = await bcrypt.hash(validatedData.password, 12)
-    const newUser = createUser({
+    const newUser = await createUser({
       email: validatedData.email,
       name: validatedData.name,
       hashedPassword,

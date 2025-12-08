@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Plus, Search, Filter, MoreHorizontal, FileText, Eye, Edit, Trash2 } from 'lucide-react'
+import { Plus, Search, Filter, MoreHorizontal, FileText, Eye, Trash2, Download } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -41,6 +41,7 @@ export default function QuotesPage() {
   const [quotes, setQuotes] = useState<PriceQuote[]>([])
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<QuoteStatus | 'all'>('all')
+  const [imageNumberFilter, setImageNumberFilter] = useState<string>('all')
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -73,7 +74,10 @@ export default function QuotesPage() {
 
     const matchesStatus = statusFilter === 'all' || quote.status === statusFilter
 
-    return matchesSearch && matchesStatus
+    const matchesImageNumber = imageNumberFilter === 'all' ||
+      (quote.designImageNumber && quote.designImageNumber.toString() === imageNumberFilter)
+
+    return matchesSearch && matchesStatus && matchesImageNumber
   })
 
   const getStatusBadgeVariant = (status: QuoteStatus) => {
@@ -105,6 +109,35 @@ export default function QuotesPage() {
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-GB')
+  }
+
+  const downloadPDF = async (quote: PriceQuote) => {
+    try {
+      const response = await fetch(`/api/quotes/${quote.id}/pdf`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(quote)
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to generate PDF')
+      }
+
+      const pdfBlob = await response.blob()
+      const downloadUrl = URL.createObjectURL(pdfBlob)
+      const downloadLink = document.createElement('a')
+      downloadLink.href = downloadUrl
+      downloadLink.download = `${quote.quoteNumber}.pdf`
+      document.body.appendChild(downloadLink)
+      downloadLink.click()
+      document.body.removeChild(downloadLink)
+      URL.revokeObjectURL(downloadUrl)
+    } catch (error) {
+      console.error('Error downloading PDF:', error)
+      alert('Failed to download PDF. Please try again.')
+    }
   }
 
   // Calculate statistics
@@ -232,6 +265,21 @@ export default function QuotesPage() {
                 <SelectItem value="converted">Converted</SelectItem>
               </SelectContent>
             </Select>
+            <Select value={imageNumberFilter} onValueChange={setImageNumberFilter}>
+              <SelectTrigger className="w-48">
+                <SelectValue placeholder="Filter by design" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Designs</SelectItem>
+                {Array.from(new Set(quotes.filter(q => q.designImageNumber).map(q => q.designImageNumber)))
+                  .sort((a, b) => a! - b!)
+                  .map(imageNumber => (
+                    <SelectItem key={imageNumber} value={imageNumber!.toString()}>
+                      Design #{imageNumber}
+                    </SelectItem>
+                  ))}
+              </SelectContent>
+            </Select>
           </div>
         </CardContent>
       </Card>
@@ -269,6 +317,7 @@ export default function QuotesPage() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Quote Number</TableHead>
+                  <TableHead>Design</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Total</TableHead>
                   <TableHead>Valid Until</TableHead>
@@ -278,7 +327,11 @@ export default function QuotesPage() {
               </TableHeader>
               <TableBody>
                 {filteredQuotes.map((quote) => (
-                  <TableRow key={quote.id} className="cursor-pointer hover:bg-gray-50">
+                  <TableRow
+                    key={quote.id}
+                    className="cursor-pointer hover:bg-gray-50"
+                    onClick={() => router.push(`/app/quotes/${quote.id}`)}
+                  >
                     <TableCell>
                       <div>
                         <div className="font-medium">{quote.quoteNumber}</div>
@@ -288,6 +341,15 @@ export default function QuotesPage() {
                           </div>
                         )}
                       </div>
+                    </TableCell>
+                    <TableCell>
+                      {quote.designImageNumber ? (
+                        <span className="bg-primary/10 text-primary text-xs font-medium px-2 py-1 rounded">
+                          Design #{quote.designImageNumber}
+                        </span>
+                      ) : (
+                        <span className="text-gray-400 text-xs">No design</span>
+                      )}
                     </TableCell>
                     <TableCell>
                       <Badge variant={getStatusBadgeVariant(quote.status)}>
@@ -304,27 +366,29 @@ export default function QuotesPage() {
                       {formatDate(quote.createdAt)}
                     </TableCell>
                     <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
+                      <div onClick={(e) => e.stopPropagation()}>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
                         <DropdownMenuContent>
                           <DropdownMenuItem onClick={() => router.push(`/app/quotes/${quote.id}`)}>
                             <Eye className="h-4 w-4 mr-2" />
                             View
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => router.push(`/app/quotes/${quote.id}/edit`)}>
-                            <Edit className="h-4 w-4 mr-2" />
-                            Edit
+                          <DropdownMenuItem onClick={() => downloadPDF(quote)}>
+                            <Download className="h-4 w-4 mr-2" />
+                            Download PDF
                           </DropdownMenuItem>
                           <DropdownMenuItem className="text-red-600">
                             <Trash2 className="h-4 w-4 mr-2" />
                             Delete
                           </DropdownMenuItem>
                         </DropdownMenuContent>
-                      </DropdownMenu>
+                        </DropdownMenu>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}

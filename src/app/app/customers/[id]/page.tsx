@@ -24,11 +24,11 @@ import {
 import { Customer, Job, JobStatus } from '@/types/crm'
 
 const statusColors: Record<JobStatus, string> = {
-  lead: 'bg-blue-100 text-blue-800',
+  lead: 'bg-primary/10 text-primary',
   quoted: 'bg-yellow-100 text-yellow-800',
-  booked: 'bg-purple-100 text-purple-800',
-  in_progress: 'bg-orange-100 text-orange-800',
-  completed: 'bg-green-100 text-green-800',
+  booked: 'bg-accent/10 text-accent',
+  in_progress: 'bg-secondary/10 text-secondary',
+  completed: 'bg-primary/10 text-primary',
   cancelled: 'bg-red-100 text-red-800',
   on_hold: 'bg-gray-100 text-gray-800',
 }
@@ -180,7 +180,7 @@ export default function CustomerDetailPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Jobs</CardTitle>
-            <Briefcase className="h-4 w-4 text-blue-600" />
+            <Briefcase className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{jobs.length}</div>
@@ -191,7 +191,7 @@ export default function CustomerDetailPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Value</CardTitle>
-            <Calendar className="h-4 w-4 text-green-600" />
+            <Calendar className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{formatCurrency(totalValue)}</div>
@@ -202,7 +202,7 @@ export default function CustomerDetailPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Completed</CardTitle>
-            <Calendar className="h-4 w-4 text-purple-600" />
+            <Calendar className="h-4 w-4 text-accent" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{completedJobs}</div>

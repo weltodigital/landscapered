@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Gardenly - AI-Powered Garden Design & Quoting",
+  title: "Landscapered - AI-Powered Garden Design & Quoting",
   description: "Transform garden photos into professional design concepts and accurate quotes with AI-powered landscaping tools.",
 };
 

@@ -370,7 +370,7 @@ export default function NewInvoicePage() {
                   <span>{formatCurrency(subtotal)}</span>
                 </div>
                 {totalMarkup > 0 && (
-                  <div className="flex justify-between text-sm text-green-600">
+                  <div className="flex justify-between text-sm text-primary">
                     <span>Total Markup:</span>
                     <span>{formatCurrency(totalMarkup)}</span>
                   </div>
@@ -475,7 +475,7 @@ export default function NewInvoicePage() {
                     </TableCell>
                     <TableCell>
                       {item.markup ? (
-                        <div className="text-green-600 font-medium">
+                        <div className="text-primary font-medium">
                           {formatCurrency(item.markup)}
                           <div className="text-xs text-gray-500">
                             {item.markupPercent}%

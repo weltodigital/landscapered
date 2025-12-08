@@ -20,9 +20,9 @@ export const authOptions: NextAuthOptions = {
 
         try {
           // Try to find existing user
-          const existingUser = findUserByEmail(credentials.email)
+          const existingUser = await findUserByEmail(credentials.email)
 
-          if (existingUser) {
+          if (existingUser && existingUser.hashedPassword) {
             // Login flow
             const isPasswordValid = await bcrypt.compare(
               credentials.password,
@@ -33,7 +33,7 @@ export const authOptions: NextAuthOptions = {
               return {
                 id: existingUser.id,
                 email: existingUser.email,
-                name: existingUser.name,
+                name: existingUser.name || '',
               }
             }
           }

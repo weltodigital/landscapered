@@ -1,10 +1,14 @@
-import { DesignConcept, DesignElement, RateCard, RateItem, ElementType, Unit } from '@prisma/client'
+import { DesignConcept, DesignElement, RateCard, RateItem } from '@prisma/client'
+
+// Define types that were previously enums
+type ElementType = 'PATIO' | 'TURF' | 'DECKING' | 'PERGOLA' | 'FENCING' | 'RAISED_BED' | 'LIGHTING' | 'WATER_FEATURE' | 'PATHWAY' | 'PLANTING_BED' | 'GRAVEL_AREA' | 'FIRE_PIT' | 'OTHER'
+type Unit = 'SQM' | 'METRE' | 'UNIT'
 
 export interface QuoteLineItem {
-  elementType: ElementType
+  elementType: string
   description: string
   quantityNumeric: number
-  unit: Unit
+  unit: string
   unitPrice: number
   lineTotal: number
 }
@@ -116,7 +120,7 @@ function generateLineItemForElement(
  * Generate a human-readable description for a design element
  */
 function generateElementDescription(element: DesignElement): string {
-  const baseDescriptions: Record<ElementType, string> = {
+  const baseDescriptions: Record<string, string> = {
     PATIO: 'Patio Installation',
     TURF: 'Turf Installation',
     DECKING: 'Decking Installation',

@@ -264,7 +264,7 @@ export default function NewProjectPage() {
             <div
               className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
                 dragActive
-                  ? 'border-blue-500 bg-blue-50'
+                  ? 'border-primary bg-primary/5'
                   : 'border-gray-300 hover:border-gray-400'
               }`}
               onDragEnter={handleDrag}
@@ -383,13 +383,13 @@ export default function NewProjectPage() {
                 </div>
 
                 {selectedCustomer && (
-                  <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                  <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center">
-                        <User className="h-4 w-4 text-green-600 mr-2" />
+                        <User className="h-4 w-4 text-primary mr-2" />
                         <div>
-                          <div className="font-medium text-green-900">{selectedCustomer.name}</div>
-                          <div className="text-sm text-green-700">{selectedCustomer.email}</div>
+                          <div className="font-medium text-primary">{selectedCustomer.name}</div>
+                          <div className="text-sm text-primary/80">{selectedCustomer.email}</div>
                         </div>
                       </div>
                       <Button

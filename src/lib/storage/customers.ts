@@ -20,6 +20,17 @@ export function getAllCustomers(userId: string): Customer[] {
   return customers.filter(c => c.userId === userId)
 }
 
+export function getNextCustomerNumber(userId: string): number {
+  const userCustomers = getAllCustomers(userId)
+  if (userCustomers.length === 0) {
+    return 1001 // Start customer numbers at 1001
+  }
+
+  // Find the highest customer number for this user
+  const maxCustomerNumber = Math.max(...userCustomers.map(c => c.customerNumber || 0))
+  return maxCustomerNumber + 1
+}
+
 export function updateCustomer(customerId: string, userId: string, updates: Partial<Customer>): Customer | null {
   const customerIndex = customers.findIndex(c => c.id === customerId && c.userId === userId)
   if (customerIndex === -1) return null

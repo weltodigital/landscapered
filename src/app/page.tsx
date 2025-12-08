@@ -4,13 +4,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-secondary/10 to-accent/10">
       <div className="container mx-auto px-4 py-16">
         {/* Hero Section */}
         <div className="text-center space-y-6 mb-16">
           <h1 className="text-5xl font-bold text-gray-900 mb-6">
             Transform Garden Photos into
-            <span className="text-green-600"> Professional Designs</span>
+            <span className="text-primary"> Professional Designs</span>
           </h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
             Upload garden photos, generate AI-powered design concepts, and create accurate quotes

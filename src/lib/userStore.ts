@@ -1,29 +1,37 @@
-// Simple in-memory user store for demo purposes
-// In production, this would be replaced with database operations
+// Database user store using Prisma
+import { PrismaClient } from '@prisma/client'
+
+const prisma = new PrismaClient()
 
 export interface User {
   id: string
   email: string
-  name: string
+  name: string | null
+  hashedPassword: string | null
+}
+
+export async function findUserByEmail(email: string): Promise<User | null> {
+  return await prisma.user.findUnique({
+    where: { email }
+  })
+}
+
+export async function createUser(userData: {
+  email: string
+  name?: string | null
   hashedPassword: string
+}): Promise<User> {
+  return await prisma.user.create({
+    data: {
+      email: userData.email,
+      name: userData.name || null,
+      hashedPassword: userData.hashedPassword
+    }
+  })
 }
 
-// Shared user store
-export const users: User[] = []
-
-export function findUserByEmail(email: string): User | undefined {
-  return users.find(u => u.email === email)
-}
-
-export function createUser(userData: Omit<User, 'id'>): User {
-  const newUser: User = {
-    id: `user-${Date.now()}`,
-    ...userData
-  }
-  users.push(newUser)
-  return newUser
-}
-
-export function findUserById(id: string): User | undefined {
-  return users.find(u => u.id === id)
+export async function findUserById(id: string): Promise<User | null> {
+  return await prisma.user.findUnique({
+    where: { id }
+  })
 }

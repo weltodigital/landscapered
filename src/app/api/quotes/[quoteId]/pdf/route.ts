@@ -22,22 +22,45 @@ export async function GET(
     const { quoteId } = await params
 
     // Find the actual quote from stored quotes
-    const quote = getQuote(quoteId, session.user.email)
+    const dbQuote = await getQuote(quoteId, session.user.email)
 
-    // Debug logging
-    console.log('Looking for quote ID:', quoteId)
-    console.log('User email:', session.user.email)
-    console.log('Quote found:', !!quote)
-
-    if (!quote) {
+    if (!dbQuote) {
       return NextResponse.json(
         { error: 'Quote not found' },
         { status: 404 }
       )
     }
 
+    // Convert database quote to PDF format
+    const quote = {
+      id: dbQuote.id,
+      project: {
+        title: dbQuote.project?.title || 'Garden Design Project',
+        clientName: dbQuote.project?.clientName || 'Client',
+        clientEmail: dbQuote.project?.clientEmail || ''
+      },
+      designConcept: {
+        style: dbQuote.designConcept?.style || 'Modern'
+      },
+      subtotal: dbQuote.subtotal,
+      profit: dbQuote.profit,
+      total: dbQuote.total,
+      lowEstimate: dbQuote.lowEstimate,
+      highEstimate: dbQuote.highEstimate,
+      currency: dbQuote.currency,
+      createdAt: dbQuote.createdAt.toISOString(),
+      lineItems: dbQuote.lineItems.map(item => ({
+        description: item.description,
+        quantityNumeric: item.quantityNumeric,
+        unit: item.unit,
+        unitPrice: item.unitPrice,
+        lineTotal: item.lineTotal
+      }))
+    }
+
+
     // Generate PDF
-    const doc = generateQuotePDF(quote)
+    const doc = await generateQuotePDF(quote)
     const pdfBuffer = Buffer.from(doc.output('arraybuffer'))
 
     // Return PDF response
@@ -81,7 +104,7 @@ export async function POST(
     console.log('POST PDF generation with quote data:', quoteData.id)
 
     // Generate PDF with provided data
-    const doc = generateQuotePDF(quoteData)
+    const doc = await generateQuotePDF(quoteData)
     const pdfBuffer = Buffer.from(doc.output('arraybuffer'))
 
     // Return PDF response

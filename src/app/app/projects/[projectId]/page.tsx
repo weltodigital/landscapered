@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -27,6 +27,7 @@ interface Project {
 
 export default function ProjectDetailPage() {
   const params = useParams()
+  const router = useRouter()
   const [project, setProject] = useState<Project | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isGenerating, setIsGenerating] = useState(false)
@@ -46,6 +47,7 @@ export default function ProjectDetailPage() {
   const [selectedProducts, setSelectedProducts] = useState<any[]>([])
   const [error, setError] = useState('')
   const [isAddingProduct, setIsAddingProduct] = useState(false)
+  const [designQuotes, setDesignQuotes] = useState<{[designId: string]: string}>({}) // Track quote IDs for each design
   const [newProduct, setNewProduct] = useState({
     name: '',
     price: '',
@@ -479,8 +481,8 @@ export default function ProjectDetailPage() {
             </div>
 
             {editDimensions.length && editDimensions.width && (
-              <div className="bg-blue-50 p-3 rounded-lg">
-                <p className="text-sm text-blue-700">
+              <div className="bg-primary/5 p-3 rounded-lg">
+                <p className="text-sm text-primary">
                   Total area: {(parseFloat(editDimensions.length) * parseFloat(editDimensions.width)).toFixed(1)} {editDimensions.unit === 'metres' ? 'sq m' : 'sq ft'}
                 </p>
               </div>
@@ -836,7 +838,14 @@ export default function ProjectDetailPage() {
                       </div>
                       <div className="p-6">
                         <div className="flex justify-between items-start mb-2">
-                          <h4 className="text-lg font-semibold text-gray-900">{design.title}</h4>
+                          <div>
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="bg-primary/10 text-primary text-xs font-medium px-2 py-1 rounded">
+                                Design #{design.imageNumber || (index + 1)}
+                              </span>
+                            </div>
+                            <h4 className="text-lg font-semibold text-gray-900">{design.title}</h4>
+                          </div>
                           <button
                             onClick={(e) => {
                               e.stopPropagation()
@@ -849,14 +858,24 @@ export default function ProjectDetailPage() {
                           </button>
                         </div>
                         <p className="text-sm text-gray-600 mb-4 leading-relaxed">{design.description}</p>
-                        <div className="flex justify-end items-center">
+                        <div className="flex justify-end items-center gap-2">
+                          {designQuotes[design.id] && (
+                            <Button
+                              size="sm"
+                              variant="default"
+                              onClick={() => router.push(`/app/quotes/${designQuotes[design.id]}`)}
+                              className="bg-primary hover:bg-primary/90 text-white"
+                            >
+                              View Quote
+                            </Button>
+                          )}
                           <Button
                             size="sm"
                             variant="outline"
                             onClick={() => setSelectedDesign(design)}
                             className="hover:bg-primary hover:text-white transition-colors"
                           >
-                            View Design & Quote
+                            Create New Quote
                           </Button>
                         </div>
                       </div>
@@ -947,9 +966,22 @@ export default function ProjectDetailPage() {
       total: number
     }>>([])
     const [showAddMaterialModal, setShowAddMaterialModal] = useState(false)
+    const [showAddCustomFeatureModal, setShowAddCustomFeatureModal] = useState(false)
     const [availableProducts, setAvailableProducts] = useState(products)
+    const [customFeatures, setCustomFeatures] = useState<Array<{
+      type: string
+      label: string
+      unit: string
+    }>>([])
+    const [selectedMaterialCategory, setSelectedMaterialCategory] = useState('')
+    const [selectedFeatureForMaterial, setSelectedFeatureForMaterial] = useState('')
+    const [markupPercentage, setMarkupPercentage] = useState(0)
+    const [includeVAT, setIncludeVAT] = useState(true)
+    const [laborHours, setLaborHours] = useState(0)
+    const [hourlyRate, setHourlyRate] = useState(25) // Default rate
+    const [isGeneratingQuote, setIsGeneratingQuote] = useState(false)
 
-    const availableFeatures = [
+    const defaultFeatures = [
       { type: 'PATIO', label: 'Patio', unit: 'SQM' },
       { type: 'TURF', label: 'Turf/Lawn', unit: 'SQM' },
       { type: 'DECKING', label: 'Decking', unit: 'SQM' },
@@ -963,6 +995,8 @@ export default function ProjectDetailPage() {
       { type: 'GRAVEL_AREA', label: 'Gravel Area', unit: 'SQM' },
       { type: 'FIRE_PIT', label: 'Fire Pit', unit: 'UNIT' }
     ]
+
+    const availableFeatures = [...defaultFeatures, ...customFeatures]
 
     const addFeature = (featureType: string) => {
       const feature = availableFeatures.find(f => f.type === featureType)
@@ -995,6 +1029,16 @@ export default function ProjectDetailPage() {
       } catch (error) {
         console.error('Error adding material:', error)
       }
+    }
+
+    const handleAddCustomFeature = (featureData: any) => {
+      const newFeature = {
+        type: `CUSTOM_${Date.now()}`,
+        label: featureData.label,
+        unit: featureData.unit
+      }
+      setCustomFeatures(prev => [...prev, newFeature])
+      setShowAddCustomFeatureModal(false)
     }
 
     const removeFeature = (id: string) => {
@@ -1034,32 +1078,122 @@ export default function ProjectDetailPage() {
     }
 
     const calculateTotal = () => {
-      const productsTotal = selectedProducts.reduce((sum, product) =>
+      const materialsSubtotal = selectedProducts.reduce((sum, product) =>
         sum + product.total, 0)
 
-      const subtotal = productsTotal
-      const vat = subtotal * 0.2
-      return { subtotal, vat, total: subtotal + vat }
+      const markup = materialsSubtotal * (markupPercentage / 100)
+      const materialsWithMarkup = materialsSubtotal + markup
+
+      const laborCost = laborHours * hourlyRate
+
+      const subtotal = materialsWithMarkup + laborCost
+      const vat = includeVAT ? subtotal * 0.2 : 0
+
+      return {
+        materialsSubtotal,
+        markup,
+        materialsWithMarkup,
+        laborCost,
+        subtotal,
+        vat,
+        total: subtotal + vat
+      }
     }
 
     const formatCurrency = (amount: number) =>
       new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' }).format(amount)
 
     const handleGenerateQuote = async () => {
-      const quoteData = {
-        designId: selectedDesign?.id,
-        features: selectedFeatures,
-        products: selectedProducts,
-        pricing: calculateTotal(),
-        projectId: project?.id,
-        clientName: project?.clientName,
-        clientEmail: project?.clientEmail
-      }
+      try {
+        setIsGeneratingQuote(true)
 
-      console.log('Generating quote with data:', quoteData)
-      // Here you would call your quote generation API
-      setSelectedDesign(null)
-      alert('Quote generated successfully!')
+        const totals = calculateTotal()
+
+        // Prepare quote data for API
+        const quoteData = {
+          customerId: project?.clientEmail || 'unknown',
+          jobId: project?.id,
+          validUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 30 days from now
+          notes: `Quote for ${project?.title || 'Garden Design Project'}`,
+          terms: 'Payment due within 30 days of acceptance.',
+          designId: selectedDesign?.id,
+          designImageUrl: selectedDesign?.imageUrl,
+          designStyle: selectedDesign?.style,
+          designImageNumber: selectedDesign?.imageNumber || (designs.findIndex(d => d.id === selectedDesign?.id) + 1),
+          items: [
+            // Materials items
+            ...selectedProducts.map(product => ({
+              id: `item-${product.productId}-${Date.now()}`,
+              quoteId: '', // Will be set by API
+              productId: product.productId,
+              customDescription: product.productName,
+              quantity: product.quantity,
+              unitPrice: product.unitPrice,
+              totalPrice: product.total,
+              category: 'product' as const,
+              createdAt: new Date().toISOString()
+            })),
+            // Labor item if hours > 0
+            ...(laborHours > 0 ? [{
+              id: `labor-${Date.now()}`,
+              quoteId: '', // Will be set by API
+              customDescription: `Labor (${laborHours} hours @ ${formatCurrency(hourlyRate)}/hour)`,
+              quantity: laborHours,
+              unitPrice: hourlyRate,
+              totalPrice: totals.laborCost,
+              category: 'service' as const,
+              createdAt: new Date().toISOString()
+            }] : []),
+            // Markup item if markup > 0
+            ...(markupPercentage > 0 ? [{
+              id: `markup-${Date.now()}`,
+              quoteId: '', // Will be set by API
+              customDescription: `Materials Markup (${markupPercentage}%)`,
+              quantity: 1,
+              unitPrice: totals.markup,
+              totalPrice: totals.markup,
+              category: 'service' as const,
+              createdAt: new Date().toISOString()
+            }] : [])
+          ],
+          subtotal: totals.subtotal,
+          markup: totals.markup,
+          tax: includeVAT ? totals.vat : 0,
+          total: totals.total,
+          status: 'draft'
+        }
+
+        // Save quote via API
+        const response = await fetch('/api/quotes', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(quoteData)
+        })
+
+        if (!response.ok) {
+          throw new Error('Failed to create quote')
+        }
+
+        const savedQuote = await response.json()
+
+        // Store the quote ID for this design
+        setDesignQuotes(prev => ({
+          ...prev,
+          [selectedDesign.id]: savedQuote.id
+        }))
+
+        // Success - close modal
+        setSelectedDesign(null)
+        alert(`Quote ${savedQuote.quoteNumber} generated successfully!`)
+
+      } catch (error) {
+        console.error('Error generating quote:', error)
+        alert('Failed to generate quote. Please try again.')
+      } finally {
+        setIsGeneratingQuote(false)
+      }
     }
 
     return (
@@ -1070,13 +1204,13 @@ export default function ProjectDetailPage() {
             <div>
               <h2 className="text-2xl font-bold">{selectedDesign?.style} Garden Design</h2>
               <div className="flex items-center mt-2 text-sm text-gray-600">
-                <div className={`w-3 h-3 rounded-full mr-2 ${step === 1 ? 'bg-blue-600' : step > 1 ? 'bg-green-600' : 'bg-gray-300'}`}></div>
+                <div className={`w-3 h-3 rounded-full mr-2 ${step === 1 ? 'bg-primary' : step > 1 ? 'bg-primary' : 'bg-gray-300'}`}></div>
                 <span className={step === 1 ? 'font-medium' : ''}>Select Features</span>
                 <div className="mx-3">→</div>
-                <div className={`w-3 h-3 rounded-full mr-2 ${step === 2 ? 'bg-blue-600' : step > 2 ? 'bg-green-600' : 'bg-gray-300'}`}></div>
+                <div className={`w-3 h-3 rounded-full mr-2 ${step === 2 ? 'bg-primary' : step > 2 ? 'bg-primary' : 'bg-gray-300'}`}></div>
                 <span className={step === 2 ? 'font-medium' : ''}>Choose Products</span>
                 <div className="mx-3">→</div>
-                <div className={`w-3 h-3 rounded-full mr-2 ${step === 3 ? 'bg-blue-600' : 'bg-gray-300'}`}></div>
+                <div className={`w-3 h-3 rounded-full mr-2 ${step === 3 ? 'bg-primary' : 'bg-gray-300'}`}></div>
                 <span className={step === 3 ? 'font-medium' : ''}>Generate Quote</span>
               </div>
             </div>
@@ -1093,11 +1227,16 @@ export default function ProjectDetailPage() {
             <div className="w-1/3 p-6 border-r">
               <h3 className="font-semibold mb-3">AI Generated Design</h3>
               {selectedDesign?.imageUrl && (
-                <img
-                  src={selectedDesign.imageUrl}
-                  alt={selectedDesign.style}
-                  className="w-full h-48 object-cover rounded-lg mb-4"
-                />
+                <div className="relative">
+                  <img
+                    src={selectedDesign.imageUrl}
+                    alt={selectedDesign.style}
+                    className="w-full h-48 object-cover rounded-lg mb-4"
+                  />
+                  <div className="text-xs text-gray-500 mb-4">
+                    {selectedDesign?.style} - Design #{selectedDesign?.imageNumber || 'N/A'}
+                  </div>
+                </div>
               )}
               <div className="text-sm text-gray-600">
                 <p className="font-medium">Style: {selectedDesign?.style}</p>
@@ -1118,70 +1257,104 @@ export default function ProjectDetailPage() {
             <div className="flex-1 p-6">
               {step === 1 && (
                 <div>
-                  <h3 className="text-lg font-semibold mb-4">Step 1: Select Garden Features</h3>
-
-                  {/* Available Features */}
-                  <div className="grid grid-cols-3 gap-3 mb-6">
-                    {availableFeatures.map((feature) => (
-                      <button
-                        key={feature.type}
-                        onClick={() => addFeature(feature.type)}
-                        className="p-3 border border-gray-300 rounded-lg hover:bg-blue-50 hover:border-blue-300 text-left"
-                      >
-                        <div className="font-medium">{feature.label}</div>
-                        <div className="text-sm text-gray-600">Unit: {feature.unit}</div>
-                      </button>
-                    ))}
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-lg font-semibold">Step 1: Select Garden Features</h3>
+                    <button
+                      onClick={() => setShowAddCustomFeatureModal(true)}
+                      className="px-3 py-1 bg-primary text-white rounded text-sm hover:bg-primary/90"
+                    >
+                      + Add Custom Feature
+                    </button>
                   </div>
 
-                  {/* Selected Features */}
-                  <div>
-                    <h4 className="font-semibold mb-3">Selected Features</h4>
-                    {selectedFeatures.length === 0 ? (
-                      <p className="text-gray-500 text-center py-8">No features selected yet</p>
-                    ) : (
-                      <div className="space-y-4">
-                        {selectedFeatures.map((feature) => {
-                          const featureType = availableFeatures.find(f => f.type === feature.type)
-                          return (
-                            <div key={feature.id} className="border rounded-lg p-4">
-                              <div className="flex justify-between items-start mb-3">
-                                <div className="font-medium">{featureType?.label}</div>
+                  {/* Available Features as Rows */}
+                  <div className="space-y-3">
+                    {availableFeatures.map((feature) => {
+                      const selectedFeature = selectedFeatures.find(f => f.type === feature.type)
+                      const isSelected = !!selectedFeature
+                      const isCustom = feature.type.startsWith('CUSTOM_')
+
+                      return (
+                        <div key={feature.type} className={`border rounded-lg p-4 ${isSelected ? 'border-primary bg-primary/5' : 'border-gray-300'}`}>
+                          <div className="flex items-center justify-between">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-4">
+                                <div>
+                                  <div className="flex items-center gap-2">
+                                    <div className="font-medium">{feature.label}</div>
+                                    {isCustom && (
+                                      <span className="text-xs bg-accent/10 text-accent px-2 py-0.5 rounded">Custom</span>
+                                    )}
+                                  </div>
+                                  <div className="text-sm text-gray-600">Unit: {feature.unit}</div>
+                                </div>
+
+                                {isSelected && (
+                                  <div className="flex items-center gap-4 flex-1">
+                                    <div>
+                                      <label className="block text-xs font-medium mb-1">
+                                        Size ({feature.unit})
+                                      </label>
+                                      <input
+                                        type="number"
+                                        min="0.1"
+                                        step="0.1"
+                                        value={selectedFeature.size}
+                                        onChange={(e) => updateFeature(selectedFeature.id, 'size', parseFloat(e.target.value) || 0)}
+                                        className="w-20 p-1 border rounded text-sm"
+                                      />
+                                    </div>
+                                    <div className="flex-1">
+                                      <label className="block text-xs font-medium mb-1">
+                                        Notes
+                                      </label>
+                                      <input
+                                        type="text"
+                                        value={selectedFeature.notes}
+                                        onChange={(e) => updateFeature(selectedFeature.id, 'notes', e.target.value)}
+                                        placeholder="Additional details..."
+                                        className="w-full p-1 border rounded text-sm"
+                                      />
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+
+                            <div className="ml-4 flex gap-2">
+                              {isSelected ? (
                                 <button
-                                  onClick={() => removeFeature(feature.id)}
-                                  className="text-red-600 hover:text-red-800"
+                                  onClick={() => removeFeature(selectedFeature.id)}
+                                  className="px-3 py-1 text-red-600 hover:text-red-800 text-sm font-medium"
                                 >
                                   Remove
                                 </button>
-                              </div>
-                              <div className="mb-3">
-                                <label className="block text-sm font-medium mb-1">
-                                  Size ({feature.unit})
-                                </label>
-                                <input
-                                  type="number"
-                                  min="0.1"
-                                  step="0.1"
-                                  value={feature.size}
-                                  onChange={(e) => updateFeature(feature.id, 'size', parseFloat(e.target.value) || 0)}
-                                  className="w-full p-2 border rounded"
-                                />
-                              </div>
-                              <div className="mt-3">
-                                <label className="block text-sm font-medium mb-1">
-                                  Notes
-                                </label>
-                                <textarea
-                                  value={feature.notes}
-                                  onChange={(e) => updateFeature(feature.id, 'notes', e.target.value)}
-                                  placeholder="Additional details or specifications..."
-                                  className="w-full p-2 border rounded"
-                                  rows={2}
-                                />
-                              </div>
+                              ) : (
+                                <button
+                                  onClick={() => addFeature(feature.type)}
+                                  className="px-3 py-1 bg-primary text-white rounded text-sm hover:bg-primary/90"
+                                >
+                                  Add
+                                </button>
+                              )}
+                              {isCustom && (
+                                <button
+                                  onClick={() => setCustomFeatures(prev => prev.filter(f => f.type !== feature.type))}
+                                  className="px-2 py-1 text-gray-400 hover:text-red-600 text-sm"
+                                  title="Delete custom feature"
+                                >
+                                  ✕
+                                </button>
+                              )}
                             </div>
-                          )
-                        })}
+                          </div>
+                        </div>
+                      )
+                    })}
+
+                    {availableFeatures.length === 0 && (
+                      <div className="text-center py-8 text-gray-500">
+                        <p>No features available. Add a custom feature to get started.</p>
                       </div>
                     )}
                   </div>
@@ -1192,97 +1365,72 @@ export default function ProjectDetailPage() {
                 <div>
                   <h3 className="text-lg font-semibold mb-4">Step 2: Add Materials to Features</h3>
 
-                  {selectedFeatures.map((feature) => {
-                    const featureType = availableFeatures.find(f => f.type === feature.type)
-                    const relatedProducts = availableProducts.filter(p => p.category === feature.type)
-                    const featureProducts = selectedProducts.filter(p => p.featureId === feature.id)
+                  {/* Selected Features List */}
+                  <div className="space-y-4">
+                    {selectedFeatures.map((feature) => {
+                      const featureType = availableFeatures.find(f => f.type === feature.type)
+                      const featureProducts = selectedProducts.filter(p => p.featureId === feature.id)
 
-                    return (
-                      <div key={feature.id} className="border rounded-lg p-4 mb-4">
-                        <div className="flex justify-between items-center mb-3">
-                          <h4 className="font-medium">
-                            {featureType?.label} ({feature.size} {feature.unit})
-                          </h4>
-                          {relatedProducts.length === 0 && (
-                            <button
-                              onClick={() => setShowAddMaterialModal(true)}
-                              className="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700"
-                            >
-                              + Add Material
-                            </button>
-                          )}
-                        </div>
-
-                        {/* Available Materials for this feature */}
-                        {relatedProducts.length > 0 ? (
-                          <div className="grid grid-cols-2 gap-3 mb-4">
-                            {relatedProducts.map((product) => (
-                              <div key={product.id} className="border rounded p-3">
-                                <div className="flex justify-between items-start">
-                                  <div>
-                                    <div className="font-medium text-sm">{product.name}</div>
-                                    <div className="text-sm text-gray-600">
-                                      {formatCurrency(product.price)}/{product.unit}
-                                    </div>
-                                  </div>
-                                  <button
-                                    onClick={() => addProduct(feature.id, product, 1)}
-                                    className="bg-blue-600 text-white px-2 py-1 rounded text-sm hover:bg-blue-700"
-                                  >
-                                    Add
-                                  </button>
-                                </div>
-                              </div>
-                            ))}
-                            <div className="border-2 border-dashed border-gray-300 rounded p-3 flex items-center justify-center">
-                              <button
-                                onClick={() => setShowAddMaterialModal(true)}
-                                className="text-gray-600 hover:text-gray-800 text-sm"
-                              >
-                                + Add New Material
-                              </button>
+                      return (
+                        <div key={feature.id} className="border rounded-lg p-4">
+                          <div className="flex justify-between items-start mb-3">
+                            <div>
+                              <h4 className="font-medium text-lg">{featureType?.label}</h4>
+                              <p className="text-sm text-gray-600">Size: {feature.size} {feature.unit}</p>
+                              {feature.notes && (
+                                <p className="text-sm text-gray-500 mt-1">Notes: {feature.notes}</p>
+                              )}
                             </div>
                           </div>
-                        ) : (
-                          <div className="text-center py-6 text-gray-500">
-                            <p className="mb-2">No materials available for {featureType?.label}</p>
-                            <p className="text-sm">Click "Add Material" to add materials to your catalog</p>
-                          </div>
-                        )}
 
-                        {/* Selected Products */}
-                        {featureProducts.length > 0 && (
-                          <div>
-                            <h5 className="font-medium mb-2">Selected Products:</h5>
-                            {featureProducts.map((product) => (
-                              <div key={`${product.featureId}-${product.productId}`} className="flex justify-between items-center bg-gray-50 p-2 rounded mb-2">
-                                <div>
-                                  <div className="font-medium text-sm">{product.productName}</div>
-                                  <div className="text-sm text-gray-600">{formatCurrency(product.unitPrice)} each</div>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  <input
-                                    type="number"
-                                    min="1"
-                                    value={product.quantity}
-                                    onChange={(e) => updateProductQuantity(product.featureId, product.productId, parseInt(e.target.value) || 1)}
-                                    className="w-16 p-1 border rounded text-center"
-                                  />
-                                  <span className="text-sm font-medium">{formatCurrency(product.total)}</span>
-                                  <button
-                                    onClick={() => removeProduct(product.featureId, product.productId)}
-                                    className="text-red-600 hover:text-red-800 text-sm"
-                                  >
-                                    Remove
-                                  </button>
-                                </div>
+                          {/* Selected Materials for this feature */}
+                          {featureProducts.length > 0 ? (
+                            <div>
+                              <h5 className="font-medium mb-2">Materials Added:</h5>
+                              <div className="space-y-2">
+                                {featureProducts.map((product) => (
+                                  <div key={`${product.featureId}-${product.productId}`} className="flex justify-between items-center bg-gray-50 p-3 rounded">
+                                    <div>
+                                      <div className="font-medium text-sm">{product.productName}</div>
+                                      <div className="text-sm text-gray-600">{formatCurrency(product.unitPrice)} per unit</div>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-xs text-gray-500">Qty:</span>
+                                      <input
+                                        type="number"
+                                        min="1"
+                                        value={product.quantity}
+                                        onChange={(e) => updateProductQuantity(product.featureId, product.productId, parseInt(e.target.value) || 1)}
+                                        className="w-16 p-1 border rounded text-center text-sm"
+                                      />
+                                      <span className="text-sm font-medium text-primary">{formatCurrency(product.total)}</span>
+                                      <button
+                                        onClick={() => removeProduct(product.featureId, product.productId)}
+                                        className="text-red-600 hover:text-red-800 text-xs"
+                                      >
+                                        Remove
+                                      </button>
+                                    </div>
+                                  </div>
+                                ))}
                               </div>
-                            ))}
-                          </div>
-                        )}
+                            </div>
+                          ) : (
+                            <div className="text-center py-4 text-gray-500">
+                              <p className="text-sm">No materials added yet</p>
+                              <p className="text-xs">Use the materials panel on the right to add materials</p>
+                            </div>
+                          )}
+                        </div>
+                      )
+                    })}
+
+                    {selectedFeatures.length === 0 && (
+                      <div className="text-center py-8 text-gray-500">
+                        <p>No features selected. Go back to Step 1 to select garden features.</p>
                       </div>
-                    )
-                  })}
+                    )}
+                  </div>
                 </div>
               )}
 
@@ -1290,53 +1438,158 @@ export default function ProjectDetailPage() {
                 <div>
                   <h3 className="text-lg font-semibold mb-4">Step 3: Review & Generate Quote</h3>
 
-                  <div className="space-y-4">
-                    <h4 className="font-medium">Quote Summary</h4>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {/* Left Column - Quote Summary */}
+                    <div className="space-y-4">
+                      <h4 className="font-medium">Quote Summary</h4>
 
-                    {/* Features Summary (no pricing) */}
-                    <div>
-                      <h5 className="font-medium mb-2">Garden Features:</h5>
-                      {selectedFeatures.map((feature) => {
-                        const featureType = availableFeatures.find(f => f.type === feature.type)
-                        return (
-                          <div key={feature.id} className="py-2 border-b">
-                            <span>{featureType?.label} ({feature.size} {feature.unit})</span>
-                            {feature.notes && (
-                              <div className="text-sm text-gray-600 mt-1">{feature.notes}</div>
-                            )}
-                          </div>
-                        )
-                      })}
+                      {/* Features Summary (no pricing) */}
+                      <div>
+                        <h5 className="font-medium mb-2">Garden Features:</h5>
+                        {selectedFeatures.map((feature) => {
+                          const featureType = availableFeatures.find(f => f.type === feature.type)
+                          return (
+                            <div key={feature.id} className="py-2 border-b">
+                              <span>{featureType?.label} ({feature.size} {feature.unit})</span>
+                              {feature.notes && (
+                                <div className="text-sm text-gray-600 mt-1">{feature.notes}</div>
+                              )}
+                            </div>
+                          )
+                        })}
+                      </div>
+
+                      {/* Materials Summary */}
+                      <div>
+                        <h5 className="font-medium mb-2">Materials:</h5>
+                        {selectedProducts.length === 0 ? (
+                          <p className="text-gray-500 py-2">No materials selected</p>
+                        ) : (
+                          selectedProducts.map((product, index) => (
+                            <div key={index} className="flex justify-between py-2 border-b">
+                              <span>{product.productName} (x{product.quantity})</span>
+                              <span>{formatCurrency(product.total)}</span>
+                            </div>
+                          ))
+                        )}
+                      </div>
                     </div>
 
-                    {/* Materials Summary */}
-                    <div>
-                      <h5 className="font-medium mb-2">Materials & Pricing:</h5>
-                      {selectedProducts.length === 0 ? (
-                        <p className="text-gray-500 py-2">No materials selected</p>
-                      ) : (
-                        selectedProducts.map((product, index) => (
-                          <div key={index} className="flex justify-between py-2 border-b">
-                            <span>{product.productName} (x{product.quantity})</span>
-                            <span>{formatCurrency(product.total)}</span>
-                          </div>
-                        ))
-                      )}
-                    </div>
+                    {/* Right Column - Pricing Controls */}
+                    <div className="space-y-6">
+                      <h4 className="font-medium">Pricing Options</h4>
 
-                    {/* Totals */}
-                    <div className="border-t pt-4">
-                      <div className="flex justify-between py-2">
-                        <span>Subtotal:</span>
-                        <span>{formatCurrency(calculateTotal().subtotal)}</span>
+                      {/* Materials Markup */}
+                      <div className="border rounded-lg p-4">
+                        <label className="block text-sm font-medium mb-2">Materials Markup (%)</label>
+                        <input
+                          type="number"
+                          min="0"
+                          max="100"
+                          step="1"
+                          value={markupPercentage}
+                          onChange={(e) => setMarkupPercentage(parseFloat(e.target.value) || 0)}
+                          className="w-full p-2 border rounded"
+                          placeholder="0"
+                        />
+                        <div className="text-xs text-gray-500 mt-1">
+                          Add markup percentage to material costs
+                        </div>
                       </div>
-                      <div className="flex justify-between py-2">
-                        <span>VAT (20%):</span>
-                        <span>{formatCurrency(calculateTotal().vat)}</span>
+
+                      {/* Labor Costs */}
+                      <div className="border rounded-lg p-4">
+                        <h5 className="font-medium mb-3">Labor Costs</h5>
+                        <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <label className="block text-sm font-medium mb-1">Hours</label>
+                            <input
+                              type="number"
+                              min="0"
+                              step="0.5"
+                              value={laborHours}
+                              onChange={(e) => setLaborHours(parseFloat(e.target.value) || 0)}
+                              className="w-full p-2 border rounded"
+                              placeholder="0"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium mb-1">Rate/Hour</label>
+                            <input
+                              type="number"
+                              min="0"
+                              step="0.50"
+                              value={hourlyRate}
+                              onChange={(e) => setHourlyRate(parseFloat(e.target.value) || 25)}
+                              className="w-full p-2 border rounded"
+                              placeholder="25.00"
+                            />
+                          </div>
+                        </div>
+                        <div className="text-xs text-gray-500 mt-2">
+                          Total labor cost: {formatCurrency(laborHours * hourlyRate)}
+                        </div>
                       </div>
-                      <div className="flex justify-between py-2 font-bold text-lg border-t">
-                        <span>Total:</span>
-                        <span>{formatCurrency(calculateTotal().total)}</span>
+
+                      {/* VAT Toggle */}
+                      <div className="border rounded-lg p-4">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <label className="font-medium">Include VAT (20%)</label>
+                            <div className="text-xs text-gray-500">Toggle VAT calculation on/off</div>
+                          </div>
+                          <button
+                            onClick={() => setIncludeVAT(!includeVAT)}
+                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
+                              includeVAT ? 'bg-primary' : 'bg-gray-200'
+                            }`}
+                          >
+                            <span
+                              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                                includeVAT ? 'translate-x-6' : 'translate-x-1'
+                              }`}
+                            />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Final Totals */}
+                  <div className="border-t pt-6 mt-6">
+                    <div className="bg-gray-50 rounded-lg p-4">
+                      <h4 className="font-medium mb-4">Quote Breakdown</h4>
+                      <div className="space-y-2">
+                        <div className="flex justify-between text-sm">
+                          <span>Materials Subtotal:</span>
+                          <span>{formatCurrency(calculateTotal().materialsSubtotal)}</span>
+                        </div>
+                        {markupPercentage > 0 && (
+                          <div className="flex justify-between text-sm">
+                            <span>Materials Markup ({markupPercentage}%):</span>
+                            <span>{formatCurrency(calculateTotal().markup)}</span>
+                          </div>
+                        )}
+                        {laborHours > 0 && (
+                          <div className="flex justify-between text-sm">
+                            <span>Labor ({laborHours}h × {formatCurrency(hourlyRate)}):</span>
+                            <span>{formatCurrency(calculateTotal().laborCost)}</span>
+                          </div>
+                        )}
+                        <div className="flex justify-between py-2 border-t">
+                          <span>Subtotal:</span>
+                          <span>{formatCurrency(calculateTotal().subtotal)}</span>
+                        </div>
+                        {includeVAT && (
+                          <div className="flex justify-between py-2">
+                            <span>VAT (20%):</span>
+                            <span>{formatCurrency(calculateTotal().vat)}</span>
+                          </div>
+                        )}
+                        <div className="flex justify-between py-2 font-bold text-lg border-t">
+                          <span>Total:</span>
+                          <span>{formatCurrency(calculateTotal().total)}</span>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -1348,58 +1601,79 @@ export default function ProjectDetailPage() {
             <div className="w-1/4 p-6 bg-gray-50 border-l">
               {step === 1 && (
                 <div>
-                  <h3 className="font-semibold mb-4">Selected Features</h3>
-                  {selectedFeatures.length === 0 ? (
-                    <p className="text-gray-500 text-sm">No features selected yet</p>
-                  ) : (
-                    <div className="space-y-2">
-                      {selectedFeatures.map((feature) => {
-                        const featureType = availableFeatures.find(f => f.type === feature.type)
-                        return (
-                          <div key={feature.id} className="text-sm">
-                            <div className="font-medium">{featureType?.label}</div>
-                            <div className="text-gray-600">{feature.size} {feature.unit}</div>
-                          </div>
-                        )
-                      })}
+                  <h3 className="font-semibold mb-4">Feature Selection</h3>
+                  <div className="text-sm text-gray-600 leading-relaxed">
+                    <p className="mb-3">Select the garden features you'd like to include in your project.</p>
+                    <p className="mb-3">Click "Add" to select a feature, then specify the size and any notes.</p>
+                    <p>Selected features will be highlighted in blue.</p>
+                  </div>
+
+                  {selectedFeatures.length > 0 && (
+                    <div className="mt-6">
+                      <div className="text-sm font-medium mb-2">Selected: {selectedFeatures.length} feature{selectedFeatures.length !== 1 ? 's' : ''}</div>
+                      <div className="space-y-1">
+                        {selectedFeatures.map((feature) => {
+                          const featureType = availableFeatures.find(f => f.type === feature.type)
+                          return (
+                            <div key={feature.id} className="text-xs text-gray-600">
+                              • {featureType?.label}
+                            </div>
+                          )
+                        })}
+                      </div>
                     </div>
                   )}
                 </div>
               )}
 
               {step === 2 && (
-                <div>
-                  <h3 className="font-semibold mb-4">Materials Added</h3>
-                  {selectedProducts.length === 0 ? (
-                    <p className="text-gray-500 text-sm">No materials added yet</p>
-                  ) : (
-                    <div className="space-y-2">
-                      {selectedProducts.map((product) => (
-                        <div key={`${product.featureId}-${product.productId}`} className="text-sm">
-                          <div className="font-medium">{product.productName}</div>
-                          <div className="text-gray-600">Qty: {product.quantity}</div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                <MaterialsSelectionPanel />
               )}
 
               {step === 3 && (
                 <div>
-                  <h3 className="font-semibold mb-4">Quote Total</h3>
+                  <h3 className="font-semibold mb-4">Quote Summary</h3>
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
                       <span>Materials:</span>
-                      <span>{formatCurrency(selectedProducts.reduce((sum, product) => sum + product.total, 0))}</span>
+                      <span>{formatCurrency(calculateTotal().materialsSubtotal)}</span>
                     </div>
-                    <div className="flex justify-between text-sm">
-                      <span>VAT (20%):</span>
-                      <span>{formatCurrency(calculateTotal().vat)}</span>
+                    {markupPercentage > 0 && (
+                      <div className="flex justify-between text-sm">
+                        <span>Markup ({markupPercentage}%):</span>
+                        <span>{formatCurrency(calculateTotal().markup)}</span>
+                      </div>
+                    )}
+                    {laborHours > 0 && (
+                      <div className="flex justify-between text-sm">
+                        <span>Labor:</span>
+                        <span>{formatCurrency(calculateTotal().laborCost)}</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between text-sm pt-2 border-t">
+                      <span>Subtotal:</span>
+                      <span>{formatCurrency(calculateTotal().subtotal)}</span>
                     </div>
-                    <div className="flex justify-between font-bold pt-2 border-t">
+                    {includeVAT && (
+                      <div className="flex justify-between text-sm">
+                        <span>VAT (20%):</span>
+                        <span>{formatCurrency(calculateTotal().vat)}</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between font-bold text-lg pt-2 border-t">
                       <span>Total:</span>
                       <span>{formatCurrency(calculateTotal().total)}</span>
+                    </div>
+                  </div>
+
+                  {/* Quick Settings */}
+                  <div className="mt-6 pt-4 border-t">
+                    <div className="text-sm text-gray-600 space-y-2">
+                      <div>Features: {selectedFeatures.length}</div>
+                      <div>Materials: {selectedProducts.length}</div>
+                      {markupPercentage > 0 && <div>Markup: {markupPercentage}%</div>}
+                      {laborHours > 0 && <div>Labor: {laborHours}h</div>}
+                      <div>VAT: {includeVAT ? 'Included' : 'Not included'}</div>
                     </div>
                   </div>
                 </div>
@@ -1430,16 +1704,17 @@ export default function ProjectDetailPage() {
                 <button
                   onClick={() => setStep(step + 1)}
                   disabled={step === 1 && selectedFeatures.length === 0}
-                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+                  className="px-4 py-2 bg-primary text-white rounded hover:bg-primary/90 disabled:opacity-50"
                 >
                   Next
                 </button>
               ) : (
                 <button
                   onClick={handleGenerateQuote}
-                  className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+                  disabled={isGeneratingQuote}
+                  className="px-4 py-2 bg-primary text-white rounded hover:bg-primary/90 disabled:opacity-50"
                 >
-                  Generate Quote
+                  {isGeneratingQuote ? 'Generating...' : 'Generate Quote'}
                 </button>
               )}
             </div>
@@ -1448,8 +1723,128 @@ export default function ProjectDetailPage() {
 
         {/* Add Material Modal */}
         {showAddMaterialModal && <AddMaterialModal />}
+
+        {/* Add Custom Feature Modal */}
+        {showAddCustomFeatureModal && <AddCustomFeatureModal />}
       </div>
     )
+
+    // Materials Selection Panel Component
+    function MaterialsSelectionPanel() {
+      const filteredProducts = selectedMaterialCategory
+        ? availableProducts.filter(p => p.category === selectedMaterialCategory)
+        : availableProducts
+
+      const categories = [...new Set(availableProducts.map(p => p.category))].filter(Boolean)
+
+      return (
+        <div>
+          <h3 className="font-semibold mb-4">Add Materials</h3>
+
+          {/* Feature Selection */}
+          <div className="mb-4">
+            <label className="block text-sm font-medium mb-2">Add to Feature:</label>
+            <select
+              value={selectedFeatureForMaterial}
+              onChange={(e) => setSelectedFeatureForMaterial(e.target.value)}
+              className="w-full p-2 border rounded text-sm"
+            >
+              <option value="">Select a feature</option>
+              {selectedFeatures.map((feature) => {
+                const featureType = availableFeatures.find(f => f.type === feature.type)
+                return (
+                  <option key={feature.id} value={feature.id}>
+                    {featureType?.label} ({feature.size} {feature.unit})
+                  </option>
+                )
+              })}
+            </select>
+          </div>
+
+          {/* Category Filter */}
+          <div className="mb-4">
+            <label className="block text-sm font-medium mb-2">Material Category:</label>
+            <select
+              value={selectedMaterialCategory}
+              onChange={(e) => setSelectedMaterialCategory(e.target.value)}
+              className="w-full p-2 border rounded text-sm"
+            >
+              <option value="">All Categories</option>
+              {categories.map((category) => (
+                <option key={category} value={category}>
+                  {category.replace('_', ' ')}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Add New Material Button */}
+          <button
+            onClick={() => setShowAddMaterialModal(true)}
+            className="w-full mb-4 px-3 py-2 bg-primary text-white rounded text-sm hover:bg-primary/90"
+          >
+            + Add New Material
+          </button>
+
+          {/* Available Materials */}
+          <div className="space-y-2 max-h-96 overflow-y-auto">
+            {filteredProducts.length > 0 ? (
+              filteredProducts.map((product) => (
+                <div key={product.id} className="border rounded p-2">
+                  <div className="flex justify-between items-start mb-2">
+                    <div>
+                      <div className="font-medium text-sm">{product.name}</div>
+                      <div className="text-xs text-gray-600">
+                        {formatCurrency(product.price)}/{product.unit}
+                      </div>
+                      {product.category && (
+                        <div className="text-xs text-primary mt-1">
+                          {product.category.replace('_', ' ')}
+                        </div>
+                      )}
+                    </div>
+                    <button
+                      onClick={() => {
+                        if (selectedFeatureForMaterial) {
+                          addProduct(selectedFeatureForMaterial, product, 1)
+                        } else {
+                          alert('Please select a feature first')
+                        }
+                      }}
+                      disabled={!selectedFeatureForMaterial}
+                      className="px-2 py-1 bg-primary text-white rounded text-xs hover:bg-primary/90 disabled:opacity-50"
+                    >
+                      Add
+                    </button>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="text-center py-4 text-gray-500">
+                <p className="text-sm">No materials available</p>
+                {selectedMaterialCategory && (
+                  <p className="text-xs">for {selectedMaterialCategory.replace('_', ' ')} category</p>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Materials Added Summary */}
+          {selectedProducts.length > 0 && (
+            <div className="mt-6 pt-4 border-t">
+              <h4 className="font-medium mb-2 text-sm">Materials Added ({selectedProducts.length})</h4>
+              <div className="space-y-1 max-h-32 overflow-y-auto">
+                {selectedProducts.map((product) => (
+                  <div key={`${product.featureId}-${product.productId}`} className="text-xs text-gray-600">
+                    • {product.productName} (Qty: {product.quantity})
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )
+    }
 
     // Add Material Modal Component
     function AddMaterialModal() {
@@ -1614,9 +2009,92 @@ export default function ProjectDetailPage() {
                 <button
                   onClick={handleSaveMaterial}
                   disabled={!materialData.name || !materialData.price}
-                  className="flex-1 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50"
+                  className="flex-1 px-4 py-2 bg-primary text-white rounded hover:bg-primary/90 disabled:opacity-50"
                 >
                   Add Material
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )
+    }
+
+    // Add Custom Feature Modal Component
+    function AddCustomFeatureModal() {
+      const [featureData, setFeatureData] = useState({
+        label: '',
+        unit: 'SQM'
+      })
+
+      const handleSaveFeature = () => {
+        if (featureData.label.trim()) {
+          handleAddCustomFeature(featureData)
+          setFeatureData({ label: '', unit: 'SQM' })
+        }
+      }
+
+      return (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[70] p-4">
+          <div className="bg-white rounded-lg max-w-md w-full">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold">Add Custom Garden Feature</h3>
+                <button
+                  onClick={() => setShowAddCustomFeatureModal(false)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">Feature Name *</label>
+                  <input
+                    type="text"
+                    placeholder="e.g., Gazebo, Hot Tub, Greenhouse"
+                    value={featureData.label}
+                    onChange={(e) => setFeatureData({...featureData, label: e.target.value})}
+                    className="w-full p-2 border rounded"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-1">Unit of Measurement</label>
+                  <select
+                    value={featureData.unit}
+                    onChange={(e) => setFeatureData({...featureData, unit: e.target.value})}
+                    className="w-full p-2 border rounded"
+                  >
+                    <option value="SQM">Square Metre (SQM)</option>
+                    <option value="UNIT">Each (UNIT)</option>
+                    <option value="METRE">Metre (METRE)</option>
+                    <option value="SQ_FT">Square Foot (SQ_FT)</option>
+                    <option value="FOOT">Foot (FOOT)</option>
+                  </select>
+                </div>
+
+                <div className="bg-primary/5 p-3 rounded-lg">
+                  <p className="text-sm text-primary">
+                    This custom feature will be available for selection and you can add materials to it in the next step.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex gap-3 mt-6">
+                <button
+                  onClick={() => setShowAddCustomFeatureModal(false)}
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSaveFeature}
+                  disabled={!featureData.label.trim()}
+                  className="flex-1 px-4 py-2 bg-primary text-white rounded hover:bg-primary/90 disabled:opacity-50"
+                >
+                  Add Feature
                 </button>
               </div>
             </div>

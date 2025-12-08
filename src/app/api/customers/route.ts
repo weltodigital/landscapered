@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/lib/auth'
-import { getAllCustomers, addCustomer, searchCustomers } from '@/lib/storage/customers'
+import { getAllCustomers, addCustomer, searchCustomers, getNextCustomerNumber } from '@/lib/storage/customers'
 import { z } from 'zod'
 
 const createCustomerSchema = z.object({
@@ -63,6 +63,7 @@ export async function POST(request: NextRequest) {
     const customer = {
       id: `customer-${Date.now()}`,
       userId: session.user.email,
+      customerNumber: getNextCustomerNumber(session.user.email),
       ...validatedData,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),

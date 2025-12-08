@@ -1,113 +1,70 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
-enum ElementType {
-  PATIO
-  TURF
-  DECKING
-  PERGOLA
-  FENCING
-  RAISED_BED
-  LIGHTING
-  WATER_FEATURE
-  PATHWAY
-  PLANTING_BED
-  GRAVEL_AREA
-  FIRE_PIT
-  OTHER
-}
-
-enum Unit {
-  SQM
-  METRE
-  UNIT
-}
-
-enum ProjectStatus {
-  DRAFT
-  DESIGNING
-  QUOTED
-  ACCEPTED
-}
-
 model User {
-  id        String   @id @default(cuid())
-  name      String?
-  email     String   @unique
+  id             String         @id @default(cuid())
+  name           String?
+  email          String         @unique
   hashedPassword String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  organisations Organisation[]
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  organisations  Organisation[]
 
   @@map("users")
 }
 
 model Organisation {
-  id        String   @id @default(cuid())
+  id        String     @id @default(cuid())
   name      String
   ownerId   String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  owner     User        @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  rateCards RateCard[]
-  projects  Project[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  owner     User       @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   products  Product[]
+  projects  Project[]
+  rateCards RateCard[]
 
   @@map("organisations")
 }
 
 model RateCard {
-  id                        String   @id @default(cuid())
-  organisationId            String
-  labourRatePerHour         Float
+  id                         String       @id @default(cuid())
+  organisationId             String
+  labourRatePerHour          Float
   defaultProfitMarginPercent Float
-  wasteDisposalRate         Float
-  travelCostPerMile         Float
-  createdAt                 DateTime @default(now())
-  updatedAt                 DateTime @updatedAt
-
-  // Relations
-  organisation Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
-  rateItems    RateItem[]
+  wasteDisposalRate          Float
+  travelCostPerMile          Float
+  createdAt                  DateTime     @default(now())
+  updatedAt                  DateTime     @updatedAt
+  organisation               Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+  rateItems                  RateItem[]
 
   @@map("rate_cards")
 }
 
 model RateItem {
-  id                     String      @id @default(cuid())
+  id                     String   @id @default(cuid())
   rateCardId             String
-  elementType            ElementType
-  unit                   Unit
+  elementType            String
+  unit                   String
   baseMaterialCost       Float
   baseLabourHoursPerUnit Float
-  createdAt              DateTime    @default(now())
-  updatedAt              DateTime    @updatedAt
-
-  // Relations
-  rateCard RateCard @relation(fields: [rateCardId], references: [id], onDelete: Cascade)
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+  rateCard               RateCard @relation(fields: [rateCardId], references: [id], onDelete: Cascade)
 
   @@unique([rateCardId, elementType, unit])
   @@map("rate_items")
 }
 
 model Project {
-  id             String        @id @default(cuid())
+  id             String          @id @default(cuid())
   organisationId String
   title          String
   clientName     String
@@ -116,16 +73,14 @@ model Project {
   preferredStyle String?
   gardenLength   Float?
   gardenWidth    Float?
-  dimensionUnit  String?       @default("metres")
-  status         ProjectStatus @default(DRAFT)
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
-
-  // Relations
-  organisation    Organisation    @relation(fields: [organisationId], references: [id], onDelete: Cascade)
-  gardenPhotos    GardenPhoto[]
-  designConcepts  DesignConcept[]
-  quotes          Quote[]
+  dimensionUnit  String?         @default("metres")
+  status         String          @default("DRAFT")
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  designConcepts DesignConcept[]
+  gardenPhotos   GardenPhoto[]
+  organisation   Organisation    @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+  quotes         Quote[]
 
   @@map("projects")
 }
@@ -135,22 +90,18 @@ model GardenPhoto {
   projectId String
   url       String
   createdAt DateTime @default(now())
-
-  // Relations
-  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   @@map("garden_photos")
 }
 
 model DesignConcept {
-  id        String   @id @default(cuid())
-  projectId String
-  style     String
-  imageUrl  String
-  metadata  Json?
-  createdAt DateTime @default(now())
-
-  // Relations
+  id             String          @id @default(cuid())
+  projectId      String
+  style          String
+  imageUrl       String
+  metadata       String?
+  createdAt      DateTime        @default(now())
   project        Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
   designElements DesignElement[]
   quotes         Quote[]
@@ -159,79 +110,71 @@ model DesignConcept {
 }
 
 model DesignElement {
-  id               String      @id @default(cuid())
-  designConceptId  String
-  elementType      ElementType
-  quantityNumeric  Float
-  unit             Unit
-  notes            String?
-  createdAt        DateTime    @default(now())
-
-  // Relations
-  designConcept DesignConcept @relation(fields: [designConceptId], references: [id], onDelete: Cascade)
+  id              String        @id @default(cuid())
+  designConceptId String
+  elementType     String
+  quantityNumeric Float
+  unit            String
+  notes           String?
+  createdAt       DateTime      @default(now())
+  designConcept   DesignConcept @relation(fields: [designConceptId], references: [id], onDelete: Cascade)
 
   @@map("design_elements")
 }
 
 model Quote {
-  id               String   @id @default(cuid())
-  projectId        String
-  designConceptId  String
-  subtotal         Float
-  profit           Float
-  total            Float
-  lowEstimate      Float
-  highEstimate     Float
-  currency         String   @default("GBP")
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-
-  // Relations
-  project       Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  designConcept DesignConcept   @relation(fields: [designConceptId], references: [id], onDelete: Cascade)
-  lineItems     QuoteLineItem[]
+  id              String          @id @default(cuid())
+  projectId       String
+  designConceptId String
+  subtotal        Float
+  profit          Float
+  total           Float
+  lowEstimate     Float
+  highEstimate    Float
+  currency        String          @default("GBP")
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  lineItems       QuoteLineItem[]
+  designConcept   DesignConcept   @relation(fields: [designConceptId], references: [id], onDelete: Cascade)
+  project         Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   @@unique([projectId, designConceptId])
   @@map("quotes")
 }
 
 model QuoteLineItem {
-  id              String      @id @default(cuid())
+  id              String   @id @default(cuid())
   quoteId         String
-  elementType     ElementType
+  elementType     String
   description     String
   quantityNumeric Float
-  unit            Unit
+  unit            String
   unitPrice       Float
   lineTotal       Float
   productId       String?
-  createdAt       DateTime    @default(now())
-
-  // Relations
-  quote   Quote    @relation(fields: [quoteId], references: [id], onDelete: Cascade)
-  product Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  createdAt       DateTime @default(now())
+  product         Product? @relation(fields: [productId], references: [id])
+  quote           Quote    @relation(fields: [quoteId], references: [id], onDelete: Cascade)
 
   @@map("quote_line_items")
 }
 
 model Product {
-  id              String   @id @default(cuid())
-  organisationId  String
-  name            String
-  description     String?
-  price           Float
-  unit            String   @default("UNIT")
-  category        String?
-  sku             String?
-  supplierName    String?
-  supplierUrl     String?
-  imageUrl        String?
-  isActive        Boolean  @default(true)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-
-  // Relations
-  organisation Organisation    @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+  id             String          @id @default(cuid())
+  organisationId String
+  name           String
+  description    String?
+  price          Float
+  unit           String          @default("UNIT")
+  category       String?
+  sku            String?
+  supplierName   String?
+  supplierUrl    String?
+  imageUrl       String?
+  isActive       Boolean         @default(true)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  organisation   Organisation    @relation(fields: [organisationId], references: [id], onDelete: Cascade)
   quoteLineItems QuoteLineItem[]
 
   @@map("products")

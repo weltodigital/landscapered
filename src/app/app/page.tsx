@@ -35,16 +35,16 @@ export default function DashboardPage() {
   }, [])
 
   const fetchDashboardStats = async () => {
-    // Mock data for now - in production this would come from your API
-    const mockStats = {
-      totalJobs: 12,
-      activeJobs: 5,
-      totalCustomers: 8,
-      totalRevenue: 23400,
-      outstandingInvoices: 3,
-      jobsThisWeek: 4
+    // All stats start at zero for clean app
+    const emptyStats = {
+      totalJobs: 0,
+      activeJobs: 0,
+      totalCustomers: 0,
+      totalRevenue: 0,
+      outstandingInvoices: 0,
+      jobsThisWeek: 0
     }
-    setStats(mockStats)
+    setStats(emptyStats)
   }
 
   const formatCurrency = (amount: number) => {
@@ -79,7 +79,7 @@ export default function DashboardPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Active Jobs</CardTitle>
-            <Briefcase className="h-4 w-4 text-blue-600" />
+            <Briefcase className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.activeJobs}</div>
@@ -90,7 +90,7 @@ export default function DashboardPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Customers</CardTitle>
-            <Users className="h-4 w-4 text-purple-600" />
+            <Users className="h-4 w-4 text-accent" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.totalCustomers}</div>
@@ -101,7 +101,7 @@ export default function DashboardPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">This Week</CardTitle>
-            <Calendar className="h-4 w-4 text-orange-600" />
+            <Calendar className="h-4 w-4 text-secondary" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.jobsThisWeek}</div>
@@ -117,28 +117,9 @@ export default function DashboardPage() {
             <CardDescription>Latest business updates</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
-              <div className="flex items-center gap-3">
-                <CheckCircle className="h-4 w-4 text-green-500" />
-                <div className="text-sm">
-                  <span className="font-medium">Garden Design completed</span>
-                  <div className="text-gray-500">2 hours ago</div>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <FileText className="h-4 w-4 text-blue-500" />
-                <div className="text-sm">
-                  <span className="font-medium">Invoice sent to Sarah J.</span>
-                  <div className="text-gray-500">5 hours ago</div>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <Plus className="h-4 w-4 text-purple-500" />
-                <div className="text-sm">
-                  <span className="font-medium">New customer added</span>
-                  <div className="text-gray-500">1 day ago</div>
-                </div>
-              </div>
+            <div className="space-y-3 text-center text-gray-500">
+              <p className="text-sm">No recent activity yet</p>
+              <p className="text-xs">Activity will appear here as you use the app</p>
             </div>
           </CardContent>
         </Card>
@@ -149,28 +130,9 @@ export default function DashboardPage() {
             <CardDescription>Jobs and appointments</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
-              <div className="flex justify-between items-center">
-                <div>
-                  <div className="font-medium text-sm">Garden Installation</div>
-                  <div className="text-gray-500 text-xs">John Smith - London</div>
-                </div>
-                <div className="text-xs text-gray-500">Today</div>
-              </div>
-              <div className="flex justify-between items-center">
-                <div>
-                  <div className="font-medium text-sm">Maintenance Visit</div>
-                  <div className="text-gray-500 text-xs">Sarah Johnson - Manchester</div>
-                </div>
-                <div className="text-xs text-gray-500">Tomorrow</div>
-              </div>
-              <div className="flex justify-between items-center">
-                <div>
-                  <div className="font-medium text-sm">Quote Meeting</div>
-                  <div className="text-gray-500 text-xs">Mike Wilson - Birmingham</div>
-                </div>
-                <div className="text-xs text-gray-500">Friday</div>
-              </div>
+            <div className="space-y-3 text-center text-gray-500">
+              <p className="text-sm">No upcoming jobs scheduled</p>
+              <p className="text-xs">Schedule jobs to see them here</p>
             </div>
           </CardContent>
         </Card>
@@ -184,24 +146,24 @@ export default function DashboardPage() {
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Clock className="h-4 w-4 text-orange-500" />
+                  <Clock className="h-4 w-4 text-secondary" />
                   <span className="text-sm">Pending invoices</span>
                 </div>
                 <span className="font-medium">{stats.outstandingInvoices}</span>
               </div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <FileText className="h-4 w-4 text-blue-500" />
+                  <FileText className="h-4 w-4 text-primary" />
                   <span className="text-sm">Draft quotes</span>
                 </div>
-                <span className="font-medium">2</span>
+                <span className="font-medium">0</span>
               </div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <TrendingUp className="h-4 w-4 text-green-500" />
+                  <TrendingUp className="h-4 w-4 text-primary" />
                   <span className="text-sm">Follow-ups due</span>
                 </div>
-                <span className="font-medium">1</span>
+                <span className="font-medium">0</span>
               </div>
             </div>
           </CardContent>
@@ -253,12 +215,6 @@ export default function DashboardPage() {
             </Button>
           </Link>
 
-          <Link href="/app/rate-card">
-            <Button variant="outline" className="w-full h-20 flex flex-col items-center justify-center gap-2">
-              <Calculator className="h-6 w-6" />
-              <span>Rate Card</span>
-            </Button>
-          </Link>
 
           <Link href="/app/settings">
             <Button variant="outline" className="w-full h-20 flex flex-col items-center justify-center gap-2">
@@ -275,12 +231,12 @@ export default function DashboardPage() {
           <CardHeader>
             <CardTitle>Set Up Your Account</CardTitle>
             <CardDescription>
-              Complete these steps to start using Gardenly effectively
+              Complete these steps to start using Landscapered effectively
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center gap-3">
-              <div className="w-6 h-6 rounded-full bg-green-500 text-white flex items-center justify-center text-sm">
+              <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm">
                 ✓
               </div>
               <span>Create your account</span>
@@ -302,10 +258,10 @@ export default function DashboardPage() {
               <div className="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center text-sm">
                 3
               </div>
-              <span>Configure your rate card</span>
-              <Link href="/app/rate-card">
+              <span>Add your first customer</span>
+              <Link href="/app/customers/new">
                 <Button size="sm" variant="outline">
-                  Configure
+                  Add Customer
                 </Button>
               </Link>
             </div>
