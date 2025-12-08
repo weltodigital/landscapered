@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { signOut, useSession } from 'next-auth/react'
+import { useState, useEffect } from 'react'
 import {
   Home,
   FolderKanban,
@@ -80,12 +81,40 @@ const menuItems = [
   },
 ]
 
+interface CreditData {
+  credits: {
+    available: number
+    total: number
+    used: number
+  }
+}
+
 export function AppSidebar() {
   const pathname = usePathname()
   const { data: session } = useSession()
+  const [creditData, setCreditData] = useState<CreditData | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
 
   const handleSignOut = () => {
     signOut({ callbackUrl: '/' })
+  }
+
+  useEffect(() => {
+    if (session?.user) {
+      fetchCreditData()
+    }
+  }, [session])
+
+  const fetchCreditData = async () => {
+    try {
+      const response = await fetch('/api/subscription')
+      const data = await response.json()
+      setCreditData(data)
+    } catch (error) {
+      console.error('Error fetching credit data:', error)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -118,6 +147,45 @@ export function AppSidebar() {
 
       <SidebarFooter>
         <SidebarMenu>
+          {/* Credit Usage Display */}
+          {session?.user && (
+            <SidebarMenuItem>
+              <div className="px-4 py-3 border rounded-lg bg-muted/50">
+                {isLoading ? (
+                  <div className="flex items-center gap-2">
+                    <Zap className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm text-muted-foreground">Loading credits...</span>
+                  </div>
+                ) : creditData ? (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <Zap className="h-4 w-4 text-blue-600" />
+                      <span className="text-sm font-medium">
+                        {creditData.credits.available} / {creditData.credits.total} credits
+                      </span>
+                    </div>
+                    <div className="w-full bg-background rounded-full h-2">
+                      <div
+                        className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                        style={{
+                          width: `${Math.max(0, Math.min(100, (creditData.credits.available / creditData.credits.total) * 100))}%`
+                        }}
+                      />
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {creditData.credits.used} used this month
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <Zap className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm text-muted-foreground">Unable to load credits</span>
+                  </div>
+                )}
+              </div>
+            </SidebarMenuItem>
+          )}
+
           <SidebarMenuItem>
             <div className="flex items-center gap-2 px-4 py-2">
               <User className="h-4 w-4" />
