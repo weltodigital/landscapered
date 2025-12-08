@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { stripe, getPlan } from '@/lib/stripe'
 import { getCurrentUser } from '@/lib/auth-utils'
-import { PrismaClient } from '@prisma/client'
-
-const prisma = new PrismaClient()
+import { prisma } from '@/lib/prisma'
 
 export async function POST(request: NextRequest) {
   try {
@@ -11,7 +9,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Stripe not configured' }, { status: 500 })
     }
 
-    const user = await getCurrentUser()
+    let user
+    try {
+      user = await getCurrentUser()
+    } catch (error) {
+      return NextResponse.json({ error: 'Authentication required' }, { status: 401 })
+    }
     const { planType } = await request.json()
 
     if (!planType || planType === 'free') {

@@ -28,6 +28,11 @@ export default function PricingPage() {
         }),
       })
 
+      // Check if we got redirected (likely to login page)
+      if (response.type === 'opaqueredirect' || response.redirected) {
+        throw new Error('Please log in to upgrade your subscription')
+      }
+
       const data = await response.json()
 
       if (!response.ok) {
