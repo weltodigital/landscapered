@@ -15,7 +15,8 @@ import {
   FileText,
   Calendar,
   Receipt,
-  Package
+  Package,
+  DollarSign
 } from 'lucide-react'
 import {
   Sidebar,
@@ -70,6 +71,11 @@ const menuItems = [
     title: 'Materials',
     url: '/app/products',
     icon: Package,
+  },
+  {
+    title: 'Rate Cards',
+    url: '/app/rate-cards',
+    icon: DollarSign,
   },
   {
     title: 'Settings',

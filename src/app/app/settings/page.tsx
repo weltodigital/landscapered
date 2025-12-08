@@ -11,6 +11,7 @@ import { useSession } from 'next-auth/react'
 export default function SettingsPage() {
   const { data: session } = useSession()
   const [isEditingOrg, setIsEditingOrg] = useState(false)
+  const [editingOrgId, setEditingOrgId] = useState<string | null>(null)
   const [orgName, setOrgName] = useState('')
   const [organizations, setOrganizations] = useState([])
   const [loading, setLoading] = useState(true)
@@ -100,6 +101,56 @@ export default function SettingsPage() {
     }
   }
 
+  const handleUpdateOrganization = async () => {
+    try {
+      const response = await fetch('/api/organisations', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          id: editingOrgId,
+          name: orgName,
+          logoUrl: logoPreview
+        }),
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        console.error('Error updating organization:', error)
+        alert('Failed to update organization: ' + (error.error || 'Unknown error'))
+        return
+      }
+
+      const organization = await response.json()
+      console.log('Organization updated:', organization)
+      setOrgName('')
+      setLogoPreview(null)
+      setIsEditingOrg(false)
+      setEditingOrgId(null)
+      alert('Organization updated successfully!')
+      // Refresh the organizations list
+      fetchOrganizations()
+    } catch (error) {
+      console.error('Error updating organization:', error)
+      alert('Failed to update organization. Please try again.')
+    }
+  }
+
+  const handleEditOrganization = (org: any) => {
+    setEditingOrgId(org.id)
+    setOrgName(org.name)
+    setLogoPreview(org.logoUrl)
+    setIsEditingOrg(true)
+  }
+
+  const handleCancelEdit = () => {
+    setIsEditingOrg(false)
+    setEditingOrgId(null)
+    setOrgName('')
+    setLogoPreview(null)
+  }
+
   return (
     <div className="container mx-auto py-8 px-6">
       <div className="mb-8">
@@ -176,8 +227,17 @@ export default function SettingsPage() {
                           )}
                         </div>
                       </div>
-                      <div className="text-right">
-                        <span className="text-xs text-gray-500">ID: {org.id.slice(-6)}</span>
+                      <div className="text-right space-y-2">
+                        <div>
+                          <span className="text-xs text-gray-500">ID: {org.id.slice(-6)}</span>
+                        </div>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleEditOrganization(org)}
+                        >
+                          Edit
+                        </Button>
                       </div>
                     </div>
                   </div>
@@ -248,14 +308,13 @@ export default function SettingsPage() {
                 </div>
 
                 <div className="flex gap-3">
-                  <Button onClick={handleCreateOrganization} disabled={!orgName.trim()}>
-                    Create Organization
+                  <Button
+                    onClick={editingOrgId ? handleUpdateOrganization : handleCreateOrganization}
+                    disabled={!orgName.trim()}
+                  >
+                    {editingOrgId ? 'Update Organization' : 'Create Organization'}
                   </Button>
-                  <Button variant="outline" onClick={() => {
-                    setIsEditingOrg(false)
-                    setLogoPreview(null)
-                    setOrgName('')
-                  }}>
+                  <Button variant="outline" onClick={handleCancelEdit}>
                     Cancel
                   </Button>
                 </div>

@@ -10,6 +10,12 @@ const createOrganisationSchema = z.object({
   logoUrl: z.string().optional(),
 })
 
+const updateOrganisationSchema = z.object({
+  id: z.string(),
+  name: z.string().min(1, 'Organisation name is required').optional(),
+  logoUrl: z.string().optional(),
+})
+
 export async function GET() {
   try {
     const user = await getCurrentUser()
@@ -127,6 +133,66 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(
       { error: 'Failed to create organisation' },
+      { status: 500 }
+    )
+  }
+}
+
+export async function PUT(request: NextRequest) {
+  try {
+    const body = await request.json()
+    const validatedData = updateOrganisationSchema.parse(body)
+    const user = await getCurrentUser()
+
+    // Check if organisation exists and belongs to user
+    const existingOrganisation = await prisma.organisation.findFirst({
+      where: {
+        id: validatedData.id,
+        ownerId: user.id
+      }
+    })
+
+    if (!existingOrganisation) {
+      return NextResponse.json(
+        { error: 'Organisation not found or access denied' },
+        { status: 404 }
+      )
+    }
+
+    // Update organisation
+    const updateData: any = {}
+    if (validatedData.name !== undefined) {
+      updateData.name = validatedData.name
+    }
+    if (validatedData.logoUrl !== undefined) {
+      updateData.logoUrl = validatedData.logoUrl
+    }
+
+    const organisation = await prisma.organisation.update({
+      where: { id: validatedData.id },
+      data: updateData,
+      include: {
+        rateCards: {
+          include: {
+            rateItems: true
+          }
+        }
+      }
+    })
+
+    return NextResponse.json(organisation)
+  } catch (error) {
+    console.error('Error updating organisation:', error)
+
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { error: 'Invalid input data', details: error.issues },
+        { status: 400 }
+      )
+    }
+
+    return NextResponse.json(
+      { error: 'Failed to update organisation' },
       { status: 500 }
     )
   }
