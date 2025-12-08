@@ -79,7 +79,7 @@ async function handleSubscriptionChange(subscription: Stripe.Subscription) {
     update: {
       stripeSubscriptionId: subscription.id,
       stripePriceId: priceId,
-      stripeCurrentPeriodEnd: subscription.current_period_end ? new Date(subscription.current_period_end * 1000) : null,
+      stripeCurrentPeriodEnd: (subscription as any).current_period_end ? new Date((subscription as any).current_period_end * 1000) : null,
       status: subscription.status,
       planType: planDetails.type,
       creditsPerMonth: planDetails.credits,
@@ -89,7 +89,7 @@ async function handleSubscriptionChange(subscription: Stripe.Subscription) {
       userId: user.id,
       stripeSubscriptionId: subscription.id,
       stripePriceId: priceId,
-      stripeCurrentPeriodEnd: subscription.current_period_end ? new Date(subscription.current_period_end * 1000) : null,
+      stripeCurrentPeriodEnd: (subscription as any).current_period_end ? new Date((subscription as any).current_period_end * 1000) : null,
       stripeCustomerId: customerId,
       status: subscription.status,
       planType: planDetails.type,
@@ -116,8 +116,8 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
 
 async function handlePaymentSucceeded(invoice: Stripe.Invoice) {
   // Payment succeeded - grant credits if it's a subscription renewal
-  if (invoice.subscription) {
-    const subscription = await stripe.subscriptions.retrieve(invoice.subscription as string)
+  if ((invoice as any).subscription) {
+    const subscription = await stripe.subscriptions.retrieve((invoice as any).subscription as string)
     await handleSubscriptionChange(subscription)
   }
 }
@@ -127,9 +127,9 @@ async function handlePaymentFailed(invoice: Stripe.Invoice) {
   console.log('Payment failed for invoice:', invoice.id)
 
   // Update subscription status if needed
-  if (invoice.subscription) {
+  if ((invoice as any).subscription) {
     await prisma.subscription.updateMany({
-      where: { stripeSubscriptionId: invoice.subscription as string },
+      where: { stripeSubscriptionId: (invoice as any).subscription as string },
       data: {
         status: 'past_due',
         updatedAt: new Date()

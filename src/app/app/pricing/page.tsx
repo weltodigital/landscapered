@@ -61,9 +61,9 @@ export default function PricingPage() {
         {Object.entries(PRICING_PLANS).map(([key, plan]) => (
           <Card
             key={key}
-            className={`relative ${plan.popular ? 'border-blue-500 border-2 shadow-lg' : 'border-gray-200'}`}
+            className={`relative ${'popular' in plan && plan.popular ? 'border-blue-500 border-2 shadow-lg' : 'border-gray-200'}`}
           >
-            {plan.popular && (
+            {'popular' in plan && plan.popular && (
               <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
                 <Badge className="bg-blue-500 text-white px-4 py-1">
                   Most Popular
@@ -124,10 +124,10 @@ export default function PricingPage() {
                 </Button>
               ) : (
                 <Button
-                  className={`w-full ${plan.popular ? 'bg-blue-500 hover:bg-blue-600' : ''}`}
+                  className={`w-full ${'popular' in plan && plan.popular ? 'bg-blue-500 hover:bg-blue-600' : ''}`}
                   onClick={() => handleSubscribe(key)}
                   disabled={isLoading === key}
-                  variant={plan.popular ? 'default' : 'outline'}
+                  variant={'popular' in plan && plan.popular ? 'default' : 'outline'}
                 >
                   {isLoading === key ? 'Loading...' : `Upgrade to ${plan.name}`}
                 </Button>
