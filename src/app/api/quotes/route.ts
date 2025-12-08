@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/lib/auth'
 import { getAllQuotes, addQuote } from '@/lib/storage/quotes'
 import { getCustomerByEmail } from '@/lib/storage/customers'
+import { prisma } from '@/lib/prisma'
 import { z } from 'zod'
 
 export async function GET(request: NextRequest) {
@@ -152,8 +153,13 @@ export async function POST(request: NextRequest) {
       items: validatedData.items
     }
 
+    // Get user ID for proper organisation handling
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email }
+    })
+
     // Add the quote using the storage function
-    const savedQuote = await addQuote(mappedQuoteData)
+    const savedQuote = await addQuote(mappedQuoteData, user?.id)
 
     return NextResponse.json(newQuote, { status: 201 })
 
