@@ -195,64 +195,7 @@ export default function SettingsPage() {
           <CardContent>
             {loading ? (
               <p className="text-gray-600">Loading organizations...</p>
-            ) : organizations.length > 0 ? (
-              <div className="space-y-4">
-                {organizations.map((org: any) => (
-                  <div key={org.id} className="border rounded-lg p-4">
-                    <div className="flex justify-between items-start">
-                      <div className="flex gap-4">
-                        {org.logoUrl && (
-                          <div className="flex-shrink-0">
-                            <img
-                              src={org.logoUrl}
-                              alt={`${org.name} logo`}
-                              className="w-16 h-16 object-contain rounded border"
-                            />
-                          </div>
-                        )}
-                        <div>
-                          <h3 className="font-medium text-lg">{org.name}</h3>
-                          <p className="text-sm text-gray-600">
-                            Created: {new Date(org.createdAt).toLocaleDateString()}
-                          </p>
-                          {org.rateCards && org.rateCards.length > 0 && (
-                            <p className="text-sm text-green-600 mt-1">
-                              ✓ Rate cards configured ({org.rateCards[0].rateItems?.length || 0} items)
-                            </p>
-                          )}
-                          {org.logoUrl && (
-                            <p className="text-sm text-blue-600 mt-1">
-                              ✓ Logo uploaded
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                      <div className="text-right space-y-2">
-                        <div>
-                          <span className="text-xs text-gray-500">ID: {org.id.slice(-6)}</span>
-                        </div>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleEditOrganization(org)}
-                        >
-                          Edit
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : !isEditingOrg ? (
-              <div className="space-y-4">
-                <p className="text-gray-600">
-                  You haven&apos;t set up an organization yet. Create one to start managing projects and rate cards.
-                </p>
-                <Button onClick={() => setIsEditingOrg(true)}>
-                  Create Organization
-                </Button>
-              </div>
-            ) : (
+            ) : isEditingOrg ? (
               <div className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="orgName">Organization Name</Label>
@@ -318,6 +261,63 @@ export default function SettingsPage() {
                     Cancel
                   </Button>
                 </div>
+              </div>
+            ) : organizations.length > 0 ? (
+              <div className="space-y-4">
+                {organizations.map((org: any) => (
+                  <div key={org.id} className="border rounded-lg p-4">
+                    <div className="flex justify-between items-start">
+                      <div className="flex gap-4">
+                        {org.logoUrl && (
+                          <div className="flex-shrink-0">
+                            <img
+                              src={org.logoUrl}
+                              alt={`${org.name} logo`}
+                              className="w-16 h-16 object-contain rounded border"
+                            />
+                          </div>
+                        )}
+                        <div>
+                          <h3 className="font-medium text-lg">{org.name}</h3>
+                          <p className="text-sm text-gray-600">
+                            Created: {new Date(org.createdAt).toLocaleDateString()}
+                          </p>
+                          {org.rateCards && org.rateCards.length > 0 && (
+                            <p className="text-sm text-green-600 mt-1">
+                              ✓ Rate cards configured ({org.rateCards[0].rateItems?.length || 0} items)
+                            </p>
+                          )}
+                          {org.logoUrl && (
+                            <p className="text-sm text-blue-600 mt-1">
+                              ✓ Logo uploaded
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                      <div className="text-right space-y-2">
+                        <div>
+                          <span className="text-xs text-gray-500">ID: {org.id.slice(-6)}</span>
+                        </div>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleEditOrganization(org)}
+                        >
+                          Edit
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <p className="text-gray-600">
+                  You haven&apos;t set up an organization yet. Create one to start managing projects and rate cards.
+                </p>
+                <Button onClick={() => setIsEditingOrg(true)}>
+                  Create Organization
+                </Button>
               </div>
             )}
           </CardContent>
