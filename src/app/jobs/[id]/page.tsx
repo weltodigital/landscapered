@@ -54,7 +54,6 @@ export default function JobDetailPage() {
         actualHours: 35,
         startDate: '2024-12-01',
         endDate: '2024-12-15',
-        scheduledDate: '2024-12-05',
         address: '123 Garden Lane',
         city: 'London',
         postcode: 'SW1A 1AA',
@@ -197,10 +196,10 @@ export default function JobDetailPage() {
                 <div className="space-y-3">
                   <div className="flex items-center gap-2">
                     <Calendar className="h-4 w-4 text-gray-500" />
-                    <span className="text-sm text-gray-500">Scheduled Date</span>
+                    <span className="text-sm text-gray-500">Start Date</span>
                   </div>
-                  {job.scheduledDate ? (
-                    <div className="font-medium">{formatDate(job.scheduledDate)}</div>
+                  {job.startDate ? (
+                    <div className="font-medium">{formatDate(job.startDate)}</div>
                   ) : (
                     <div className="text-gray-400">Not scheduled</div>
                   )}

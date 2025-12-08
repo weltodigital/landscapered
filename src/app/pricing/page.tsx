@@ -51,10 +51,6 @@ export default function PricingPage() {
           Select the perfect plan for your landscaping business. All plans include our core features -
           the difference is in the number of AI-generated design concepts you can create each month.
         </p>
-        <div className="mt-6 flex items-center justify-center gap-2 text-sm text-gray-500">
-          <Zap className="h-4 w-4" />
-          <span>Each design generation costs £0.24 - our pricing includes healthy margins for your business</span>
-        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
@@ -96,11 +92,6 @@ export default function PricingPage() {
                 <div className="text-gray-600 text-sm">
                   AI design generations per month
                 </div>
-                {plan.price > 0 && (
-                  <div className="text-xs text-gray-500 mt-1">
-                    (£{(plan.price / plan.credits).toFixed(2)} per generation)
-                  </div>
-                )}
               </div>
 
               <ul className="space-y-3 text-left">

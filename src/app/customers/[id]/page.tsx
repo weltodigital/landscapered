@@ -78,7 +78,6 @@ export default function CustomerDetailPage() {
           actualHours: 35,
           startDate: '2024-12-01',
           endDate: '2024-12-15',
-          scheduledDate: '2024-12-05',
           createdAt: '2024-11-28T10:00:00Z',
           updatedAt: '2024-11-28T10:00:00Z',
         },
@@ -93,7 +92,6 @@ export default function CustomerDetailPage() {
           type: 'maintenance',
           estimatedValue: 800,
           estimatedHours: 12,
-          scheduledDate: '2025-03-15',
           createdAt: '2024-11-26T12:00:00Z',
           updatedAt: '2024-11-26T12:00:00Z',
         }
@@ -256,7 +254,7 @@ export default function CustomerDetailPage() {
                         {job.estimatedValue ? formatCurrency(job.estimatedValue) : '-'}
                       </TableCell>
                       <TableCell>
-                        {job.scheduledDate ? formatDate(job.scheduledDate) : '-'}
+                        {job.startDate ? formatDate(job.startDate) : '-'}
                       </TableCell>
                     </TableRow>
                   ))}

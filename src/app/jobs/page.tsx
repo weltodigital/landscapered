@@ -223,7 +223,7 @@ export default function JobsPage() {
                     {job.estimatedValue ? formatCurrency(job.estimatedValue) : '-'}
                   </TableCell>
                   <TableCell>
-                    {job.scheduledDate ? formatDate(job.scheduledDate) : '-'}
+                    {job.startDate ? formatDate(job.startDate) : '-'}
                   </TableCell>
                   <TableCell>
                     <DropdownMenu>

@@ -41,7 +41,6 @@ export default function NewJobPage() {
     estimatedHours: '',
     startDate: '',
     endDate: '',
-    scheduledDate: '',
     address: '',
     city: '',
     postcode: '',
@@ -338,7 +337,7 @@ export default function NewJobPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="startDate">Start Date</Label>
                 <Input
@@ -356,16 +355,6 @@ export default function NewJobPage() {
                   type="date"
                   value={formData.endDate}
                   onChange={(e) => handleInputChange('endDate', e.target.value)}
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="scheduledDate">Scheduled Date</Label>
-                <Input
-                  id="scheduledDate"
-                  type="date"
-                  value={formData.scheduledDate}
-                  onChange={(e) => handleInputChange('scheduledDate', e.target.value)}
                 />
               </div>
             </div>

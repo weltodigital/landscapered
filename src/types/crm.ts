@@ -29,7 +29,6 @@ export interface Job {
   actualHours?: number
   startDate?: string
   endDate?: string
-  scheduledDate?: string
   completedAt?: string
   address?: string
   city?: string

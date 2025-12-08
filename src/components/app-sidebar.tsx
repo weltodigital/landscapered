@@ -13,11 +13,11 @@ import {
   Users,
   Briefcase,
   FileText,
-  Calendar,
   Receipt,
   Package,
   DollarSign,
-  CreditCard
+  CreditCard,
+  Zap
 } from 'lucide-react'
 import {
   Sidebar,
@@ -54,11 +54,6 @@ const menuItems = [
     icon: Users,
   },
   {
-    title: 'Schedule',
-    url: '/app/schedule',
-    icon: Calendar,
-  },
-  {
     title: 'Quotes',
     url: '/app/quotes',
     icon: Receipt,
@@ -77,16 +72,6 @@ const menuItems = [
     title: 'Rate Cards',
     url: '/app/rate-cards',
     icon: DollarSign,
-  },
-  {
-    title: 'Pricing',
-    url: '/app/pricing',
-    icon: CreditCard,
-  },
-  {
-    title: 'Subscription',
-    url: '/app/subscription',
-    icon: CreditCard,
   },
   {
     title: 'Settings',
@@ -138,6 +123,22 @@ export function AppSidebar() {
               <User className="h-4 w-4" />
               <span className="text-sm truncate">{session?.user?.name}</span>
             </div>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild isActive={pathname === '/app/pricing'}>
+              <Link href="/app/pricing">
+                <Zap />
+                <span>Pricing</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild isActive={pathname === '/app/subscription'}>
+              <Link href="/app/subscription">
+                <CreditCard />
+                <span>Subscription</span>
+              </Link>
+            </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
             <Button
