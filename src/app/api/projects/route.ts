@@ -1,13 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/lib/auth'
-
-// In-memory project storage (in production, this would be a database)
-// Store in global to share between API routes
-const projects: any[] = (global as any).projects || []
-if (!(global as any).projects) {
-  (global as any).projects = projects
-}
+import { prisma } from '@/lib/prisma'
 
 export async function GET(request: NextRequest) {
   try {
@@ -20,10 +14,53 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Filter projects for current user
-    const userProjects = projects.filter(p => p.userId === session.user.email)
+    // Get user and their organization
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email },
+      include: { organisations: true }
+    })
 
-    return NextResponse.json(userProjects)
+    if (!user || user.organisations.length === 0) {
+      return NextResponse.json([])
+    }
+
+    // Get projects for user's organization
+    const projects = await prisma.project.findMany({
+      where: {
+        organisationId: user.organisations[0].id
+      },
+      include: {
+        gardenPhotos: true,
+        designConcepts: true
+      },
+      orderBy: {
+        updatedAt: 'desc'
+      }
+    })
+
+    // Transform to match expected format
+    const transformedProjects = projects.map(project => ({
+      id: project.id,
+      title: project.title,
+      clientName: project.clientName,
+      clientEmail: project.clientEmail,
+      description: project.description,
+      preferredStyle: project.preferredStyle,
+      gardenLength: project.gardenLength,
+      gardenWidth: project.gardenWidth,
+      dimensionUnit: project.dimensionUnit,
+      status: project.status,
+      photos: project.gardenPhotos.map(photo => ({
+        url: photo.url,
+        name: 'garden-photo.jpg'
+      })),
+      designs: project.designConcepts,
+      userId: session.user.email,
+      createdAt: project.createdAt.toISOString(),
+      updatedAt: project.updatedAt.toISOString()
+    }))
+
+    return NextResponse.json(transformedProjects)
 
   } catch (error) {
     console.error('Error fetching projects:', error)
@@ -42,6 +79,19 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
+      )
+    }
+
+    // Get user and their organization
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email },
+      include: { organisations: true }
+    })
+
+    if (!user || user.organisations.length === 0) {
+      return NextResponse.json(
+        { error: 'User must have an organization' },
+        { status: 400 }
       )
     }
 
@@ -86,32 +136,54 @@ export async function POST(request: NextRequest) {
       photoIndex++
     }
 
-    // Create project object
-    const newProject = {
-      id: `proj-${Date.now()}`,
-      title,
-      clientName,
-      clientEmail,
-      description: description || '',
-      preferredStyle: preferredStyle || '',
-      gardenLength: gardenLength ? parseFloat(gardenLength) : null,
-      gardenWidth: gardenWidth ? parseFloat(gardenWidth) : null,
-      dimensionUnit: unit || 'metres',
-      photos: photos,
-      designs: [], // Array to store AI-generated designs
+    // Create project in database
+    const newProject = await prisma.project.create({
+      data: {
+        organisationId: user.organisations[0].id,
+        title,
+        clientName,
+        clientEmail,
+        description: description || '',
+        preferredStyle: preferredStyle || '',
+        gardenLength: gardenLength ? parseFloat(gardenLength) : null,
+        gardenWidth: gardenWidth ? parseFloat(gardenWidth) : null,
+        dimensionUnit: unit || 'metres',
+        status: 'PLANNING',
+        gardenPhotos: {
+          create: photos.map(photo => ({
+            url: photo.base64 || photo.url // Store base64 for AI analysis
+          }))
+        }
+      },
+      include: {
+        gardenPhotos: true,
+        designConcepts: true
+      }
+    })
+
+    // Transform to match expected format
+    const responseProject = {
+      id: newProject.id,
+      title: newProject.title,
+      clientName: newProject.clientName,
+      clientEmail: newProject.clientEmail,
+      description: newProject.description,
+      preferredStyle: newProject.preferredStyle,
+      gardenLength: newProject.gardenLength,
+      gardenWidth: newProject.gardenWidth,
+      dimensionUnit: newProject.dimensionUnit,
+      status: newProject.status,
+      photos: newProject.gardenPhotos.map(photo => ({
+        url: photo.url,
+        name: 'garden-photo.jpg'
+      })),
+      designs: newProject.designConcepts,
       userId: session.user.email,
-      status: 'PLANNING' as const,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+      createdAt: newProject.createdAt.toISOString(),
+      updatedAt: newProject.updatedAt.toISOString()
     }
 
-    // Store project (in production, save to database)
-    projects.push(newProject)
-
-    return NextResponse.json({
-      ...newProject,
-      photos: newProject.photos.map(p => ({ url: p.url, name: p.name })), // Don't send base64 in response
-    }, { status: 201 })
+    return NextResponse.json(responseProject, { status: 201 })
 
   } catch (error) {
     console.error('Error creating project:', error)

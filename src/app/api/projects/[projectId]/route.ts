@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getCurrentUserOrganisation } from '@/lib/auth-utils'
+import { getServerSession } from 'next-auth/next'
+import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 
 export async function GET(
@@ -8,9 +9,22 @@ export async function GET(
 ) {
   try {
     const { projectId } = await params
-    const organisation = await getCurrentUserOrganisation()
+    const session = await getServerSession(authOptions)
 
-    if (!organisation) {
+    if (!session?.user?.email) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
+
+    // Get user and their organization
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email },
+      include: { organisations: true }
+    })
+
+    if (!user || user.organisations.length === 0) {
       return NextResponse.json(
         { error: 'No organisation found' },
         { status: 400 }
@@ -20,7 +34,7 @@ export async function GET(
     const project = await prisma.project.findUnique({
       where: {
         id: projectId,
-        organisationId: organisation.id
+        organisationId: user.organisations[0].id
       },
       include: {
         gardenPhotos: true,
@@ -44,8 +58,22 @@ export async function GET(
     })
 
     if (!project) {
+      // Debug: Get all available project IDs for this organization
+      const allProjects = await prisma.project.findMany({
+        where: { organisationId: user.organisations[0].id },
+        select: { id: true, title: true }
+      })
+
+      console.error(`Project not found. Requested ID: ${projectId}. Available project IDs:`, allProjects.map(p => `${p.id} (${p.title})`))
+
       return NextResponse.json(
-        { error: 'Project not found' },
+        {
+          error: 'Project not found',
+          debug: {
+            requestedId: projectId,
+            availableProjects: allProjects.map(p => ({ id: p.id, title: p.title }))
+          }
+        },
         { status: 404 }
       )
     }
@@ -67,9 +95,22 @@ export async function PATCH(
   try {
     const { projectId } = await params
     const body = await request.json()
-    const organisation = await getCurrentUserOrganisation()
+    const session = await getServerSession(authOptions)
 
-    if (!organisation) {
+    if (!session?.user?.email) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
+
+    // Get user and their organization
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email },
+      include: { organisations: true }
+    })
+
+    if (!user || user.organisations.length === 0) {
       return NextResponse.json(
         { error: 'No organisation found' },
         { status: 400 }
@@ -79,7 +120,7 @@ export async function PATCH(
     const project = await prisma.project.findUnique({
       where: {
         id: projectId,
-        organisationId: organisation.id
+        organisationId: user.organisations[0].id
       }
     })
 
@@ -127,9 +168,22 @@ export async function DELETE(
 ) {
   try {
     const { projectId } = await params
-    const organisation = await getCurrentUserOrganisation()
+    const session = await getServerSession(authOptions)
 
-    if (!organisation) {
+    if (!session?.user?.email) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
+
+    // Get user and their organization
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email },
+      include: { organisations: true }
+    })
+
+    if (!user || user.organisations.length === 0) {
       return NextResponse.json(
         { error: 'No organisation found' },
         { status: 400 }
@@ -139,7 +193,7 @@ export async function DELETE(
     const project = await prisma.project.findUnique({
       where: {
         id: projectId,
-        organisationId: organisation.id
+        organisationId: user.organisations[0].id
       }
     })
 
