@@ -217,7 +217,7 @@ export default function QuotesPage() {
           <CardContent>
             <div className="text-2xl font-bold">{formatCurrency(totalQuoteValue)}</div>
             <p className="text-xs text-muted-foreground">
-              From {filteredQuotes.length} quotes
+              From {filteredAndSortedQuotes.length} quotes
             </p>
           </CardContent>
         </Card>
