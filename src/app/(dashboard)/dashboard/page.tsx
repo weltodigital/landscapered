@@ -27,9 +27,26 @@ export default function DashboardPage() {
     outstandingInvoices: 0,
     jobsThisWeek: 0
   })
+  const [completionState, setCompletionState] = useState({
+    hasOrganization: false,
+    hasCustomers: false,
+    hasProjects: false,
+    showGettingStarted: true
+  })
 
   useEffect(() => {
     fetchDashboardStats()
+    fetchCompletionState()
+  }, [])
+
+  // Refresh completion state when user returns to dashboard
+  useEffect(() => {
+    const handleFocus = () => {
+      fetchCompletionState()
+    }
+
+    window.addEventListener('focus', handleFocus)
+    return () => window.removeEventListener('focus', handleFocus)
   }, [])
 
   const fetchDashboardStats = async () => {
@@ -43,6 +60,39 @@ export default function DashboardPage() {
       jobsThisWeek: 0
     }
     setStats(emptyStats)
+  }
+
+  const fetchCompletionState = async () => {
+    try {
+      // Check if user has organizations
+      const orgResponse = await fetch('/api/organisations')
+      const organizations = orgResponse.ok ? await orgResponse.json() : []
+
+      // Check if user has customers
+      const customerResponse = await fetch('/api/customers')
+      const customers = customerResponse.ok ? await customerResponse.json() : []
+
+      // Check if user has projects
+      const projectResponse = await fetch('/api/projects')
+      const projects = projectResponse.ok ? await projectResponse.json() : []
+
+      const hasOrganization = organizations.length > 0
+      const hasCustomers = customers.length > 0
+      const hasProjects = projects.length > 0
+
+      setCompletionState({
+        hasOrganization,
+        hasCustomers,
+        hasProjects,
+        showGettingStarted: !(hasOrganization && hasCustomers && hasProjects)
+      })
+    } catch (error) {
+      console.error('Error fetching completion state:', error)
+    }
+  }
+
+  const handleDismissGettingStarted = () => {
+    setCompletionState(prev => ({ ...prev, showGettingStarted: false }))
   }
 
   const formatCurrency = (amount: number) => {
@@ -222,61 +272,118 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <div>
-        <h2 className="text-2xl font-bold mb-4">Getting Started</h2>
-        <Card>
-          <CardHeader>
-            <CardTitle>Set Up Your Account</CardTitle>
-            <CardDescription>
-              Complete these steps to start using Landscapered effectively
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm">
-                ✓
+      {completionState.showGettingStarted && (
+        <div>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl font-bold">Getting Started</h2>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleDismissGettingStarted}
+              className="text-muted-foreground hover:text-foreground"
+            >
+              Dismiss
+            </Button>
+          </div>
+          <Card>
+            <CardHeader>
+              <CardTitle>Set Up Your Account</CardTitle>
+              <CardDescription>
+                Complete these steps to start using Landscapered effectively
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm">
+                    ✓
+                  </div>
+                  <span>Create your account</span>
+                </div>
+                <CheckCircle className="h-4 w-4 text-primary" />
               </div>
-              <span>Create your account</span>
-            </div>
 
-            <div className="flex items-center gap-3">
-              <div className="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center text-sm">
-                2
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className={`w-6 h-6 rounded-full flex items-center justify-center text-sm ${
+                    completionState.hasOrganization
+                      ? 'bg-primary text-primary-foreground'
+                      : 'border-2 border-border text-muted-foreground'
+                  }`}>
+                    {completionState.hasOrganization ? '✓' : '2'}
+                  </div>
+                  <span className={completionState.hasOrganization ? 'line-through text-muted-foreground' : ''}>
+                    Set up your organization
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  {completionState.hasOrganization ? (
+                    <CheckCircle className="h-4 w-4 text-primary" />
+                  ) : (
+                    <Link href="/settings">
+                      <Button size="sm" variant="outline">
+                        Setup
+                      </Button>
+                    </Link>
+                  )}
+                </div>
               </div>
-              <span>Set up your organization</span>
-              <Link href="/settings">
-                <Button size="sm" variant="outline">
-                  Setup
-                </Button>
-              </Link>
-            </div>
 
-            <div className="flex items-center gap-3">
-              <div className="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center text-sm">
-                3
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className={`w-6 h-6 rounded-full flex items-center justify-center text-sm ${
+                    completionState.hasCustomers
+                      ? 'bg-primary text-primary-foreground'
+                      : 'border-2 border-border text-muted-foreground'
+                  }`}>
+                    {completionState.hasCustomers ? '✓' : '3'}
+                  </div>
+                  <span className={completionState.hasCustomers ? 'line-through text-muted-foreground' : ''}>
+                    Add your first customer
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  {completionState.hasCustomers ? (
+                    <CheckCircle className="h-4 w-4 text-primary" />
+                  ) : (
+                    <Link href="/customers/new">
+                      <Button size="sm" variant="outline">
+                        Add Customer
+                      </Button>
+                    </Link>
+                  )}
+                </div>
               </div>
-              <span>Add your first customer</span>
-              <Link href="/customers/new">
-                <Button size="sm" variant="outline">
-                  Add Customer
-                </Button>
-              </Link>
-            </div>
 
-            <div className="flex items-center gap-3">
-              <div className="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center text-sm">
-                4
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className={`w-6 h-6 rounded-full flex items-center justify-center text-sm ${
+                    completionState.hasProjects
+                      ? 'bg-primary text-primary-foreground'
+                      : 'border-2 border-border text-muted-foreground'
+                  }`}>
+                    {completionState.hasProjects ? '✓' : '4'}
+                  </div>
+                  <span className={completionState.hasProjects ? 'line-through text-muted-foreground' : ''}>
+                    Create your first project
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  {completionState.hasProjects ? (
+                    <CheckCircle className="h-4 w-4 text-primary" />
+                  ) : (
+                    <Link href="/projects/new">
+                      <Button size="sm" variant="outline">
+                        Create
+                      </Button>
+                    </Link>
+                  )}
+                </div>
               </div>
-              <span>Create your first project</span>
-              <Link href="/projects/new">
-                <Button size="sm" variant="outline">
-                  Create
-                </Button>
-              </Link>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   )
 }

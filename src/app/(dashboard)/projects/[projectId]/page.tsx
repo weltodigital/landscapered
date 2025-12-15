@@ -1865,6 +1865,7 @@ export default function ProjectDetailPage() {
         supplierUrl: '',
         description: ''
       })
+      const [materialCustomSupplier, setMaterialCustomSupplier] = useState('')
 
       const handleSaveMaterial = async () => {
         try {
@@ -1879,6 +1880,7 @@ export default function ProjectDetailPage() {
             supplierUrl: '',
             description: ''
           })
+          setMaterialCustomSupplier('')
         } catch (error) {
           console.error('Error saving material:', error)
         }
@@ -1974,13 +1976,40 @@ export default function ProjectDetailPage() {
 
                 <div>
                   <label className="block text-sm font-medium mb-1">Supplier</label>
-                  <input
-                    type="text"
-                    placeholder="Supplier name"
+                  <select
                     value={materialData.supplierName}
-                    onChange={(e) => setMaterialData({...materialData, supplierName: e.target.value})}
+                    onChange={(e) => {
+                      const value = e.target.value
+                      if (value === 'Custom') {
+                        setMaterialData({...materialData, supplierName: 'Custom'})
+                      } else {
+                        setMaterialData({...materialData, supplierName: value})
+                        setMaterialCustomSupplier('')
+                      }
+                    }}
                     className="w-full p-2 border rounded"
-                  />
+                  >
+                    <option value="">Select supplier...</option>
+                    {ukSuppliers.map((supplier) => (
+                      <option key={supplier} value={supplier}>
+                        {supplier}
+                      </option>
+                    ))}
+                  </select>
+                  {materialData.supplierName === 'Custom' && (
+                    <div className="mt-2">
+                      <input
+                        type="text"
+                        placeholder="Enter custom supplier name"
+                        value={materialCustomSupplier}
+                        onChange={(e) => {
+                          setMaterialCustomSupplier(e.target.value)
+                          setMaterialData({...materialData, supplierName: e.target.value})
+                        }}
+                        className="w-full p-2 border rounded"
+                      />
+                    </div>
+                  )}
                 </div>
 
                 <div>

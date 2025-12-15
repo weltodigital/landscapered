@@ -256,7 +256,7 @@ export default function NewProjectPage() {
           <CardHeader>
             <CardTitle>Garden Photos</CardTitle>
             <CardDescription>
-              Upload 1-3 photos of the current garden space. AI will analyze these to generate 3 design variations in your preferred style.
+              Upload 1-3 photos of the current garden space (required). AI will analyze these to generate designs that match your garden's actual conditions.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -538,35 +538,40 @@ export default function NewProjectPage() {
               <div className="space-y-4">
                 <div className="flex items-center gap-2">
                   <Ruler className="h-4 w-4 text-gray-500" />
-                  <Label>Garden Dimensions</Label>
+                  <Label>Garden Dimensions *</Label>
                 </div>
+                <p className="text-sm text-muted-foreground">
+                  These dimensions are crucial for the AI to generate accurate, proportional garden designs.
+                </p>
 
                 <div className="grid grid-cols-3 gap-4">
                   <div>
-                    <Label htmlFor="gardenLength">Length</Label>
+                    <Label htmlFor="gardenLength">Length *</Label>
                     <Input
                       id="gardenLength"
                       name="gardenLength"
                       type="number"
                       step="0.1"
-                      min="0"
+                      min="0.1"
                       value={formData.gardenLength}
                       onChange={handleInputChange}
-                      placeholder="0"
+                      required
+                      placeholder="e.g., 10"
                     />
                   </div>
 
                   <div>
-                    <Label htmlFor="gardenWidth">Width</Label>
+                    <Label htmlFor="gardenWidth">Width *</Label>
                     <Input
                       id="gardenWidth"
                       name="gardenWidth"
                       type="number"
                       step="0.1"
-                      min="0"
+                      min="0.1"
                       value={formData.gardenWidth}
                       onChange={handleInputChange}
-                      placeholder="0"
+                      required
+                      placeholder="e.g., 8"
                     />
                   </div>
 
@@ -643,7 +648,7 @@ export default function NewProjectPage() {
               <div className="flex gap-3">
                 <Button
                   type="submit"
-                  disabled={isLoading || photos.length === 0 || !formData.preferredStyle}
+                  disabled={isLoading || photos.length === 0 || !formData.preferredStyle || !formData.gardenLength || !formData.gardenWidth}
                   className="flex-1"
                 >
                   {isLoading ? 'Creating...' : 'Create Project'}

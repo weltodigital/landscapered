@@ -72,6 +72,25 @@ export async function analyzeGardenImage(imageUrl: string): Promise<string> {
   }
 }
 
+// Calculate aspect ratio from garden dimensions
+function calculateAspectRatio(length: number, width: number): string {
+  // For aerial view, length is typically the longer dimension
+  const ratio = length / width
+
+  // Map to Ideogram's supported aspect ratios
+  if (ratio >= 1.3) {
+    return '4x3'  // Wider garden
+  } else if (ratio >= 1.1) {
+    return '5x4'  // Slightly wider
+  } else if (ratio >= 0.9) {
+    return '1x1'  // Square-ish garden
+  } else if (ratio >= 0.8) {
+    return '4x5'  // Slightly taller
+  } else {
+    return '3x4'  // Taller garden
+  }
+}
+
 export async function generateGardenDesignImage(
   style: string,
   description: string,
@@ -183,7 +202,9 @@ REALISTIC GARDEN DESIGN:
 - Style: ${style.toUpperCase()} residential garden design
 - ${styleDescription}
 - ${gardenDimensions
-  ? `Garden dimensions: ${gardenDimensions.length}${gardenDimensions.unit === 'metres' ? 'm' : 'ft'} × ${gardenDimensions.width}${gardenDimensions.unit === 'metres' ? 'm' : 'ft'}`
+  ? `EXACT GARDEN DIMENSIONS: ${gardenDimensions.length}${gardenDimensions.unit === 'metres' ? 'm' : 'ft'} × ${gardenDimensions.width}${gardenDimensions.unit === 'metres' ? 'm' : 'ft'} (length × width)
+- PROPORTIONAL SCALING: Garden must appear as ${gardenDimensions.length}:${gardenDimensions.width} ratio in the image
+- Garden size: ${gardenDimensions.length * gardenDimensions.width} ${gardenDimensions.unit === 'metres' ? 'square metres' : 'square feet'}`
   : 'Typical residential garden proportions (12m × 10m)'}
 - British suburban garden context: ${spaceContext}
 
@@ -197,8 +218,8 @@ PHOTOREALISTIC MATERIALS & TEXTURES:
 - Genuine material joins, edges, and construction details
 
 GARDEN LAYOUT ELEMENTS:${customElementsText || `
-- Well-proportioned lawn areas with natural grass texture
-- Appropriate patio/terrace areas with realistic paving
+- Well-proportioned lawn areas with natural grass texture (main central area)
+- ${gardenDimensions ? `Patio area approximately ${Math.round(gardenDimensions.length * gardenDimensions.width * 0.15)} ${gardenDimensions.unit === 'metres' ? 'sqm' : 'sqft'}` : 'Appropriate patio/terrace areas'} with realistic paving
 - Mixed planting borders with seasonal plants and natural growth
 - Practical pathways connecting different garden zones`}
 
@@ -222,12 +243,17 @@ STRICT PROHIBITIONS:
 
 TARGET RESULT: Ultra-realistic aerial photograph of a real ${style.toLowerCase()} garden taken from directly overhead, showing only the enclosed garden space with pure white background beyond the fence perimeter, featuring authentic materials, natural plant growth, and professional landscape design suitable for client presentation.`.trim()
 
-    // Use Ideogram 3.0 Flash for faster image generation
-    console.log('Using Ideogram 3.0 Flash for image generation')
+    // Calculate aspect ratio based on garden dimensions
+    const aspectRatio = gardenDimensions
+      ? calculateAspectRatio(gardenDimensions.length, gardenDimensions.width)
+      : '1x1'  // Default to square
+
+    console.log(`Using Ideogram 3.0 Flash for image generation with aspect ratio: ${aspectRatio}`)
+    console.log(`Garden dimensions: ${gardenDimensions?.length || 'unknown'} x ${gardenDimensions?.width || 'unknown'} ${gardenDimensions?.unit || ''}`)
 
     const formData = new FormData()
     formData.append('prompt', prompt)
-    formData.append('aspect_ratio', '1x1')
+    formData.append('aspect_ratio', aspectRatio)
     formData.append('rendering_speed', 'FLASH')
     formData.append('magic_prompt', 'AUTO')
 

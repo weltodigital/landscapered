@@ -55,10 +55,10 @@ export default function PricingPage() {
   return (
     <div className="container mx-auto px-4 py-12">
       <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">
+        <h1 className="text-4xl font-bold text-foreground mb-4">
           Choose Your Plan
         </h1>
-        <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+        <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
           Select the perfect plan for your landscaping business. All plans include our core features -
           the difference is in the number of AI-generated design concepts you can create each month.
         </p>
@@ -83,11 +83,11 @@ export default function PricingPage() {
         {Object.entries(PRICING_PLANS).map(([key, plan]) => (
           <Card
             key={key}
-            className={`relative ${'popular' in plan && plan.popular ? 'border-green-500 border-2 shadow-lg' : 'border-gray-200'}`}
+            className={`relative ${'popular' in plan && plan.popular ? 'border-primary border-2 shadow-lg' : 'border-border'}`}
           >
             {'popular' in plan && plan.popular && (
               <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                <Badge className="bg-green-500 text-white px-4 py-1">
+                <Badge className="bg-primary text-primary-foreground px-4 py-1">
                   Most Popular
                 </Badge>
               </div>
@@ -95,7 +95,7 @@ export default function PricingPage() {
 
             <CardHeader className="text-center pb-4">
               <CardTitle className="text-2xl font-bold">{plan.name}</CardTitle>
-              <CardDescription className="text-gray-600">
+              <CardDescription className="text-muted-foreground">
                 Perfect for {key === 'free' ? 'trying out' : key === 'starter' ? 'small businesses' :
                            key === 'professional' ? 'growing companies' : key === 'business' ? 'established firms' : 'large enterprises'}
               </CardDescription>
@@ -103,19 +103,19 @@ export default function PricingPage() {
 
             <CardContent className="text-center pb-6">
               <div className="mb-6">
-                <div className="text-5xl font-bold text-gray-900">
+                <div className="text-5xl font-bold text-foreground">
                   £{plan.price}
                 </div>
-                <div className="text-gray-600 text-sm mt-1">
+                <div className="text-muted-foreground text-sm mt-1">
                   {plan.price === 0 ? 'Forever free' : 'per month'}
                 </div>
               </div>
 
               <div className="mb-6">
-                <div className="text-3xl font-semibold text-green-600">
+                <div className="text-3xl font-semibold text-primary">
                   {plan.credits}
                 </div>
-                <div className="text-gray-600 text-sm">
+                <div className="text-muted-foreground text-sm">
                   AI design generations per month
                 </div>
               </div>
@@ -123,8 +123,8 @@ export default function PricingPage() {
               <ul className="space-y-3 text-left">
                 {plan.features.map((feature, index) => (
                   <li key={index} className="flex items-start gap-2">
-                    <Check className="h-4 w-4 text-green-500 mt-1 flex-shrink-0" />
-                    <span className="text-sm text-gray-600">{feature}</span>
+                    <Check className="h-4 w-4 text-primary mt-1 flex-shrink-0" />
+                    <span className="text-sm text-muted-foreground">{feature}</span>
                   </li>
                 ))}
               </ul>
@@ -141,7 +141,7 @@ export default function PricingPage() {
                 </Button>
               ) : (
                 <Button
-                  className={`w-full ${'popular' in plan && plan.popular ? 'bg-green-500 hover:bg-green-600' : ''}`}
+                  className="w-full"
                   onClick={() => handleSubscribe(key)}
                   disabled={isLoading === key}
                   variant={'popular' in plan && plan.popular ? 'default' : 'outline'}
@@ -155,14 +155,14 @@ export default function PricingPage() {
       </div>
 
       <div className="mt-16 text-center">
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">
+        <h2 className="text-2xl font-bold text-foreground mb-6">
           Frequently Asked Questions
         </h2>
 
         <div className="max-w-3xl mx-auto space-y-6 text-left">
           <div>
             <h3 className="font-semibold text-lg mb-2">How do credits work?</h3>
-            <p className="text-gray-600">
+            <p className="text-muted-foreground">
               Each AI design generation uses 1 credit. Credits reset monthly on your billing date.
               Unused credits don't roll over.
             </p>
@@ -170,14 +170,14 @@ export default function PricingPage() {
 
           <div>
             <h3 className="font-semibold text-lg mb-2">Can I change plans anytime?</h3>
-            <p className="text-gray-600">
+            <p className="text-muted-foreground">
               Yes! You can upgrade or downgrade your plan at any time. Changes take effect at your next billing cycle.
             </p>
           </div>
 
           <div>
             <h3 className="font-semibold text-lg mb-2">What happens if I exceed my credits?</h3>
-            <p className="text-gray-600">
+            <p className="text-muted-foreground">
               You won't be able to generate new designs until your credits reset next month or you upgrade your plan.
               All existing projects and features remain accessible.
             </p>
@@ -185,7 +185,7 @@ export default function PricingPage() {
 
           <div>
             <h3 className="font-semibold text-lg mb-2">Is there a free trial?</h3>
-            <p className="text-gray-600">
+            <p className="text-muted-foreground">
               Yes! Every new account starts with 2 free credits to try out the service. No credit card required.
             </p>
           </div>
