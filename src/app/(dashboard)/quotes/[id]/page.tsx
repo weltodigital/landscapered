@@ -441,35 +441,36 @@ export default function QuoteDetailPage() {
             )}
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-0">
           <div className="overflow-x-auto">
-            <Table className="min-w-[700px]">
+            <div className="p-6 min-w-[600px]">
+              <Table className="w-full">
               <TableHeader>
               <TableRow>
-                <TableHead className="min-w-[300px]">Description</TableHead>
-                <TableHead className="w-20">Qty</TableHead>
-                <TableHead className="w-28">Unit Price</TableHead>
-                <TableHead className="w-28">Total</TableHead>
-                {isEditing && <TableHead className="w-20">Actions</TableHead>}
+                <TableHead className="min-w-[200px] w-auto">Description</TableHead>
+                <TableHead className="w-[80px]">Qty</TableHead>
+                <TableHead className="w-[100px]">Unit Price</TableHead>
+                <TableHead className="w-[100px]">Total</TableHead>
+                {isEditing && <TableHead className="w-[80px]">Actions</TableHead>}
               </TableRow>
             </TableHeader>
             <TableBody>
               {(isEditing ? editedQuote! : quote).items.map((item) => (
                 <TableRow key={item.id}>
-                  <TableCell className="min-w-[300px]">
+                  <TableCell className="min-w-[200px] max-w-[400px]">
                     {isEditing ? (
                       <div className="space-y-2">
                         <input
                           type="text"
                           value={item.customDescription || ''}
                           onChange={(e) => updateItem(item.id, 'customDescription', e.target.value)}
-                          className="w-full p-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                          className="w-full p-2 border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                           placeholder="Item description"
                         />
                         <select
                           value={item.category}
                           onChange={(e) => updateItem(item.id, 'category', e.target.value)}
-                          className="w-full p-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                          className="w-full p-2 border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                         >
                           <option value="product">Product</option>
                           <option value="service">Service</option>
@@ -484,7 +485,7 @@ export default function QuoteDetailPage() {
                       </div>
                     )}
                   </TableCell>
-                  <TableCell className="w-20">
+                  <TableCell className="w-[80px]">
                     {isEditing ? (
                       <input
                         type="number"
@@ -492,13 +493,13 @@ export default function QuoteDetailPage() {
                         step="0.1"
                         value={item.quantity}
                         onChange={(e) => updateItem(item.id, 'quantity', parseFloat(e.target.value) || 0)}
-                        className="w-full p-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-center"
+                        className="w-full p-2 border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-center"
                       />
                     ) : (
                       <span className="block text-center">{item.quantity}</span>
                     )}
                   </TableCell>
-                  <TableCell className="w-28">
+                  <TableCell className="w-[100px]">
                     {isEditing ? (
                       <input
                         type="number"
@@ -506,22 +507,22 @@ export default function QuoteDetailPage() {
                         step="0.01"
                         value={item.unitPrice}
                         onChange={(e) => updateItem(item.id, 'unitPrice', parseFloat(e.target.value) || 0)}
-                        className="w-full p-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-right"
+                        className="w-full p-2 border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-right"
                       />
                     ) : (
                       <span className="block text-right">{formatCurrency(item.unitPrice)}</span>
                     )}
                   </TableCell>
-                  <TableCell className="w-28 font-medium text-right">
+                  <TableCell className="w-[100px] font-medium text-right">
                     {formatCurrency(item.totalPrice)}
                   </TableCell>
                   {isEditing && (
-                    <TableCell className="w-20 text-center">
+                    <TableCell className="w-[80px] text-center">
                       <Button
                         size="sm"
                         variant="ghost"
                         onClick={() => removeItem(item.id)}
-                        className="text-red-600 hover:text-red-800 p-1"
+                        className="text-red-600 hover:text-red-800 p-1 h-8 w-8"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -530,7 +531,8 @@ export default function QuoteDetailPage() {
                 </TableRow>
               ))}
             </TableBody>
-            </Table>
+              </Table>
+            </div>
           </div>
         </CardContent>
       </Card>
