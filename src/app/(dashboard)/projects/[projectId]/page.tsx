@@ -105,7 +105,7 @@ export default function ProjectDetailPage() {
         console.log('Found project:', currentProject)
 
         if (!currentProject) {
-          setError(`Project not found. Available project IDs: ${projects.map(p => p.id).join(', ')}`)
+          setError(`Project not found. Available project IDs: ${projects.map((p: Project) => p.id).join(', ')}`)
         } else {
           setProject(currentProject)
           // Load existing designs if any
