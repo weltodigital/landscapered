@@ -103,7 +103,7 @@ export default function ProjectsPage() {
             <Card key={project.id} className="hover:shadow-lg transition-shadow">
               <CardHeader>
                 <div className="flex items-start justify-between">
-                  <div className="flex-1 cursor-pointer" onClick={() => window.location.href = `/projects/${project.id}`}>
+                  <div className="flex-1 cursor-pointer" onClick={() => router.push(`/projects/${project.id}`)}>
                     <CardTitle className="line-clamp-1">{project.title}</CardTitle>
                     <CardDescription>{project.clientName}</CardDescription>
                   </div>
@@ -131,7 +131,7 @@ export default function ProjectsPage() {
               </CardHeader>
               <CardContent
                 className="cursor-pointer"
-                onClick={() => window.location.href = `/projects/${project.id}`}
+                onClick={() => router.push(`/projects/${project.id}`)}
               >
                 <div className="flex items-center justify-between text-sm text-gray-600">
                   <span>Status: {project.status}</span>

@@ -109,12 +109,8 @@ export async function POST(request: NextRequest) {
     projects.push(newProject)
 
     return NextResponse.json({
-      id: newProject.id,
-      title: newProject.title,
-      clientName: newProject.clientName,
-      status: newProject.status,
+      ...newProject,
       photos: newProject.photos.map(p => ({ url: p.url, name: p.name })), // Don't send base64 in response
-      createdAt: newProject.createdAt,
     }, { status: 201 })
 
   } catch (error) {

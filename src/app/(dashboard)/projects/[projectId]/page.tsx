@@ -98,16 +98,21 @@ export default function ProjectDetailPage() {
         if (!response.ok) throw new Error('Failed to fetch projects')
 
         const projects = await response.json()
+        console.log('All projects:', projects)
+        console.log('Looking for project ID:', params.projectId)
+
         const currentProject = projects.find((p: Project) => p.id === params.projectId)
+        console.log('Found project:', currentProject)
 
         if (!currentProject) {
-          setError('Project not found')
+          setError(`Project not found. Available project IDs: ${projects.map(p => p.id).join(', ')}`)
         } else {
           setProject(currentProject)
           // Load existing designs if any
           setDesigns(currentProject.designs || [])
         }
       } catch (err) {
+        console.error('Error fetching project:', err)
         setError('Failed to load project')
       } finally {
         setIsLoading(false)
