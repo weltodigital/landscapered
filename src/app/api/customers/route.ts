@@ -31,8 +31,70 @@ export async function GET(request: NextRequest) {
       include: { organisations: true }
     })
 
-    if (!user || user.organisations.length === 0) {
-      return NextResponse.json([])
+    if (!user) {
+      return NextResponse.json(
+        { error: 'User not found' },
+        { status: 404 }
+      )
+    }
+
+    // Auto-create organization if user doesn't have one
+    let organisation = user.organisations[0]
+    if (!organisation) {
+      organisation = await prisma.organisation.create({
+        data: {
+          name: `${user.name || user.email.split('@')[0]}'s Company`,
+          ownerId: user.id,
+          rateCards: {
+            create: {
+              labourRatePerHour: 45.0,
+              defaultProfitMarginPercent: 20.0,
+              wasteDisposalRate: 150.0,
+              travelCostPerMile: 0.5,
+              rateItems: {
+                create: [
+                  {
+                    elementType: 'PATIO',
+                    unit: 'SQM',
+                    baseMaterialCost: 50.0,
+                    baseLabourHoursPerUnit: 2.0,
+                  },
+                  {
+                    elementType: 'TURF',
+                    unit: 'SQM',
+                    baseMaterialCost: 15.0,
+                    baseLabourHoursPerUnit: 0.5,
+                  },
+                  {
+                    elementType: 'PERGOLA',
+                    unit: 'UNIT',
+                    baseMaterialCost: 800.0,
+                    baseLabourHoursPerUnit: 8.0,
+                  },
+                  {
+                    elementType: 'LIGHTING',
+                    unit: 'UNIT',
+                    baseMaterialCost: 120.0,
+                    baseLabourHoursPerUnit: 2.0,
+                  },
+                  {
+                    elementType: 'FENCING',
+                    unit: 'METRE',
+                    baseMaterialCost: 35.0,
+                    baseLabourHoursPerUnit: 1.0,
+                  },
+                  {
+                    elementType: 'RAISED_BED',
+                    unit: 'SQM',
+                    baseMaterialCost: 40.0,
+                    baseLabourHoursPerUnit: 1.5,
+                  },
+                ]
+              }
+            }
+          }
+        }
+      })
     }
 
     const { searchParams } = new URL(request.url)
@@ -41,7 +103,7 @@ export async function GET(request: NextRequest) {
     // Get unique customers from projects
     const projects = await prisma.project.findMany({
       where: {
-        organisationId: user.organisations[0].id,
+        organisationId: organisation.id,
         ...(search && {
           OR: [
             { clientName: { contains: search, mode: 'insensitive' } },
@@ -112,11 +174,70 @@ export async function POST(request: NextRequest) {
       include: { organisations: true }
     })
 
-    if (!user || user.organisations.length === 0) {
+    if (!user) {
       return NextResponse.json(
-        { error: 'User must have an organization' },
-        { status: 400 }
+        { error: 'User not found' },
+        { status: 404 }
       )
+    }
+
+    // Auto-create organization if user doesn't have one
+    let organisation = user.organisations[0]
+    if (!organisation) {
+      organisation = await prisma.organisation.create({
+        data: {
+          name: `${user.name || user.email.split('@')[0]}'s Company`,
+          ownerId: user.id,
+          rateCards: {
+            create: {
+              labourRatePerHour: 45.0,
+              defaultProfitMarginPercent: 20.0,
+              wasteDisposalRate: 150.0,
+              travelCostPerMile: 0.5,
+              rateItems: {
+                create: [
+                  {
+                    elementType: 'PATIO',
+                    unit: 'SQM',
+                    baseMaterialCost: 50.0,
+                    baseLabourHoursPerUnit: 2.0,
+                  },
+                  {
+                    elementType: 'TURF',
+                    unit: 'SQM',
+                    baseMaterialCost: 15.0,
+                    baseLabourHoursPerUnit: 0.5,
+                  },
+                  {
+                    elementType: 'PERGOLA',
+                    unit: 'UNIT',
+                    baseMaterialCost: 800.0,
+                    baseLabourHoursPerUnit: 8.0,
+                  },
+                  {
+                    elementType: 'LIGHTING',
+                    unit: 'UNIT',
+                    baseMaterialCost: 120.0,
+                    baseLabourHoursPerUnit: 2.0,
+                  },
+                  {
+                    elementType: 'FENCING',
+                    unit: 'METRE',
+                    baseMaterialCost: 35.0,
+                    baseLabourHoursPerUnit: 1.0,
+                  },
+                  {
+                    elementType: 'RAISED_BED',
+                    unit: 'SQM',
+                    baseMaterialCost: 40.0,
+                    baseLabourHoursPerUnit: 1.5,
+                  },
+                ]
+              }
+            }
+          }
+        }
+      })
     }
 
     const body = await request.json()
@@ -125,7 +246,7 @@ export async function POST(request: NextRequest) {
     // Check if customer already exists
     const existingProject = await prisma.project.findFirst({
       where: {
-        organisationId: user.organisations[0].id,
+        organisationId: organisation.id,
         clientEmail: validatedData.email
       }
     })
@@ -141,7 +262,7 @@ export async function POST(request: NextRequest) {
     // This allows us to work with the existing database structure
     const project = await prisma.project.create({
       data: {
-        organisationId: user.organisations[0].id,
+        organisationId: organisation.id,
         title: `Customer Profile - ${validatedData.name}`,
         clientName: validatedData.name,
         clientEmail: validatedData.email,
