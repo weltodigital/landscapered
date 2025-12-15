@@ -25,6 +25,7 @@ export async function GET(request: NextRequest) {
       return {
         id: quote.id,
         customerId: quote.project?.clientEmail || '',
+        customerName: quote.project?.clientName || 'Unknown Customer',
         quoteNumber: `QUO-${quote.createdAt.toISOString().slice(0, 10).replace(/-/g, '')}-${quote.id.slice(-3)}`,
         status: 'draft',
         validUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),

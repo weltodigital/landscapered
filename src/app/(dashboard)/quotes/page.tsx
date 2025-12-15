@@ -42,6 +42,9 @@ export default function QuotesPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<QuoteStatus | 'all'>('all')
   const [imageNumberFilter, setImageNumberFilter] = useState<string>('all')
+  const [customerFilter, setCustomerFilter] = useState<string>('all')
+  const [sortBy, setSortBy] = useState<'date' | 'amount' | 'customer' | 'status'>('date')
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -67,18 +70,47 @@ export default function QuotesPage() {
     }
   }
 
-  const filteredQuotes = quotes.filter(quote => {
-    const matchesSearch = searchQuery === '' ||
-      quote.quoteNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      quote.notes?.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredAndSortedQuotes = quotes
+    .filter(quote => {
+      const matchesSearch = searchQuery === '' ||
+        quote.quoteNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        quote.notes?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        quote.customerName?.toLowerCase().includes(searchQuery.toLowerCase())
 
-    const matchesStatus = statusFilter === 'all' || quote.status === statusFilter
+      const matchesStatus = statusFilter === 'all' || quote.status === statusFilter
 
-    const matchesImageNumber = imageNumberFilter === 'all' ||
-      (quote.designImageNumber && quote.designImageNumber.toString() === imageNumberFilter)
+      const matchesImageNumber = imageNumberFilter === 'all' ||
+        (quote.designImageNumber && quote.designImageNumber.toString() === imageNumberFilter)
 
-    return matchesSearch && matchesStatus && matchesImageNumber
-  })
+      const matchesCustomer = customerFilter === 'all' || quote.customerName === customerFilter
+
+      return matchesSearch && matchesStatus && matchesImageNumber && matchesCustomer
+    })
+    .sort((a, b) => {
+      let comparison = 0
+
+      switch (sortBy) {
+        case 'date':
+          comparison = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+          break
+        case 'amount':
+          comparison = a.total - b.total
+          break
+        case 'customer':
+          comparison = (a.customerName || '').localeCompare(b.customerName || '')
+          break
+        case 'status':
+          comparison = a.status.localeCompare(b.status)
+          break
+        default:
+          comparison = 0
+      }
+
+      return sortOrder === 'asc' ? comparison : -comparison
+    })
+
+  // Get unique customers for filter dropdown
+  const uniqueCustomers = [...new Set(quotes.map(quote => quote.customerName).filter(Boolean))]
 
   const getStatusBadgeVariant = (status: QuoteStatus) => {
     switch (status) {
@@ -141,9 +173,9 @@ export default function QuotesPage() {
   }
 
   // Calculate statistics
-  const totalQuoteValue = filteredQuotes.reduce((sum, quote) => sum + quote.total, 0)
-  const approvedQuotes = filteredQuotes.filter(quote => quote.status === 'approved').length
-  const pendingQuotes = filteredQuotes.filter(quote => ['pending', 'sent'].includes(quote.status)).length
+  const totalQuoteValue = filteredAndSortedQuotes.reduce((sum, quote) => sum + quote.total, 0)
+  const approvedQuotes = filteredAndSortedQuotes.filter(quote => quote.status === 'approved').length
+  const pendingQuotes = filteredAndSortedQuotes.filter(quote => ['pending', 'sent'].includes(quote.status)).length
   const conversionRate = quotes.length > 0 ? (approvedQuotes / quotes.length) * 100 : 0
 
   if (loading) {
@@ -280,6 +312,38 @@ export default function QuotesPage() {
                   ))}
               </SelectContent>
             </Select>
+            <Select value={customerFilter} onValueChange={setCustomerFilter}>
+              <SelectTrigger className="w-48">
+                <SelectValue placeholder="Filter by customer" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Customers</SelectItem>
+                {uniqueCustomers.sort().map(customerName => (
+                  <SelectItem key={customerName} value={customerName}>
+                    {customerName}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={sortBy} onValueChange={(value) => setSortBy(value as 'date' | 'amount' | 'customer' | 'status')}>
+              <SelectTrigger className="w-48">
+                <SelectValue placeholder="Sort by" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="date">Date</SelectItem>
+                <SelectItem value="amount">Amount</SelectItem>
+                <SelectItem value="customer">Customer</SelectItem>
+                <SelectItem value="status">Status</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+              className="px-3"
+            >
+              {sortOrder === 'asc' ? '↑' : '↓'}
+            </Button>
           </div>
         </CardContent>
       </Card>
@@ -293,17 +357,17 @@ export default function QuotesPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {filteredQuotes.length === 0 ? (
+          {filteredAndSortedQuotes.length === 0 ? (
             <div className="text-center py-8">
               <FileText className="mx-auto h-12 w-12 text-gray-400 mb-4" />
               <h3 className="mt-2 text-sm font-medium text-gray-900">No quotes found</h3>
               <p className="mt-1 text-sm text-gray-500">
-                {searchQuery || statusFilter !== 'all'
+                {searchQuery || statusFilter !== 'all' || customerFilter !== 'all'
                   ? 'Try adjusting your search criteria'
                   : 'Get started by creating a new quote.'
                 }
               </p>
-              {!searchQuery && statusFilter === 'all' && (
+              {!searchQuery && statusFilter === 'all' && customerFilter === 'all' && (
                 <div className="mt-6">
                   <Button onClick={() => router.push('/quotes/new')}>
                     <Plus className="h-4 w-4 mr-2" />
@@ -317,6 +381,7 @@ export default function QuotesPage() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Quote Number</TableHead>
+                  <TableHead>Customer</TableHead>
                   <TableHead>Design</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Total</TableHead>
@@ -326,7 +391,7 @@ export default function QuotesPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredQuotes.map((quote) => (
+                {filteredAndSortedQuotes.map((quote) => (
                   <TableRow
                     key={quote.id}
                     className="cursor-pointer hover:bg-gray-50"
@@ -341,6 +406,9 @@ export default function QuotesPage() {
                           </div>
                         )}
                       </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="font-medium">{quote.customerName || 'Unknown Customer'}</div>
                     </TableCell>
                     <TableCell>
                       {quote.designImageNumber ? (

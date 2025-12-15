@@ -148,6 +148,7 @@ export interface PriceQuote {
   projectId?: string
   jobId?: string
   customerId: string
+  customerName?: string
   quoteNumber: string
   status: QuoteStatus
   validUntil: string
