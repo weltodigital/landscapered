@@ -255,7 +255,7 @@ export default function QuotesPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {formatCurrency(filteredQuotes.length > 0 ? totalQuoteValue / filteredQuotes.length : 0)}
+              {formatCurrency(filteredAndSortedQuotes.length > 0 ? totalQuoteValue / filteredAndSortedQuotes.length : 0)}
             </div>
             <p className="text-xs text-muted-foreground">
               Per quote
