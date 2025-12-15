@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -13,6 +14,7 @@ import {
 import { Plus, FolderKanban, Trash2, MoreVertical } from 'lucide-react'
 
 export default function ProjectsPage() {
+  const router = useRouter()
   const [projects, setProjects] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [deletingProject, setDeletingProject] = useState<string | null>(null)
