@@ -654,9 +654,9 @@ export default function ProjectDetailPage() {
                     className="relative aspect-[4/3] bg-gray-50 rounded-xl overflow-hidden cursor-pointer group hover:shadow-lg transition-all duration-300"
                     onClick={() => setSelectedPhoto(photo)}
                   >
-                    {photo.base64 ? (
+                    {(photo.base64 || photo.url) ? (
                       <img
-                        src={photo.base64}
+                        src={photo.base64 || photo.url}
                         alt={photo.name || `Garden photo ${index + 1}`}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         onError={(e) => {

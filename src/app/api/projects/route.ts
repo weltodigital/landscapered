@@ -115,7 +115,8 @@ export async function GET(request: NextRequest) {
       status: project.status,
       photos: project.gardenPhotos.map(photo => ({
         url: photo.url,
-        name: 'garden-photo.jpg'
+        name: 'garden-photo.jpg',
+        base64: photo.url.startsWith('data:') ? photo.url : undefined
       })),
       designs: project.designConcepts,
       userId: session.user.email,
@@ -297,7 +298,8 @@ export async function POST(request: NextRequest) {
       status: newProject.status,
       photos: newProject.gardenPhotos.map(photo => ({
         url: photo.url,
-        name: 'garden-photo.jpg'
+        name: 'garden-photo.jpg',
+        base64: photo.url.startsWith('data:') ? photo.url : undefined
       })),
       designs: newProject.designConcepts,
       userId: session.user.email,
