@@ -1,7 +1,11 @@
 import { Customer } from '@/types/crm'
 
 // In-memory storage for customers (in production, this would be a database)
-export const customers: Customer[] = []
+// Store in global to persist between API calls
+const customers: Customer[] = (global as any).customers || []
+if (!(global as any).customers) {
+  (global as any).customers = customers
+}
 
 export function addCustomer(customer: Customer): Customer {
   customers.push(customer)

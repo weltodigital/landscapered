@@ -19,6 +19,15 @@ function NewCustomerPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [mounted, setMounted] = useState(false)
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    address: '',
+    city: '',
+    postcode: '',
+    notes: '',
+  })
 
   // Prevent SSR issues
   useEffect(() => {
@@ -33,30 +42,30 @@ function NewCustomerPage() {
     )
   }
 
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    address: '',
-    city: '',
-    postcode: '',
-    notes: '',
-  })
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
 
     try {
-      // In a real app, this would make an API call
-      console.log('Creating customer:', formData)
+      const response = await fetch('/api/customers', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      })
 
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      if (!response.ok) {
+        throw new Error('Failed to create customer')
+      }
+
+      const customer = await response.json()
+      console.log('Customer created successfully:', customer)
 
       router.push('/customers')
     } catch (error) {
       console.error('Error creating customer:', error)
+      alert('Failed to create customer. Please try again.')
     } finally {
       setLoading(false)
     }
