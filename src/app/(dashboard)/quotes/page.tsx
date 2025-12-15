@@ -110,7 +110,7 @@ export default function QuotesPage() {
     })
 
   // Get unique customers for filter dropdown
-  const uniqueCustomers = [...new Set(quotes.map(quote => quote.customerName).filter(Boolean))]
+  const uniqueCustomers = [...new Set(quotes.map(quote => quote.customerName).filter((name): name is string => Boolean(name)))]
 
   const getStatusBadgeVariant = (status: QuoteStatus) => {
     switch (status) {
