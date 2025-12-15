@@ -162,35 +162,7 @@ export default function NewProjectPage() {
     setIsLoading(true)
 
     try {
-      // First, create or update the customer if not already selected
-      let customerId = selectedCustomer?.id
-
-      if (!selectedCustomer) {
-        // Create new customer
-        const customerResponse = await fetch('/api/customers', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            name: formData.clientName,
-            email: formData.clientEmail,
-            phone: formData.clientPhone,
-            address: formData.clientAddress,
-            city: formData.clientCity,
-            postcode: formData.clientPostcode,
-          }),
-        })
-
-        if (!customerResponse.ok) {
-          throw new Error('Failed to create customer')
-        }
-
-        const customer = await customerResponse.json()
-        customerId = customer.id
-      }
-
-      // Create project with customer information
+      // Create project with customer information (no need to create separate customer profile)
       const formDataToSend = new FormData()
       formDataToSend.append('title', formData.title)
       formDataToSend.append('clientName', formData.clientName)
@@ -199,7 +171,7 @@ export default function NewProjectPage() {
       formDataToSend.append('clientAddress', formData.clientAddress)
       formDataToSend.append('clientCity', formData.clientCity)
       formDataToSend.append('clientPostcode', formData.clientPostcode)
-      formDataToSend.append('customerId', customerId || '')
+      // Customer info is embedded in the project, no separate customerId needed
       formDataToSend.append('description', formData.description)
       formDataToSend.append('preferredStyle', formData.preferredStyle)
       formDataToSend.append('gardenLength', formData.gardenLength)

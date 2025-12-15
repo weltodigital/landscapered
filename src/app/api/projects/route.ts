@@ -86,10 +86,11 @@ export async function GET(request: NextRequest) {
       })
     }
 
-    // Get projects for user's organization
+    // Get projects for user's organization (exclude customer profiles)
     const projects = await prisma.project.findMany({
       where: {
-        organisationId: organisation.id
+        organisationId: organisation.id,
+        status: { not: 'CUSTOMER_PROFILE' }
       },
       include: {
         gardenPhotos: true,
