@@ -443,94 +443,94 @@ export default function QuoteDetailPage() {
         </CardHeader>
         <CardContent className="p-0">
           <div className="overflow-x-auto">
-            <div className="p-6 min-w-[600px]">
-              <Table className="w-full">
-              <TableHeader>
-              <TableRow>
-                <TableHead className="min-w-[200px] w-auto">Description</TableHead>
-                <TableHead className="w-[80px]">Qty</TableHead>
-                <TableHead className="w-[100px]">Unit Price</TableHead>
-                <TableHead className="w-[100px]">Total</TableHead>
-                {isEditing && <TableHead className="w-[80px]">Actions</TableHead>}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {(isEditing ? editedQuote! : quote).items.map((item) => (
-                <TableRow key={item.id}>
-                  <TableCell className="min-w-[200px] max-w-[400px]">
-                    {isEditing ? (
-                      <div className="space-y-2">
-                        <input
-                          type="text"
-                          value={item.customDescription || ''}
-                          onChange={(e) => updateItem(item.id, 'customDescription', e.target.value)}
-                          className="w-full p-2 border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                          placeholder="Item description"
-                        />
-                        <select
-                          value={item.category}
-                          onChange={(e) => updateItem(item.id, 'category', e.target.value)}
-                          className="w-full p-2 border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                        >
-                          <option value="product">Product</option>
-                          <option value="service">Service</option>
-                        </select>
-                      </div>
-                    ) : (
-                      <div>
-                        <div className="font-medium">{item.customDescription}</div>
-                        <Badge variant={item.category === 'product' ? 'default' : 'secondary'} className="mt-1">
-                          {item.category}
-                        </Badge>
-                      </div>
-                    )}
-                  </TableCell>
-                  <TableCell className="w-[80px]">
-                    {isEditing ? (
-                      <input
-                        type="number"
-                        min="0"
-                        step="0.1"
-                        value={item.quantity}
-                        onChange={(e) => updateItem(item.id, 'quantity', parseFloat(e.target.value) || 0)}
-                        className="w-full p-2 border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-center"
-                      />
-                    ) : (
-                      <span className="block text-center">{item.quantity}</span>
-                    )}
-                  </TableCell>
-                  <TableCell className="w-[100px]">
-                    {isEditing ? (
-                      <input
-                        type="number"
-                        min="0"
-                        step="0.01"
-                        value={item.unitPrice}
-                        onChange={(e) => updateItem(item.id, 'unitPrice', parseFloat(e.target.value) || 0)}
-                        className="w-full p-2 border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-right"
-                      />
-                    ) : (
-                      <span className="block text-right">{formatCurrency(item.unitPrice)}</span>
-                    )}
-                  </TableCell>
-                  <TableCell className="w-[100px] font-medium text-right">
-                    {formatCurrency(item.totalPrice)}
-                  </TableCell>
-                  {isEditing && (
-                    <TableCell className="w-[80px] text-center">
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => removeItem(item.id)}
-                        className="text-red-600 hover:text-red-800 p-1 h-8 w-8"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </TableCell>
-                  )}
-                </TableRow>
-              ))}
-            </TableBody>
+            <div className="p-6 min-w-[800px]">
+              <Table className="w-full table-fixed">
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-[45%]">Description</TableHead>
+                    <TableHead className="w-[10%] text-center">Qty</TableHead>
+                    <TableHead className="w-[15%] text-right">Unit Price</TableHead>
+                    <TableHead className="w-[15%] text-right">Total</TableHead>
+                    {isEditing && <TableHead className="w-[15%] text-center">Actions</TableHead>}
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {(isEditing ? editedQuote! : quote).items.map((item) => (
+                    <TableRow key={item.id} className={isEditing ? "h-20" : "h-auto"}>
+                      <TableCell className="align-top py-4">
+                        {isEditing ? (
+                          <div className="space-y-3">
+                            <input
+                              type="text"
+                              value={item.customDescription || ''}
+                              onChange={(e) => updateItem(item.id, 'customDescription', e.target.value)}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                              placeholder="Item description"
+                            />
+                            <select
+                              value={item.category}
+                              onChange={(e) => updateItem(item.id, 'category', e.target.value)}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                            >
+                              <option value="product">Product</option>
+                              <option value="service">Service</option>
+                            </select>
+                          </div>
+                        ) : (
+                          <div className="space-y-2">
+                            <div className="font-medium text-gray-900 break-words">{item.customDescription}</div>
+                            <Badge variant={item.category === 'product' ? 'default' : 'secondary'}>
+                              {item.category}
+                            </Badge>
+                          </div>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-center align-middle py-4">
+                        {isEditing ? (
+                          <input
+                            type="number"
+                            min="0"
+                            step="0.1"
+                            value={item.quantity}
+                            onChange={(e) => updateItem(item.id, 'quantity', parseFloat(e.target.value) || 0)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-center"
+                          />
+                        ) : (
+                          <span className="text-center font-medium">{item.quantity}</span>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-right align-middle py-4">
+                        {isEditing ? (
+                          <input
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            value={item.unitPrice}
+                            onChange={(e) => updateItem(item.id, 'unitPrice', parseFloat(e.target.value) || 0)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-right"
+                          />
+                        ) : (
+                          <span className="font-medium">{formatCurrency(item.unitPrice)}</span>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-right align-middle py-4 font-semibold text-gray-900">
+                        {formatCurrency(item.totalPrice)}
+                      </TableCell>
+                      {isEditing && (
+                        <TableCell className="text-center align-middle py-4">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => removeItem(item.id)}
+                            className="text-red-600 hover:text-red-800 hover:bg-red-50 p-2 h-9 w-9 rounded-full"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </TableCell>
+                      )}
+                    </TableRow>
+                  ))}
+                </TableBody>
               </Table>
             </div>
           </div>

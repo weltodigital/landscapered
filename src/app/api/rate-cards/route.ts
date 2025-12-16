@@ -17,7 +17,7 @@ export async function GET() {
     const user = await getCurrentUser()
 
     // Get user's organization and rate card
-    const organisation = await prisma.organisation.findFirst({
+    let organisation = await prisma.organisation.findFirst({
       where: {
         ownerId: user.id
       },
@@ -30,8 +30,69 @@ export async function GET() {
       }
     })
 
-    if (!organisation || !organisation.rateCards.length) {
-      return NextResponse.json(null)
+    // Auto-create organization if user doesn't have one
+    if (!organisation) {
+      organisation = await prisma.organisation.create({
+        data: {
+          name: `${user.name || user.email.split('@')[0]}'s Company`,
+          ownerId: user.id,
+          rateCards: {
+            create: {
+              labourRatePerHour: 45.0,
+              defaultProfitMarginPercent: 20.0,
+              wasteDisposalRate: 150.0,
+              travelCostPerMile: 0.5,
+              rateItems: {
+                create: [
+                  {
+                    elementType: 'PATIO',
+                    unit: 'SQM',
+                    baseMaterialCost: 50.0,
+                    baseLabourHoursPerUnit: 2.0,
+                  },
+                  {
+                    elementType: 'TURF',
+                    unit: 'SQM',
+                    baseMaterialCost: 15.0,
+                    baseLabourHoursPerUnit: 0.5,
+                  },
+                  {
+                    elementType: 'PERGOLA',
+                    unit: 'UNIT',
+                    baseMaterialCost: 800.0,
+                    baseLabourHoursPerUnit: 8.0,
+                  },
+                  {
+                    elementType: 'LIGHTING',
+                    unit: 'UNIT',
+                    baseMaterialCost: 120.0,
+                    baseLabourHoursPerUnit: 2.0,
+                  },
+                  {
+                    elementType: 'FENCING',
+                    unit: 'METRE',
+                    baseMaterialCost: 35.0,
+                    baseLabourHoursPerUnit: 1.0,
+                  },
+                  {
+                    elementType: 'RAISED_BED',
+                    unit: 'SQM',
+                    baseMaterialCost: 40.0,
+                    baseLabourHoursPerUnit: 1.5,
+                  },
+                ]
+              }
+            }
+          }
+        },
+        include: {
+          rateCards: {
+            include: {
+              rateItems: true
+            }
+          }
+        }
+      })
     }
 
     // Return the first (and should be only) rate card
@@ -54,7 +115,7 @@ export async function PUT(request: NextRequest) {
     const user = await getCurrentUser()
 
     // Get user's organization and rate card
-    const organisation = await prisma.organisation.findFirst({
+    let organisation = await prisma.organisation.findFirst({
       where: {
         ownerId: user.id
       },
@@ -63,11 +124,65 @@ export async function PUT(request: NextRequest) {
       }
     })
 
-    if (!organisation || !organisation.rateCards.length) {
-      return NextResponse.json(
-        { error: 'No rate card found for this organization' },
-        { status: 404 }
-      )
+    // Auto-create organization if user doesn't have one
+    if (!organisation) {
+      organisation = await prisma.organisation.create({
+        data: {
+          name: `${user.name || user.email.split('@')[0]}'s Company`,
+          ownerId: user.id,
+          rateCards: {
+            create: {
+              labourRatePerHour: 45.0,
+              defaultProfitMarginPercent: 20.0,
+              wasteDisposalRate: 150.0,
+              travelCostPerMile: 0.5,
+              rateItems: {
+                create: [
+                  {
+                    elementType: 'PATIO',
+                    unit: 'SQM',
+                    baseMaterialCost: 50.0,
+                    baseLabourHoursPerUnit: 2.0,
+                  },
+                  {
+                    elementType: 'TURF',
+                    unit: 'SQM',
+                    baseMaterialCost: 15.0,
+                    baseLabourHoursPerUnit: 0.5,
+                  },
+                  {
+                    elementType: 'PERGOLA',
+                    unit: 'UNIT',
+                    baseMaterialCost: 800.0,
+                    baseLabourHoursPerUnit: 8.0,
+                  },
+                  {
+                    elementType: 'LIGHTING',
+                    unit: 'UNIT',
+                    baseMaterialCost: 120.0,
+                    baseLabourHoursPerUnit: 2.0,
+                  },
+                  {
+                    elementType: 'FENCING',
+                    unit: 'METRE',
+                    baseMaterialCost: 35.0,
+                    baseLabourHoursPerUnit: 1.0,
+                  },
+                  {
+                    elementType: 'RAISED_BED',
+                    unit: 'SQM',
+                    baseMaterialCost: 40.0,
+                    baseLabourHoursPerUnit: 1.5,
+                  },
+                ]
+              }
+            }
+          }
+        },
+        include: {
+          rateCards: true
+        }
+      })
     }
 
     const rateCardId = organisation.rateCards[0].id
