@@ -239,7 +239,7 @@ export default function NewInvoicePage() {
   const selectedJob = jobs.find(j => j.id === formData.jobId)
 
   return (
-    <div className="container mx-auto py-8">
+    <div className="container mx-auto py-8 px-6">
       <div className="flex items-center mb-6">
         <Button
           variant="ghost"

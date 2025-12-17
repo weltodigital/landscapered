@@ -79,7 +79,7 @@ function NewCustomerPage() {
   }
 
   return (
-    <div className="container mx-auto py-8">
+    <div className="container mx-auto py-8 px-6">
       <div className="flex items-center mb-6">
         <Button
           variant="ghost"

@@ -186,7 +186,7 @@ export default function QuoteDetailPage() {
 
   if (loading) {
     return (
-      <div className="container mx-auto py-8">
+      <div className="container mx-auto py-8 px-6">
         <div className="animate-pulse">
           <div className="h-8 bg-gray-200 rounded w-1/3 mb-6"></div>
           <div className="h-64 bg-gray-200 rounded"></div>
@@ -197,7 +197,7 @@ export default function QuoteDetailPage() {
 
   if (!quote) {
     return (
-      <div className="container mx-auto py-8">
+      <div className="container mx-auto py-8 px-6">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-4">Quote Not Found</h1>
           <Button onClick={() => router.back()}>

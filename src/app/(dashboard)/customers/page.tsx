@@ -83,7 +83,7 @@ export default function CustomersPage() {
 
   if (loading) {
     return (
-      <div className="container mx-auto py-8">
+      <div className="container mx-auto py-8 px-6">
         <div className="animate-pulse">
           <div className="h-8 bg-gray-200 rounded w-1/4 mb-6"></div>
           <div className="space-y-4">
@@ -97,7 +97,7 @@ export default function CustomersPage() {
   }
 
   return (
-    <div className="container mx-auto py-8">
+    <div className="container mx-auto py-8 px-6">
       <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-3xl font-bold">Customers</h1>

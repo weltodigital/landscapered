@@ -97,7 +97,7 @@ export default function JobDetailPage() {
 
   if (loading) {
     return (
-      <div className="container mx-auto py-8">
+      <div className="container mx-auto py-8 px-6">
         <div className="animate-pulse">
           <div className="h-8 bg-gray-200 rounded w-1/4 mb-6"></div>
           <div className="space-y-4">
@@ -112,7 +112,7 @@ export default function JobDetailPage() {
 
   if (!job) {
     return (
-      <div className="container mx-auto py-8">
+      <div className="container mx-auto py-8 px-6">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-4">Job Not Found</h1>
           <p className="text-gray-600 mb-6">The job you're looking for doesn't exist or has been removed.</p>
@@ -126,7 +126,7 @@ export default function JobDetailPage() {
   }
 
   return (
-    <div className="container mx-auto py-8">
+    <div className="container mx-auto py-8 px-6">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center">
           <Button

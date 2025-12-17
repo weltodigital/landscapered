@@ -85,7 +85,7 @@ export default function SubscriptionPage() {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-6 py-8">
         <div className="animate-pulse space-y-6">
           <div className="h-8 bg-gray-200 rounded w-1/3"></div>
           <div className="h-32 bg-gray-200 rounded"></div>
@@ -103,7 +103,7 @@ export default function SubscriptionPage() {
   const creditsUsagePercentage = data?.credits.total ? (data.credits.used / data.credits.total) * 100 : 0
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
+    <div className="container mx-auto px-6 py-8 max-w-4xl">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
           Subscription & Usage
